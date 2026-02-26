@@ -1,0 +1,699 @@
+Q1: HTML ka full form kya hai?
+   A) Hyper Text Markup Language
+   B) High Text Machine Language
+   C) Hyper Tool Markup Language
+   D) Hyper Text Machine Language
+   [Correct: A]
+
+Q2: HTML ka use kis liye hota hai?
+   A) Styling
+   B) Programming
+   C) Web page ka structure
+   D) Database
+   [Correct: C]
+
+Q3: HTML file ka extension kya hota hai?
+   A) .ht
+   B) .html
+   C) .web
+   D) .doc
+   [Correct: B]
+
+Q4: Root element kaunsa hota hai?
+   A) <head>
+   B) <body>
+   C) <html>
+   D) <title>
+   [Correct: C]
+
+Q5: Page ka title kahan likhte hain?
+   A) <body>
+   B) <meta>
+   C) <title>
+   D) <h1>
+   [Correct: C]
+
+Q6: Heading tags ka range kya hai?
+   A) <h1> to <h3>
+   B) <h1> to <h6>
+   C) <h2> to <h6>
+   D) <h1> to <h5>
+   [Correct: B]
+
+Q7: Paragraph ke liye kaunsa tag hai?
+   A) <para>
+   B) <p>
+   C) <text>
+   D) <pg>
+   [Correct: B]
+
+Q8: Line break ke liye kaunsa tag?
+   A) <lb>
+   B) <br>
+   C) <break>
+   D) <hr>
+   [Correct: B]
+
+Q9: Horizontal line ke liye?
+   A) <br>
+   B) <line>
+   C) <hr>
+   D) <border>
+   [Correct: C]
+
+Q10: Anchor tag ka use?
+   A) Image
+   B) Link
+   C) Form
+   D) Table
+   [Correct: B]
+
+Q11: Link ka address kis attribute me hota hai?
+   A) src
+   B) href
+   C) link
+   D) url
+   [Correct: B]
+
+Q12: New tab me link open karne ke liye kaunsa attribute use hota hai?
+   A) open
+   B) _blank
+   C) target=\
+   D) 
+   [Correct: C]
+
+Q13: Image ke liye kaunsa tag?
+   A) <image>
+   B) <img>
+   C) <pic>
+   D) <src>
+   [Correct: B]
+
+Q14: Image ka path kis attribute se dete hain?
+   A) href
+   B) src
+   C) alt
+   D) title
+   [Correct: B]
+
+Q15: Image ka alternative text?
+   A) name
+   B) title
+   C) alt
+   D) value
+   [Correct: C]
+
+Q16: HTML comment ka sahi tareeqa?
+   A) // comment
+   B) /* comment */
+   C) <!-- comment -->
+   D) ## comment
+   [Correct: C]
+
+Q17: Bold text ke liye?
+   A) <b>
+   B) <strong>
+   C) Dono A aur B
+   D) <bold>
+   [Correct: C]
+
+Q18: Italic text ke liye?
+   A) <i>
+   B) <em>
+   C) Dono A aur B
+   D) <italic>
+   [Correct: C]
+
+Q19: Underline ke liye?
+   A) <u>
+   B) <ul>
+   C) <underline>
+   D) <li>
+   [Correct: A]
+
+Q20: Subscript ke liye?
+   A) <sup>
+   B) <sub>
+   C) <small>
+   D) <big>
+   [Correct: B]
+
+Q21: Ordered list ka tag?
+   A) <ul>
+   B) <ol>
+   C) <li>
+   D) <list>
+   [Correct: B]
+
+Q22: Unordered list ka tag?
+   A) <ul>
+   B) <ol>
+   C) <li>
+   D) <u>
+   [Correct: A]
+
+Q23: List item ka tag?
+   A) <item>
+   B) <li>
+   C) <list>
+   D) <il>
+   [Correct: B]
+
+Q24: Form banane ka tag?
+   A) <input>
+   B) <form>
+   C) <label>
+   D) <fieldset>
+   [Correct: B]
+
+Q25: Text input ke liye?
+   A) email
+   B) password
+   C) text
+   D) number
+   [Correct: C]
+
+Q26: Email input type?
+   A) mail
+   B) email
+   C) text
+   D) gmail
+   [Correct: B]
+
+Q27: Password input type?
+   A) hidden
+   B) secure
+   C) password
+   D) lock
+   [Correct: C]
+
+Q28: Radio button ka type?
+   A) checkbox
+   B) radio
+   C) select
+   D) option
+   [Correct: B]
+
+Q29: Checkbox ka type?
+   A) check
+   B) tick
+   C) checkbox
+   D) box
+   [Correct: C]
+
+Q30: Textarea ka use?
+   A) Single line text
+   B) Multiple line text
+   C) Image upload
+   D) Dropdown
+   [Correct: B]
+
+Q31: Table banane ka tag?
+   A) <tbl>
+   B) <table>
+   C) <tr>
+   D) <td>
+   [Correct: B]
+
+Q32: Table row ka tag?
+   A) <td>
+   B) <tr>
+   C) <th>
+   D) <row>
+   [Correct: B]
+
+Q33: Table heading cell?
+   A) <td>
+   B) <tr>
+   C) <th>
+   D) <thead>
+   [Correct: C]
+
+Q34: Audio tag ka use?
+   A) Video
+   B) Sound play
+   C) Image
+   D) Text
+   [Correct: B]
+
+Q35: Video tag ka use?
+   A) Audio
+   B) Image
+   C) Video play
+   D) Form
+   [Correct: C]
+
+Q36: <pre> tag ka use kis liye hota hai?
+   A) Normal text
+   B) Formatted text same as written
+   C) Image
+   D) Link
+   [Correct: B]
+
+Q37: <marquee> tag ka use kis liye hota hai?
+   A) Static text
+   B) Scrolling text
+   C) Form
+   D) Image
+   [Correct: B]
+
+Q38: <center> tag ka use kis liye hota tha?
+   A) Left align
+   B) Right align
+   C) Center align
+   D) Justify
+   [Correct: C]
+
+Q39: <small> tag ka use kis liye hota hai?
+   A) Bold text
+   B) Small text
+   C) Italic text
+   D) Underline
+   [Correct: B]
+
+Q40: HTML case sensitive hoti hai?
+   A) Yes
+   B) No
+   C) Kabhi kabhi
+   D) Attributes only
+   [Correct: B]
+
+Q41: HTML ek ______ language hai
+   A) Programming
+   B) Scripting
+   C) Markup
+   D) Query
+   [Correct: C]
+
+Q42: HTML beginners ke liye sabse pehle kya seekhna chahiye?
+   A) JavaScript
+   B) CSS
+   C) HTML structure & basic tags
+   D) Database
+   [Correct: C]
+
+Q43: Sabse choti heading kaunsi hai?
+   A) h1
+   B) h3
+   C) h6
+   D) mini
+   [Correct: C]
+
+Q44: li tag kiske andar use hota hai?
+   A) table
+   B) ul aur ol
+   C) div
+   D) head
+   [Correct: B]
+
+Q45: HTML attributes kahan likhe jaate hain?
+   A) Closing tag me
+   B) Opening tag me
+   C) Content me
+   D) Head me
+   [Correct: B]
+
+Q46: Kya img tag ka closing tag hota hai?
+   A) Haan
+   B) Nahi
+   C) Kabhi kabhi
+   D) Sirf XHTML me
+   [Correct: B]
+
+Q47: Kya tr tag table ke bina use ho sakta hai?
+   A) Haan
+   B) Nahi
+   C) Sirf div me
+   D) CSS ke saath
+   [Correct: B]
+
+Q48: Block-level element kaunsa hai?
+   A) <span>
+   B) <b>
+   C) <div>
+   D) <a>
+   [Correct: C]
+
+Q49: Inline element kaunsa hai?
+   A) <div>
+   B) <p>
+   C) <span>
+   D) <h1>
+   [Correct: C]
+
+Q50: Semantic element kaunsa hai?
+   A) <div>
+   B) <span>
+   C) <article>
+   D) <b>
+   [Correct: C]
+
+Q51: Navigation links ke liye tag?
+   A) <nav>
+   B) <link>
+   C) <ul>
+   D) <navigate>
+   [Correct: A]
+
+Q52: Website footer ke liye tag?
+   A) <bottom>
+   B) <footer>
+   C) <end>
+   D) <section>
+   [Correct: B]
+
+Q53: Main content ke liye tag?
+   A) <body>
+   B) <content>
+   C) <main>
+   D) <center>
+   [Correct: C]
+
+Q54: Sidebar content ke liye tag?
+   A) <side>
+   B) <aside>
+   C) <bar>
+   D) <nav>
+   [Correct: B]
+
+Q55: Superscript text ke liye tag?
+   A) <sub>
+   B) <sup>
+   C) <up>
+   D) <super>
+   [Correct: B]
+
+Q56: title tag page par kahan dikhta hai?
+   A) Body me
+   B) Footer me
+   C) Browser Tab me
+   D) URL me
+   [Correct: C]
+
+Q57: Website ka Home Page file ka naam kya hona chahiye?
+   A) home.html
+   B) start.html
+   C) main.html
+   D) index.html
+   [Correct: D]
+
+Q58: src attribute ka full form kya hai?
+   A) Screen
+   B) Source
+   C) Search
+   D) Script
+   [Correct: B]
+
+Q59: href attribute ka full form kya hai?
+   A) Hyper Reference
+   B) Hypertext Reference
+   C) Home Reference
+   D) Head Reference
+   [Correct: B]
+
+Q60: Table header group tag?
+   A) <header>
+   B) <thead>
+   C) <th>
+   D) <top>
+   [Correct: B]
+
+Q61: Table body group tag?
+   A) <body>
+   B) <tbody>
+   C) <tr>
+   D) <content>
+   [Correct: B]
+
+Q62: Table footer group tag?
+   A) <footer>
+   B) <tfoot>
+   C) <bottom>
+   D) <end>
+   [Correct: B]
+
+Q63: Cell merge horizontal (column) ke liye?
+   A) rowspan
+   B) colspan
+   C) merge
+   D) span
+   [Correct: B]
+
+Q64: Cell merge vertical (row) ke liye?
+   A) rowspan
+   B) colspan
+   C) merge
+   D) span
+   [Correct: A]
+
+Q65: Dropdown list banane ke liye tag?
+   A) <list>
+   B) <select>
+   C) <dropdown>
+   D) <option>
+   [Correct: B]
+
+Q66: Dropdown ka option banane ke liye tag?
+   A) <item>
+   B) <select>
+   C) <option>
+   D) <choice>
+   [Correct: C]
+
+Q67: Form submit button type?
+   A) button
+   B) reset
+   C) submit
+   D) send
+   [Correct: C]
+
+Q68: Form reset button type?
+   A) clear
+   B) reset
+   C) delete
+   D) empty
+   [Correct: B]
+
+Q69: Date picker input type?
+   A) calendar
+   B) date
+   C) day
+   D) datetime
+   [Correct: B]
+
+Q70: Color picker input type?
+   A) color
+   B) paint
+   C) rgb
+   D) picker
+   [Correct: A]
+
+Q71: Number range slider input type?
+   A) slider
+   B) range
+   C) scroll
+   D) bar
+   [Correct: B]
+
+Q72: Telephone number input type?
+   A) phone
+   B) mobile
+   C) tel
+   D) number
+   [Correct: C]
+
+Q73: URL input type?
+   A) link
+   B) website
+   C) url
+   D) href
+   [Correct: C]
+
+Q74: Search bar input type?
+   A) find
+   B) search
+   C) query
+   D) text
+   [Correct: B]
+
+Q75: File upload input type?
+   A) upload
+   B) file
+   C) doc
+   D) image
+   [Correct: B]
+
+Q76: Hidden data input type?
+   A) invisible
+   B) hide
+   C) hidden
+   D) none
+   [Correct: C]
+
+Q77: Iframe ka use kya hai?
+   A) Image show karna
+   B) Dusra webpage embed karna
+   C) Video play karna
+   D) Audio play karna
+   [Correct: B]
+
+Q78: alt attribute kyun zaroori hai?
+   A) Color ke liye
+   B) Style ke liye
+   C) Screen Readers ke liye
+   D) Speed ke liye
+   [Correct: C]
+
+Q79: Less than symbol (<) entity?
+   A) &lt;
+   B) &gt;
+   C) &less;
+   D) &sm;
+   [Correct: A]
+
+Q80: Greater than symbol (>) entity?
+   A) &lt;
+   B) &gt;
+   C) &gr;
+   D) &bg;
+   [Correct: B]
+
+Q81: width attribute kis liye use hota hai?
+   A) Chorayi set karne ke liye
+   B) Lambayi set karne ke liye
+   C) Color set karne ke liye
+   D) Border set karne ke liye
+   [Correct: A]
+
+Q82: height attribute kis liye use hota hai?
+   A) Chorayi set karne ke liye
+   B) Lambayi set karne ke liye
+   C) Motaai set karne ke liye
+   D) Padding set karne ke liye
+   [Correct: B]
+
+Q83: Folder se bahar nikalne ke liye path me kya likhte hain?
+   A) ./
+   B) ../
+   C) /
+   D) //
+   [Correct: B]
+
+Q84: HTML document ki language set karne ke liye?
+   A) lang attribute
+   B) meta language
+   C) script
+   D) title
+   [Correct: A]
+
+Q85: Same folder me file link karne ke liye kya likhte hain?
+   A) File ka naam
+   B) /name
+   C) url
+   D) src
+   [Correct: A]
+
+Q86: Email link banane ke liye href me kya likhte hain?
+   A) email:
+   B) send:
+   C) mailto:
+   D) to:
+   [Correct: C]
+
+Q87: Phone call link banane ke liye href me kya likhte hain?
+   A) call:
+   B) phone:
+   C) tel:
+   D) mob:
+   [Correct: C]
+
+Q88: Button banane ke liye kaunsa tag hai?
+   A) <click>
+   B) <btn>
+   C) <button>
+   D) <push>
+   [Correct: C]
+
+Q89: Kisi text ko Important dikhane ke liye semantic tag?
+   A) <b>
+   B) <imp>
+   C) <strong>
+   D) <big>
+   [Correct: C]
+
+Q90: Input field ko required banane ke liye?
+   A) validate
+   B) required
+   C) need
+   D) must
+   [Correct: B]
+
+Q91: Input field ko disable karne ke liye?
+   A) stop
+   B) block
+   C) disabled
+   D) readonly
+   [Correct: C]
+
+Q92: Input field ko sirf read-only banane ke liye?
+   A) disabled
+   B) readonly
+   C) static
+   D) fixed
+   [Correct: B]
+
+Q93: Placeholder attribute ka use?
+   A) Value set karna
+   B) Hint text dikhana
+   C) Validation
+   D) Label
+   [Correct: B]
+
+Q94: Kisi text ko Emphasized (Tircha) dikhane ke liye semantic tag?
+   A) <i>
+   B) <em>
+   C) <italic>
+   D) <sl>
+   [Correct: B]
+
+Q95: Multiple file selection ke liye attribute?
+   A) many
+   B) select-all
+   C) multiple
+   D) array
+   [Correct: C]
+
+Q96: Video autoplay ke liye attribute?
+   A) play
+   B) autoplay
+   C) start
+   D) auto
+   [Correct: B]
+
+Q97: Video controls dikhane ke liye attribute?
+   A) menu
+   B) controls
+   C) buttons
+   D) ui
+   [Correct: B]
+
+Q98: Video loop karne ke liye attribute?
+   A) repeat
+   B) loop
+   C) cycle
+   D) again
+   [Correct: B]
+
+Q99: Audio/Video ka source define karne ke liye tag?
+   A) <src>
+   B) <source>
+   C) <file>
+   D) <path>
+   [Correct: B]
+
+Q100: Definition list ka tag?
+   A) <dl>
+   B) <ul>
+   C) <ol>
+   D) <list>
+   [Correct: A]
