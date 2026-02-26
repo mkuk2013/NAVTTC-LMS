@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Details - BBSHRRDB LMS</title>
+    <link rel="icon" href="assets/bbsydp_logo.png" type="image/png">
+
+    <!-- Core Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof tailwind !== 'undefined') {
+                tailwind.config = {
+                    theme: {
+                        extend: {
+                            colors: {
+                                indigo: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#5b21b6', 900: '#4c1d95', 950: '#2e1065' },
+                                slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' }
+                            },
+                            fontFamily: {
+                                sans: ['Outfit', 'Inter', 'sans-serif'],
+                            },
+                            animation: {
+                                'fade-in': 'fadeIn 0.5s ease-out forwards',
+                                'slide-up': 'slideUp 0.5s ease-out forwards',
+                            },
+                            keyframes: {
+                                fadeIn: {
+                                    '0%': { opacity: '0' },
+                                    '100%': { opacity: '1' },
+                                },
+                                slideUp: {
+                                    '0%': { opacity: '0', transform: 'translateY(20px)' },
+                                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            cursor: pointer;
+            color: #cbd5e1;
+            transition: color 0.2s;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #fbbf24;
+        }
+        /* Read-only override */
+        .read-only-form .star-rating label {
+            cursor: default !important;
+            pointer-events: none;
+        }
+        .read-only-form input[type="radio"], 
+        .read-only-form textarea {
+            pointer-events: none;
+        }
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Navbar -->
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="p-1">
+                        <img src="assets/bbsydp_logo.png" class="w-16 h-16 object-contain" alt="Logo">
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-xl tracking-tight text-slate-900">Admin <span class="text-indigo-600">Review</span></h1>
+                        <p class="text-xs text-slate-500 font-medium tracking-wide">STUDENT FEEDBACK DETAILS</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="studentNameDisplay" class="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full">Loading...</span>
+                    <button onclick="window.close()" class="text-sm font-medium text-slate-500 hover:text-red-600 transition-colors flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-lg hover:bg-red-50 hover:border-red-200">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        Close Window
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-8">
+        <div class="max-w-2xl w-full">
+            
+            <!-- Feedback Form Card -->
+            <div id="feedbackForm" class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden animate-slide-up read-only-form">
+                
+                <!-- Loading State -->
+                <div id="loadingState" class="p-12 text-center">
+                    <div class="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p class="text-slate-500">Loading feedback details...</p>
+                </div>
+
+                <!-- Form Content (Initially Hidden) -->
+                <form id="lmsFeedbackForm" class="p-6 sm:p-8 space-y-8 bg-slate-50/50 hidden">
+                    
+                    <!-- Metadata Header -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap gap-4 justify-between items-center">
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Student Name</p>
+                            <p id="metaName" class="font-bold text-slate-800 text-lg">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Student ID</p>
+                            <p id="metaId" class="font-mono text-slate-600">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Submitted On</p>
+                            <p id="metaDate" class="text-indigo-600 font-medium">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Section 1: Overall Rating -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="text-center space-y-4">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center justify-center gap-2">
+                                <i data-lucide="sparkles" class="w-5 h-5 text-yellow-500"></i>
+                                Overall Experience
+                            </h3>
+                            <div class="star-rating justify-center gap-2">
+                                <input type="radio" name="rating" id="star5" value="5" disabled><label for="star5"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
+                                <input type="radio" name="rating" id="star4" value="4" disabled><label for="star4"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
+                                <input type="radio" name="rating" id="star3" value="3" disabled><label for="star3"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
+                                <input type="radio" name="rating" id="star2" value="2" disabled><label for="star2"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
+                                <input type="radio" name="rating" id="star1" value="1" disabled><label for="star1"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Learning Experience -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
+                            <i data-lucide="graduation-cap" class="w-5 h-5 text-indigo-500"></i>
+                            Learning Experience
+                        </h3>
+
+                        <!-- Q1: Content Quality -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-700">Course Content Quality</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <label class="cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="content_quality" value="excellent" class="peer sr-only" disabled>
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700">
+                                        <div class="text-xs font-bold mb-1">Behtareen</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Excellent)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="content_quality" value="good" class="peer sr-only" disabled>
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700">
+                                        <div class="text-xs font-bold mb-1">Achi</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Good)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="content_quality" value="average" class="peer sr-only" disabled>
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700">
+                                        <div class="text-xs font-bold mb-1">Theek</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Average)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="content_quality" value="poor" class="peer sr-only" disabled>
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700">
+                                        <div class="text-xs font-bold mb-1">Kharab</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Poor)</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q2: Instructor Quality -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-700">Instructor Quality</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <label class="cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="instructor_quality" value="excellent" class="peer sr-only" disabled>
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700">
+                                        <div class="text-xs font-bold mb-1">Zabardast</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Excellent)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="instructor_quality" value="good" class="peer sr-only" disabled>
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700">
+                                        <div class="text-xs font-bold mb-1">Acha</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Good)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="instructor_quality" value="average" class="peer sr-only" disabled>
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700">
+                                        <div class="text-xs font-bold mb-1">Samajh Aya</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Understandable)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="instructor_quality" value="poor" class="peer sr-only" disabled>
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700">
+                                        <div class="text-xs font-bold mb-1">Mushkil</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Confusing)</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q3: Course Pace -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-700">Course Pace</label>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <label class="flex-1 cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="course_pace" value="too_fast" class="peer sr-only" disabled>
+                                    <div class="p-3 flex items-center gap-3 rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-orange-50 peer-checked:border-orange-500 peer-checked:text-orange-700">
+                                        <i data-lucide="zap" class="w-4 h-4 text-slate-400 peer-checked:text-orange-500"></i>
+                                        <span class="text-xs font-bold">Bohat Tez (Too Fast)</span>
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="course_pace" value="perfect" class="peer sr-only" disabled>
+                                    <div class="p-3 flex items-center gap-3 rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700">
+                                        <i data-lucide="thumbs-up" class="w-4 h-4 text-slate-400 peer-checked:text-green-500"></i>
+                                        <span class="text-xs font-bold">Bilkul Theek (Perfect)</span>
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <input type="radio" name="course_pace" value="too_slow" class="peer sr-only" disabled>
+                                    <div class="p-3 flex items-center gap-3 rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700">
+                                        <i data-lucide="snail" class="w-4 h-4 text-slate-400 peer-checked:text-blue-500"></i>
+                                        <span class="text-xs font-bold">Bohat Sust (Too Slow)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Platform & Usability -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
+                            <i data-lucide="laptop" class="w-5 h-5 text-blue-500"></i>
+                            Platform Experience
+                        </h3>
+
+                        <!-- Q4: Usability -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-700">Platform Usability</label>
+                            <div class="flex flex-wrap gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-blue-500">
+                                        <input type="radio" name="usability" value="yes" class="peer sr-only" disabled>
+                                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-600">Haan, bilkul (Yes)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-blue-500">
+                                        <input type="radio" name="usability" value="somewhat" class="peer sr-only" disabled>
+                                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-600">Kuch had tak (Somewhat)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-blue-500">
+                                        <input type="radio" name="usability" value="no" class="peer sr-only" disabled>
+                                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-600">Nahi, mushkil hai (No)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q5: Recommendation -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-700">Recommendation (NPS)</label>
+                            <div class="flex flex-wrap gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-pink-500">
+                                        <input type="radio" name="would_recommend" value="yes" class="peer sr-only" disabled>
+                                        <div class="w-2.5 h-2.5 rounded-full bg-pink-600 opacity-0 peer-checked:opacity-100"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-600">Zaroor (Yes)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-pink-500">
+                                        <input type="radio" name="would_recommend" value="maybe" class="peer sr-only" disabled>
+                                        <div class="w-2.5 h-2.5 rounded-full bg-pink-600 opacity-0 peer-checked:opacity-100"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-600">Shayad (Maybe)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group opacity-50 has-[:checked]:opacity-100">
+                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-pink-500">
+                                        <input type="radio" name="would_recommend" value="no" class="peer sr-only" disabled>
+                                        <div class="w-2.5 h-2.5 rounded-full bg-pink-600 opacity-0 peer-checked:opacity-100"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-600">Bilkul Nahi (No)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Text Feedback -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-800 flex items-center gap-2">
+                                <i data-lucide="message-circle" class="w-4 h-4 text-indigo-500"></i>
+                                Specific Feedback / Comments
+                            </label>
+                            <textarea id="feedbackText" rows="4" 
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 resize-none cursor-not-allowed opacity-80"
+                                disabled></textarea>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-8 text-center">
+                <p class="text-slate-400 text-xs">Admin Verification System &copy; 2025</p>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+        
+        // Supabase Configuration
+        const SUPABASE_URL = "https://oaycnrsbrgancgrxhztd.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9heWNucnNicmdhbmNncnhoenRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNjIyMzIsImV4cCI6MjA4MTczODIzMn0.Md8TTNA7nY504_STka-04BM9WAoVZ32J_-JCirAGgC4";
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadFeedbackDetails() {
+            // Get ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const feedbackId = urlParams.get('id');
+
+            if (!feedbackId) {
+                alert("Invalid Feedback ID");
+                return;
+            }
+
+            try {
+                // Fetch Data
+                const { data, error } = await client
+                    .from('feedback')
+                    .select('*')
+                    .eq('id', feedbackId)
+                    .single();
+
+                if (error) throw error;
+                if (!data) throw new Error("Feedback not found");
+
+                // Populate UI
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('lmsFeedbackForm').classList.remove('hidden');
+
+                // Metadata
+                document.getElementById('studentNameDisplay').textContent = data.student_name || 'Anonymous';
+                document.getElementById('metaName').textContent = data.student_name || 'Anonymous';
+                document.getElementById('metaId').textContent = data.student_id || 'N/A';
+                document.getElementById('metaDate').textContent = new Date(data.created_at).toLocaleString();
+
+                // Radio Buttons Logic
+                const setRadio = (name, value) => {
+                    if (!value) return;
+                    const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
+                    if (radio) radio.checked = true;
+                };
+
+                setRadio('rating', data.rating);
+                setRadio('content_quality', data.content_quality);
+                setRadio('instructor_quality', data.instructor_quality);
+                setRadio('course_pace', data.course_pace);
+                setRadio('usability', data.usability);
+                setRadio('would_recommend', data.would_recommend);
+
+                // Text Area
+                document.getElementById('feedbackText').value = data.comments || "No comments provided.";
+
+            } catch (err) {
+                console.error("Error fetching details:", err);
+                document.getElementById('loadingState').innerHTML = `<p class="text-red-500 font-bold">Error: ${err.message}</p>`;
+            }
+        }
+
+        loadFeedbackDetails();
+    </script>
+</body>
+</html>

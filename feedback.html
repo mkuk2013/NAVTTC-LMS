@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - BBSHRRDB LMS v2.0</title>
+    <link rel="icon" href="assets/bbsydp_logo.png" type="image/png">
+
+    <!-- Core Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof tailwind !== 'undefined') {
+                tailwind.config = {
+                    theme: {
+                        extend: {
+                            colors: {
+                                indigo: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#5b21b6', 900: '#4c1d95', 950: '#2e1065' },
+                                slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' }
+                            },
+                            fontFamily: {
+                                sans: ['Outfit', 'Inter', 'sans-serif'],
+                            },
+                            animation: {
+                                'fade-in': 'fadeIn 0.5s ease-out forwards',
+                                'slide-up': 'slideUp 0.5s ease-out forwards',
+                            },
+                            keyframes: {
+                                fadeIn: {
+                                    '0%': { opacity: '0' },
+                                    '100%': { opacity: '1' },
+                                },
+                                slideUp: {
+                                    '0%': { opacity: '0', transform: 'translateY(20px)' },
+                                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            cursor: pointer;
+            color: #cbd5e1;
+            transition: color 0.2s;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #fbbf24;
+        }
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Navbar -->
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="p-1">
+                        <img src="assets/bbsydp_logo.png" class="w-16 h-16 object-contain" alt="Logo">
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-xl tracking-tight text-slate-900">BBSHRRDB <span class="text-indigo-600">LMS v2.0</span></h1>
+                        <p class="text-xs text-slate-500 font-medium tracking-wide">STUDENT FEEDBACK</p>
+                    </div>
+                </div>
+                <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors flex items-center gap-2">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-8">
+        <div class="max-w-2xl w-full">
+            
+            <!-- Feedback Form Card -->
+            <div id="feedbackForm" class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden animate-slide-up">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 p-8 text-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LCAyNTUsIDI1NSwgMC4xKSIvPjwvc3ZnPg==')] opacity-30"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/20 shadow-inner">
+                            <i data-lucide="message-square-heart" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white mb-2">Apki Raaye Hamare Liye Ahem Hai</h2>
+                        <p class="text-indigo-100 text-sm max-w-md mx-auto">LMS ko behtar banane main hamari madad karen. Aapka feedback hamare liye bohot zaroori hai.</p>
+                    </div>
+                </div>
+
+                <!-- Form Content -->
+                <form id="lmsFeedbackForm" class="p-6 sm:p-8 space-y-8 bg-slate-50/50">
+                    
+                    <!-- Section 1: Overall Rating -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <div class="text-center space-y-4">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center justify-center gap-2">
+                                <i data-lucide="sparkles" class="w-5 h-5 text-yellow-500"></i>
+                                Overall Experience Kaisa Raha?
+                            </h3>
+                            <div class="star-rating justify-center gap-2">
+                                <input type="radio" name="rating" id="star5" value="5" required><label for="star5" title="Excellent" class="hover:scale-110 transition-transform"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
+                                <input type="radio" name="rating" id="star4" value="4"><label for="star4" title="Good" class="hover:scale-110 transition-transform"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
+                                <input type="radio" name="rating" id="star3" value="3"><label for="star3" title="Average" class="hover:scale-110 transition-transform"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
+                                <input type="radio" name="rating" id="star2" value="2"><label for="star2" title="Poor" class="hover:scale-110 transition-transform"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
+                                <input type="radio" name="rating" id="star1" value="1"><label for="star1" title="Very Poor" class="hover:scale-110 transition-transform"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
+                            </div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-widest">Select Stars</p>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Learning Experience -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300 space-y-6">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
+                            <i data-lucide="graduation-cap" class="w-5 h-5 text-indigo-500"></i>
+                            Learning Experience
+                        </h3>
+
+                        <!-- Q1: Content Quality -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-700">Course Content ki Quality kaisi lagi?</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="content_quality" value="excellent" class="peer sr-only" required>
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 transition-all group-hover:border-indigo-200">
+                                        <div class="text-xs font-bold mb-1">Behtareen</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Excellent)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="content_quality" value="good" class="peer sr-only">
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 transition-all group-hover:border-indigo-200">
+                                        <div class="text-xs font-bold mb-1">Achi</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Good)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="content_quality" value="average" class="peer sr-only">
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 transition-all group-hover:border-indigo-200">
+                                        <div class="text-xs font-bold mb-1">Theek</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Average)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="content_quality" value="poor" class="peer sr-only">
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 transition-all group-hover:border-indigo-200">
+                                        <div class="text-xs font-bold mb-1">Kharab</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Poor)</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q2: Instructor Quality (NEW) -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-700">Instructor ka padhane ka tareeqa kaisa tha?</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="instructor_quality" value="excellent" class="peer sr-only" required>
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 transition-all group-hover:border-teal-200">
+                                        <div class="text-xs font-bold mb-1">Zabardast</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Excellent)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="instructor_quality" value="good" class="peer sr-only">
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 transition-all group-hover:border-teal-200">
+                                        <div class="text-xs font-bold mb-1">Acha</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Good)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="instructor_quality" value="average" class="peer sr-only">
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 transition-all group-hover:border-teal-200">
+                                        <div class="text-xs font-bold mb-1">Samajh Aya</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Understandable)</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="instructor_quality" value="poor" class="peer sr-only">
+                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 transition-all group-hover:border-teal-200">
+                                        <div class="text-xs font-bold mb-1">Mushkil</div>
+                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Confusing)</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q3: Course Pace (NEW) -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-700">Course ki speed (Raftaar) kaisi thi?</label>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <label class="flex-1 cursor-pointer group">
+                                    <input type="radio" name="course_pace" value="too_fast" class="peer sr-only" required>
+                                    <div class="p-3 flex items-center gap-3 rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-orange-50 peer-checked:border-orange-500 peer-checked:text-orange-700 transition-all">
+                                        <i data-lucide="zap" class="w-4 h-4 text-slate-400 peer-checked:text-orange-500"></i>
+                                        <span class="text-xs font-bold">Bohat Tez (Too Fast)</span>
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer group">
+                                    <input type="radio" name="course_pace" value="perfect" class="peer sr-only">
+                                    <div class="p-3 flex items-center gap-3 rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700 transition-all">
+                                        <i data-lucide="thumbs-up" class="w-4 h-4 text-slate-400 peer-checked:text-green-500"></i>
+                                        <span class="text-xs font-bold">Bilkul Theek (Perfect)</span>
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer group">
+                                    <input type="radio" name="course_pace" value="too_slow" class="peer sr-only">
+                                    <div class="p-3 flex items-center gap-3 rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 transition-all">
+                                        <i data-lucide="snail" class="w-4 h-4 text-slate-400 peer-checked:text-blue-500"></i>
+                                        <span class="text-xs font-bold">Bohat Sust (Too Slow)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Platform & Usability -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300 space-y-6">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
+                            <i data-lucide="laptop" class="w-5 h-5 text-blue-500"></i>
+                            Platform Experience
+                        </h3>
+
+                        <!-- Q4: Usability -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-700">Kya LMS use karna aasan hai?</label>
+                            <div class="flex flex-wrap gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer group bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 hover:border-blue-400 transition-colors">
+                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 group-hover:border-blue-500 transition-colors">
+                                        <input type="radio" name="usability" value="yes" class="peer sr-only" required>
+                                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900">Haan, bilkul (Yes)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 hover:border-blue-400 transition-colors">
+                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 group-hover:border-blue-500 transition-colors">
+                                        <input type="radio" name="usability" value="somewhat" class="peer sr-only">
+                                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900">Kuch had tak (Somewhat)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer group bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 hover:border-blue-400 transition-colors">
+                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 group-hover:border-blue-500 transition-colors">
+                                        <input type="radio" name="usability" value="no" class="peer sr-only">
+                                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900">Nahi, mushkil hai (No)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q5: Recommendation (NEW) -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-semibold text-slate-700">Kya aap yeh course apne doston ko recommend karenge?</label>
+                            <div class="flex gap-4">
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="would_recommend" value="yes" class="peer sr-only" required>
+                                    <div class="px-6 py-2 rounded-full border-2 border-slate-200 text-slate-500 font-bold text-sm peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 transition-all hover:border-emerald-300">
+                                        <span class="flex items-center gap-2"><i data-lucide="thumbs-up" class="w-4 h-4"></i> Ji Haan</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="would_recommend" value="no" class="peer sr-only">
+                                    <div class="px-6 py-2 rounded-full border-2 border-slate-200 text-slate-500 font-bold text-sm peer-checked:bg-rose-500 peer-checked:text-white peer-checked:border-rose-500 transition-all hover:border-rose-300">
+                                        <span class="flex items-center gap-2"><i data-lucide="thumbs-down" class="w-4 h-4"></i> Ji Nahi</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Text Feedback -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <div class="space-y-3">
+                            <label for="feedbackText" class="block text-sm font-semibold text-slate-800 flex items-center gap-2">
+                                <i data-lucide="message-circle" class="w-4 h-4 text-indigo-500"></i>
+                                Koi mashwara ya specific feedback jo aap dena chahein?
+                            </label>
+                            <textarea id="feedbackText" rows="4" 
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none text-sm text-slate-700 placeholder:text-slate-400"
+                                placeholder="Hamein batayen ke hum aur kya behtar kar sakte hain..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitBtn"
+                        class="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 group disabled:opacity-70 disabled:cursor-not-allowed">
+                        <span class="text-lg">Submit Feedback</span>
+                        <i data-lucide="send" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Success Message (Hidden by default) -->
+            <div id="successMessage" class="hidden bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-12 text-center animate-fade-in">
+                <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="check-circle-2" class="w-12 h-12 text-green-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Shukriya!</h2>
+                <p class="text-slate-600 mb-8 max-w-md mx-auto">Aapka feedback hamein mil gaya hai. Aapke waqt ka shukriya.</p>
+                
+                <a href="index.html" 
+                    class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium px-8 py-3 rounded-xl transition-all hover:shadow-lg transform hover:-translate-y-0.5">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Back to LMS Dashboard
+                </a>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-8 text-center">
+                <p class="text-slate-400 text-xs">© <span class="dynamic-year">2025</span> Super Systech Computers Umerkot. All rights reserved.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+        
+        // Auto Update Year
+        document.querySelectorAll('.dynamic-year').forEach(el => el.textContent = new Date().getFullYear());
+
+        // Supabase Configuration
+        const SUPABASE_URL = "https://oaycnrsbrgancgrxhztd.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9heWNucnNicmdhbmNncnhoenRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNjIyMzIsImV4cCI6MjA4MTczODIzMn0.Md8TTNA7nY504_STka-04BM9WAoVZ32J_-JCirAGgC4";
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Auth Guard - Strict Check & Already Submitted Check
+        async function checkAuth() {
+            const { data: { session } } = await client.auth.getSession();
+            if (!session) {
+                // User not logged in
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const user = session.user;
+            
+            // 1. Local Check (Fast)
+            if (localStorage.getItem(`feedback_submitted_${user.id}`) === 'true') {
+                // Already submitted, redirect to dashboard
+                alert("Aap pehle hi feedback de chuke hain. Shukriya!");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 2. Server Check (Robust)
+            try {
+                const { data, error } = await client
+                    .from('feedback')
+                    .select('id')
+                    .eq('student_id', user.id)
+                    .maybeSingle();
+                
+                if (data) {
+                    // Feedback found on server
+                    localStorage.setItem(`feedback_submitted_${user.id}`, 'true'); // Sync local
+                    alert("Aap pehle hi feedback de chuke hain. Shukriya!");
+                    window.location.href = 'index.html';
+                }
+            } catch (e) {
+                console.warn("Feedback check failed", e);
+            }
+        }
+        checkAuth();
+
+        // Handle Form Submission
+        document.getElementById('lmsFeedbackForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="animate-pulse">Submitting...</span>';
+
+            try {
+                // Get Current User
+                const { data: { user } } = await client.auth.getUser();
+                
+                if (!user) {
+                    throw new Error("User not authenticated");
+                }
+
+                let studentName = "Student";
+                let studentId = user.id;
+
+                // Fetch Profile Name
+                const { data: profile } = await client
+                    .from('profiles')
+                    .select('name')
+                    .eq('uid', user.id)
+                    .single();
+                
+                if (profile && profile.name) {
+                    studentName = profile.name;
+                }
+
+                // Gather Form Data
+                const formData = new FormData(this);
+                const feedbackData = {
+                    student_name: studentName,
+                    student_id: studentId,
+                    rating: formData.get('rating'),
+                    content_quality: formData.get('content_quality'),
+                    usability: formData.get('usability'),
+                    instructor_quality: formData.get('instructor_quality'),
+                    course_pace: formData.get('course_pace'),
+                    would_recommend: formData.get('would_recommend'),
+                    comments: document.getElementById('feedbackText').value,
+                    created_at: new Date().toISOString()
+                };
+
+                // Insert into Supabase
+                const { error } = await client
+                    .from('feedback')
+                    .insert([feedbackData]);
+
+                if (error) throw error;
+
+                // Set LocalStorage flag to prevent popup on dashboard
+                localStorage.setItem(`feedback_submitted_${user.id}`, 'true');
+
+                // UI Transition
+                const formCard = document.getElementById('feedbackForm');
+                const successCard = document.getElementById('successMessage');
+
+                // Fade out form
+                formCard.style.opacity = '0';
+                formCard.style.transform = 'translateY(-20px)';
+                formCard.style.transition = 'all 0.3s ease-in';
+
+                setTimeout(() => {
+                    formCard.style.display = 'none';
+                    successCard.classList.remove('hidden');
+                    // Trigger reflow for animation
+                    void successCard.offsetWidth;
+                }, 300);
+
+            } catch (err) {
+                console.error('Error submitting feedback:', err);
+                alert('Feedback submit karne mein masla hua. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+    </script>
+</body>
+</html>
