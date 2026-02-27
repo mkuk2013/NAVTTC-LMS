@@ -409,6 +409,13 @@
             border-color: var(--plus-indigo);
         }
 
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
         .sidebar {
             width: 260px;
             height: 100vh;
@@ -2142,20 +2149,21 @@
             <!-- Header with Toggle -->
             <div class="px-2 mb-8 flex items-center justify-between">
                 <!-- Left: Logo & Text -->
-                <!-- Left: Logo & Text -->
-                <div class="flex items-center gap-3">
-                    <div class="logo-container w-14 h-14 flex-shrink-0 flex items-center justify-center">
-                        <img src="assets/logo.png" alt="BBSHRRDB Logo" class="w-full h-full object-contain">
+                <div class="flex items-center gap-3 w-full">
+                    <div class="logo-container w-10 h-10 flex-shrink-0 flex items-center justify-center pt-1">
+                        <img src="assets/logo.png" alt="NAVTTC Logo"
+                            class="w-full h-full object-contain drop-shadow-sm">
                     </div>
                     <div
-                        class="hide-on-collapse flex flex-col justify-center overflow-hidden transition-all duration-300">
+                        class="hide-on-collapse flex flex-col justify-center translate-y-[2px] overflow-hidden transition-all duration-300">
                         <h1
-                            class="font-black text-lg tracking-tighter uppercase leading-none flex items-center gap-1 text-slate-800 dark:text-white">
-                            NAVTTC <span
-                                class="text-[8px] bg-indigo-600 text-white px-1 py-0.5 rounded ml-1 align-top">v2.0</span>
+                            class="font-black text-[15px] tracking-tight uppercase leading-none flex items-center flex-wrap gap-1 text-slate-800 dark:text-white m-0 p-0">
+                            NAVTTC LMS
+                            <span
+                                class="text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded-md font-bold shadow-sm whitespace-nowrap leading-none inline-block">V2.0</span>
                         </h1>
                         <p
-                            class="text-[8px] font-bold tracking-[0.15em] text-indigo-500 uppercase mt-0.5 leading-tight">
+                            class="text-[9px] font-bold tracking-[0.1em] text-slate-500 uppercase mt-1 leading-none m-0 p-0">
                             Enterprise Portal
                         </p>
                     </div>
@@ -2188,9 +2196,13 @@
                     data-tooltip="Leaderboard">
                     <i data-lucide="trophy" class="w-5 h-5"></i> <span class="hide-on-collapse">Leaderboard</span>
                 </button>
-                <button onclick="switchTab('exam')" id="nav-exam" class="nav-item w-full" data-tooltip="Online Test">
-                    <i data-lucide="clipboard-check" class="w-5 h-5"></i> <span class="hide-on-collapse">Online
-                        Test</span>
+                <button onclick="switchTab('arcade')" id="nav-arcade" class="nav-item w-full"
+                    data-tooltip="Games Arcade">
+                    <i data-lucide="gamepad-2" class="w-5 h-5"></i> <span class="hide-on-collapse">Games Arcade</span>
+                </button>
+                <button onclick="openLiveEditor()" id="nav-playground" class="nav-item w-full"
+                    data-tooltip="Code Editor">
+                    <i data-lucide="code-2" class="w-5 h-5"></i> <span class="hide-on-collapse">Code Editor</span>
                 </button>
 
                 <button onclick="switchTab('storage')" id="nav-storage" class="nav-item w-full"
@@ -2320,9 +2332,9 @@
                         <div class="flex items-center gap-3">
                             <button onclick="$('#v2-banner').slideUp()"
                                 class="px-5 py-2.5 bg-white text-indigo-600 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-50 transition-colors shadow-lg shadow-black/5">Dismiss</button>
-                            <button onclick="switchTab('arcade')"
-                                class="px-5 py-2.5 bg-indigo-500/30 text-white border border-white/20 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white/10 transition-colors">Try
-                                Arcade</button>
+                            <button onclick="openLiveEditor()"
+                                class="px-5 py-2.5 bg-indigo-500/30 text-white border border-white/20 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white/10 transition-colors">Open
+                                Editor</button>
 
                         </div>
                     </div>
@@ -2338,11 +2350,18 @@
                                 <h2 class="text-xl md:text-2xl font-black tracking-tighter uppercase leading-none"
                                     id="page-title">
                                     Dashboard</h2>
-                                <div class="flex items-center gap-2 mt-1 font-bold hidden sm:flex">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    <span
-                                        class="text-[8px] text-slate-400 uppercase tracking-widest leading-none">System
-                                        Online</span>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <div class="flex items-center gap-2 font-bold">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        <span
+                                            class="text-[8px] text-slate-400 uppercase tracking-widest leading-none">System
+                                            Online</span>
+                                    </div>
+                                    <button onclick="openLiveEditor()"
+                                        class="flex items-center gap-1.5 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors border border-indigo-100 dark:border-indigo-800/50">
+                                        <i data-lucide="play" class="w-2.5 h-2.5"></i>
+                                        Code Play
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -2716,307 +2735,58 @@
                     </div>
                 </div> <!-- End of view-dashboard -->
 
-                <!-- ONLINE EXAM SECTION -->
-                <div id="view-exam" class="content-view hidden animate-in fade-in duration-500">
-                    <!-- Header -->
-                    <div class="mb-8 relative overflow-hidden rounded-3xl shadow-2xl shadow-indigo-500/20 border border-white/10"
-                        style="background-color: #4b44d4;">
-                        <div class="absolute inset-0 opacity-10"
-                            style="background-image: radial-gradient(#6366f1 1px, transparent 1px); background-size: 20px 20px;">
-                        </div>
+                <!-- GAMES ARCADE SECTION -->
+                <div id="view-arcade"
+                    class="content-view hidden animate-in fade-in zoom-in-95 duration-500 min-h-0 flex-1">
+                    <!-- 1. Locked State -->
+                    <div id="arcade-locked"
+                        class="hidden flex-1 flex flex-col items-center justify-center py-20 text-center">
                         <div
-                            class="absolute -right-10 -top-10 w-64 h-64 bg-indigo-600 rounded-full blur-[100px] opacity-20">
+                            class="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                            <i data-lucide="lock" class="w-10 h-10 text-slate-400"></i>
                         </div>
-                        <div
-                            class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6">
-                            <div>
-                                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-[#e5e7eb] mb-2">
-                                    Evaluation</p>
-                                <h2
-                                    class="text-2xl md:text-4xl font-black text-[#f9fafb] tracking-tighter leading-none">
-                                    Online HTML Certification</h2>
-                                <p class="text-xs text-[#e5e7eb] font-medium mt-2 max-w-md">100 Questions | 40% Passing
-                                    Criteria | One-Time Attempt</p>
-                            </div>
-                            <div id="exam-status-badge"
-                                class="px-4 py-2 rounded-full border bg-emerald-500/20 text-emerald-500 border-emerald-500/20 text-xs font-black uppercase tracking-widest backdrop-blur-md">
-                                CHECKING STATUS...
-                            </div>
+                        <h3
+                            class="text-2xl font-black text-slate-900 dark:text-slate-200 mb-2 uppercase tracking-tight">
+                            Arcade Locked</h3>
+                        <p class="text-slate-500 font-bold max-w-md">The Games Arcade is currently restricted by the
+                            administrator. Please complete your tasks to gain access.</p>
+                    </div>
+
+                    <!-- 2. Menu State (Games List) -->
+                    <div id="arcade-menu" class="hidden flex-1 flex flex-col gap-6">
+                        <div class="mb-8">
+                            <h2 class="text-3xl font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight">
+                                Games Arcade</h2>
+                            <p class="text-slate-500 font-bold mt-1">Level up your coding skills through interactive
+                                challenges.</p>
+                        </div>
+                        <div id="arcade-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Injected by script_18.js -->
                         </div>
                     </div>
 
-                    <!-- ADMIN PANEL -->
-                    <div id="exam-admin-panel" class="hidden mb-8">
-                        <div
-                            class="v-card p-6 border-l-4 border-indigo-500 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div>
-                                <h3
-                                    class="text-lg font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight">
-                                    Exam Control Center</h3>
-                                <p class="text-xs text-slate-500 font-bold mt-1">Manage exam availability for all
-                                    students.</p>
-                            </div>
-                            <button id="exam-toggle-btn" onclick="toggleExamStatus()"
-                                class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2">
-                                <i data-lucide="power" class="w-4 h-4"></i> Enable Exam
+                    <!-- 3. Game Stage (Active Game) -->
+                    <div id="game-stage" class="hidden flex-1 flex flex-col min-h-0">
+                        <div class="flex items-center justify-between mb-4">
+                            <button onclick="window.exitArcadeGame()"
+                                class="flex items-center gap-2 text-slate-500 hover:text-rose-500 font-black uppercase text-[10px] tracking-widest transition-all">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Menu
                             </button>
-                        </div>
-
-                        <!-- Admin Results Table -->
-                        <div id="exam-admin-results" class="mt-8 v-card p-0 overflow-hidden hidden">
-                            <div
-                                class="p-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                                <h3 class="text-sm font-black uppercase tracking-widest text-slate-500">Student Results
-                                </h3>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm text-left">
-                                    <thead class="text-xs text-slate-400 uppercase bg-slate-50 dark:bg-slate-800/50">
-                                        <tr>
-                                            <th class="px-6 py-4 font-black">Student</th>
-                                            <th class="px-6 py-4 font-black">Score</th>
-                                            <th class="px-6 py-4 font-black">Status</th>
-                                            <th class="px-6 py-4 font-black">Date</th>
-                                            <th class="px-6 py-4 font-black text-right">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="exam-results-body"
-                                        class="divide-y divide-slate-50 dark:divide-slate-800">
-                                        <!-- Rows injected by JS -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- STUDENT AREA -->
-                    <div id="exam-student-area" class="hidden">
-
-                        <!-- 1. Locked Screen -->
-                        <div id="exam-locked-screen" class="hidden text-center py-20">
-                            <div
-                                class="w-24 h-24 mx-auto bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                                <i data-lucide="lock" class="w-10 h-10 text-slate-400"></i>
-                            </div>
-                            <h3 class="text-2xl font-black text-slate-900 dark:text-slate-200 mb-2">Exam Locked</h3>
-                            <p class="text-slate-500 font-medium">The administrator has not enabled the exam
-                                yet.<br>Please check back later.</p>
-                        </div>
-
-                        <!-- 2. Start Screen -->
-                        <div id="exam-start-screen" class="hidden text-center py-12">
-                            <div
-                                class="max-w-2xl mx-auto v-card p-8 border-t-4 border-indigo-500 relative overflow-hidden">
-                                <!-- Background Decoration -->
-                                <div
-                                    class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl">
-                                </div>
-                                <div
-                                    class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-500/5 rounded-full blur-3xl">
-                                </div>
-
-                                <div
-                                    class="w-24 h-24 mx-auto bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20 transform rotate-3">
-                                    <i data-lucide="award" class="w-12 h-12 text-white"></i>
-                                </div>
-                                <h3 class="text-3xl font-black text-slate-900 dark:text-slate-200 mb-2">HTML
-                                    Certification Exam</h3>
-                                <p class="text-slate-500 dark:text-slate-400 mb-8 max-w-lg mx-auto">Prove your skills in
-                                    HTML5 structure, semantic tags, and modern web standards.</p>
-
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 text-left">
-                                    <div
-                                        class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                                        <div class="flex items-center gap-3 mb-2">
-                                            <div
-                                                class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
-                                                <i data-lucide="list-checks" class="w-4 h-4"></i>
-                                            </div>
-                                            <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest">
-                                                Questions</p>
-                                        </div>
-                                        <p class="text-2xl font-black text-slate-700 dark:text-slate-300 ml-1">100</p>
-                                    </div>
-                                    <div
-                                        class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                                        <div class="flex items-center gap-3 mb-2">
-                                            <div
-                                                class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400">
-                                                <i data-lucide="target" class="w-4 h-4"></i>
-                                            </div>
-                                            <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest">
-                                                Passing</p>
-                                        </div>
-                                        <p class="text-2xl font-black text-emerald-500 ml-1">40%</p>
-                                    </div>
-                                    <div
-                                        class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                                        <div class="flex items-center gap-3 mb-2">
-                                            <div
-                                                class="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg text-rose-600 dark:text-rose-400">
-                                                <i data-lucide="timer" class="w-4 h-4"></i>
-                                            </div>
-                                            <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest">
-                                                Duration</p>
-                                        </div>
-                                        <p class="text-2xl font-black text-rose-500 ml-1">60 <span
-                                                class="text-sm text-slate-400 font-bold">Mins</span></p>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-xl p-5 mb-8 text-left flex items-start gap-4">
-                                    <div
-                                        class="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-500 shrink-0">
-                                        <i data-lucide="alert-circle" class="w-5 h-5"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-amber-700 dark:text-amber-400 text-sm mb-1">Important
-                                            Instructions</h4>
-                                        <ul
-                                            class="text-xs text-amber-600/80 dark:text-amber-500/80 space-y-1 list-disc list-inside font-medium">
-                                            <li>You have only <strong>one attempt</strong> for this exam.</li>
-                                            <li>Timer starts immediately after clicking Start.</li>
-                                            <li>Do not refresh or close the browser window.</li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <button onclick="startExam()"
-                                    class="group w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold shadow-xl shadow-indigo-500/30 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3">
-                                    <span>Start Certification Exam</span>
-                                    <i data-lucide="arrow-right"
-                                        class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 3. Exam Interface -->
-                        <div id="exam-interface" class="hidden max-w-4xl mx-auto">
-                            <!-- Progress Header -->
-                            <div
-                                class="bg-white dark:bg-[#1e293b] rounded-2xl p-6 mb-6 sticky top-4 z-40 shadow-xl border border-slate-100 dark:border-slate-800">
-                                <div
-                                    class="flex flex-col md:flex-row justify-between items-end md:items-center mb-4 gap-4">
-                                    <div class="flex items-center gap-4">
-                                        <div
-                                            class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-xl border border-indigo-200 dark:border-indigo-800/50">
-                                            Q
-                                        </div>
-                                        <div>
-                                            <p
-                                                class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-0.5">
-                                                Question</p>
-                                            <h3
-                                                class="text-2xl font-black text-slate-800 dark:text-white flex items-baseline gap-1">
-                                                <span id="current-q-num">1</span>
-                                                <span class="text-slate-400 text-sm font-bold">/ 100</span>
-                                            </h3>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center gap-3">
-                                        <div class="hidden md:block text-right">
-                                            <p
-                                                class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-0.5">
-                                                Time Remaining</p>
-                                            <div class="text-xs font-bold text-slate-500 dark:text-slate-400">HTML
-                                                Certification</div>
-                                        </div>
-                                        <div id="exam-timer-display"
-                                            class="font-mono text-xl font-black text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-2">
-                                            <i data-lucide="timer" class="w-4 h-4 text-slate-400"></i>
-                                            <span>60:00</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="relative w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                    <div id="exam-progress-bar"
-                                        class="absolute top-0 left-0 h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300 rounded-full"
-                                        style="width: 0%"></div>
-                                </div>
-                            </div>
-
-                            <!-- Question Card -->
-                            <div class="v-card p-8 mb-8 min-h-[400px] flex flex-col">
-                                <h2 id="question-text"
-                                    class="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-200 mb-8 leading-relaxed">
-                                    Loading Question...
-                                </h2>
-
-                                <div id="options-container" class="grid grid-cols-1 gap-4 mb-8">
-                                    <!-- Options Injected Here -->
-                                </div>
-
-                                <div
-                                    class="mt-auto flex justify-between items-center pt-8 border-t border-slate-50 dark:border-slate-800">
-                                    <button id="btn-prev" onclick="prevQuestion()"
-                                        class="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                                        Previous
-                                    </button>
-                                    <button id="btn-next" onclick="nextQuestion()"
-                                        class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all">
-                                        Next Question
-                                    </button>
-                                    <button id="btn-submit" onclick="submitExam()"
-                                        class="hidden px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition-all">
-                                        Submit Exam
-                                    </button>
+                            <div class="flex items-center gap-4">
+                                <div id="game-timer-container"
+                                    class="px-4 py-2 bg-slate-900 text-white rounded-xl font-mono text-sm hidden">
+                                    <span id="game-timer">00:00</span>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- 4. Result Card -->
-                        <div id="exam-result-card" class="hidden text-center py-12 animate-in zoom-in duration-300">
-                            <div class="max-w-md mx-auto v-card p-10 border-t-8 border-indigo-500 shadow-2xl">
-                                <div id="result-icon-container"
-                                    class="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6">
-                                    <!-- Icon injected -->
-                                </div>
-
-                                <p class="text-slate-400 font-bold uppercase text-xs tracking-widest mb-8">Final Score
-                                </p>
-
-                                <div class="text-6xl font-black mb-8 tracking-tighter" id="result-score">
-                                    0%
-                                </div>
-
-                                <button id="btn-download-cert" onclick="downloadCertificate()"
-                                    class="hidden w-full mb-4 py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold shadow-xl shadow-emerald-500/30 transition-all flex items-center justify-center gap-3">
-                                    <i data-lucide="download" class="w-5 h-5"></i>
-                                    <span>Download Professional Certificate</span>
-                                </button>
-
-                                <div id="verify-link-container" class="hidden w-full mb-4 text-center">
-                                    <p class="text-xs text-slate-500 mb-2">Want to verify the authenticity of this
-                                        certificate?</p>
-                                    <a href="verify.html" target="_blank"
-                                        class="text-xs font-bold text-indigo-500 hover:text-indigo-600 hover:underline flex items-center justify-center gap-1">
-                                        <span>Verify Certificate Authenticity</span>
-                                        <i data-lucide="external-link" class="w-3 h-3"></i>
-                                    </a>
-                                </div>
-
-                                <button onclick="toggleExamReview()"
-                                    class="w-full mb-4 py-3 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-[12px] uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
-                                    <i data-lucide="list-ordered" class="w-4 h-4"></i>
-                                    <span>Review Answers</span>
-                                </button>
-
-                                <div id="exam-review-container"
-                                    class="hidden text-left space-y-4 max-h-[420px] overflow-auto rounded-xl border border-slate-100 dark:border-slate-800 p-4 bg-slate-50 dark:bg-[#0f172a]">
-                                </div>
-
-                                <button onclick="switchTab('dashboard')"
-                                    class="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold transition-colors">
-                                    Return Home
-                                </button>
-                            </div>
+                        <div id="game-container"
+                            class="flex-1 glass-dark rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden min-h-[500px]">
+                            <!-- Game injected here -->
                         </div>
-
                     </div>
                 </div>
+
+
 
 
 
@@ -3143,161 +2913,7 @@
 
 
                 <!-- 5. Admin Review Center -->
-                <!-- EXAM VIEW -->
-                <div id="view-exam" class="content-view hidden animate-in fade-in duration-500">
-                    <!-- Header -->
-                    <div class="mb-8">
-                        <h2 class="text-3xl font-black text-slate-800 dark:text-white uppercase tracking-tighter">Online
-                            Examination</h2>
-                        <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">HTML Certification Test
-                        </p>
-                    </div>
 
-                    <!-- Admin Panel (Hidden for students) -->
-                    <div id="exam-admin-panel"
-                        class="hidden mb-8 p-6 bg-slate-900 rounded-3xl text-white relative overflow-hidden">
-                        <div class="relative z-10 flex justify-between items-center">
-                            <div>
-                                <h3 class="text-xl font-black uppercase tracking-tight mb-2">Exam Control Center</h3>
-                                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Manage exam
-                                    availability</p>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span id="exam-status-badge"
-                                    class="px-3 py-1 rounded-lg bg-rose-500/20 text-rose-400 font-black uppercase text-[10px] tracking-widest border border-rose-500/20">LOCKED</span>
-                                <button onclick="toggleExamStatus()" id="exam-toggle-btn"
-                                    class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold uppercase tracking-widest transition-all">Enable
-                                    Exam</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Admin Results Table (Hidden for students) -->
-                    <div id="exam-admin-results" class="hidden v-card p-6 mb-8">
-                        <h3 class="font-black text-lg text-slate-800 dark:text-white uppercase tracking-tight mb-4">
-                            Student Results</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr
-                                        class="border-b border-slate-100 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                        <th class="p-3">Student</th>
-                                        <th class="p-3">Score</th>
-                                        <th class="p-3">Status</th>
-                                        <th class="p-3">Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="exam-results-body"
-                                    class="text-sm font-medium text-slate-600 dark:text-slate-300">
-                                    <!-- Results injected here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Student Interface -->
-                    <div id="exam-student-area">
-                        <!-- 1. Locked Screen -->
-                        <div id="exam-locked-screen" class="hidden text-center py-20">
-                            <div
-                                class="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
-                                <i data-lucide="lock" class="w-10 h-10"></i>
-                            </div>
-                            <h3 class="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight mb-2">
-                                Exam Locked</h3>
-                            <p class="text-slate-500 text-sm font-medium max-w-md mx-auto">The exam is currently not
-                                available. Please wait for the administrator to enable it.</p>
-                            <button onclick="fetchExamStatus()"
-                                class="mt-6 px-6 py-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-indigo-100 transition-colors">Refresh
-                                Status</button>
-                        </div>
-
-                        <!-- 2. Start Screen (Instructions) -->
-                        <div id="exam-start-screen" class="hidden max-w-2xl mx-auto v-card p-8 text-center">
-                            <div
-                                class="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <i data-lucide="book-open" class="w-8 h-8"></i>
-                            </div>
-                            <h2
-                                class="text-2xl font-black text-slate-800 dark:text-white uppercase tracking-tight mb-4">
-                                HTML Final Exam</h2>
-                            <div class="text-left bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl mb-8 space-y-3">
-                                <p
-                                    class="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> 100 Multiple
-                                    Choice Questions
-                                </p>
-                                <p
-                                    class="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> One attempt
-                                    only
-                                </p>
-                                <p
-                                    class="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> Passing Score:
-                                    40%
-                                </p>
-                                <p
-                                    class="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                    <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500"></i> Do not refresh the
-                                    page during the exam.
-                                </p>
-                            </div>
-                            <button onclick="startExam()"
-                                class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 transition-all transform hover:scale-[1.02]">Start
-                                Examination</button>
-                        </div>
-
-                        <!-- 3. Active Exam Interface -->
-                        <div id="exam-interface" class="hidden max-w-3xl mx-auto">
-                            <div class="flex justify-between items-center mb-6">
-                                <span class="text-xs font-black uppercase tracking-widest text-slate-400">Question <span
-                                        id="current-q-num">1</span>/100</span>
-                                <div class="h-2 w-32 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                    <div id="exam-progress-bar"
-                                        class="h-full bg-indigo-500 w-0 transition-all duration-300"></div>
-                                </div>
-                            </div>
-
-                            <div class="v-card p-8 mb-6 min-h-[300px] flex flex-col justify-center">
-                                <h3 id="question-text"
-                                    class="text-xl font-bold text-slate-800 dark:text-white mb-8 leading-relaxed">
-                                    Loading question...</h3>
-                                <div id="options-container" class="space-y-3">
-                                    <!-- Options injected here -->
-                                </div>
-                            </div>
-
-                            <div class="flex justify-between">
-                                <button onclick="prevQuestion()" id="btn-prev"
-                                    class="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50">Previous</button>
-                                <button onclick="nextQuestion()" id="btn-next"
-                                    class="px-8 py-3 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 hover:bg-indigo-700">Next</button>
-                                <button onclick="submitExam()" id="btn-submit"
-                                    class="hidden px-8 py-3 bg-emerald-500 text-white rounded-xl font-black uppercase tracking-widest shadow-lg shadow-emerald-500/30 hover:bg-emerald-600">Submit
-                                    Exam</button>
-                            </div>
-                        </div>
-
-                        <!-- 4. Result Card -->
-                        <div id="exam-result-card"
-                            class="hidden max-w-md mx-auto v-card p-8 text-center animate-in zoom-in duration-500">
-                            <div id="result-icon-container"
-                                class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <!-- Icon injected via JS -->
-                            </div>
-                            <h2 id="result-title" class="text-3xl font-black uppercase tracking-tighter mb-2">Result
-                            </h2>
-                            <div class="text-5xl font-black text-slate-800 dark:text-white mb-2" id="result-score">0%
-                            </div>
-                            <p id="result-message"
-                                class="text-slate-500 font-bold uppercase tracking-widest text-xs mb-8">Status</p>
-                            <button onclick="switchTab('dashboard')"
-                                class="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-700">Back
-                                to Dashboard</button>
-                        </div>
-                    </div>
-                </div>
 
                 <div id="view-grading" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -3558,6 +3174,205 @@
                 </div>
 
                 <!-- 9. LIVE CODE PLAYGROUND (CodePen Style) -->
+                <div id="view-playground"
+                    class="content-view hidden h-[calc(100vh-160px)] flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-500">
+                    <!-- Professional Toolbar -->
+                    <div
+                        class="flex items-center justify-between glass p-2 rounded-2xl border border-white/20 shadow-xl">
+                        <div class="flex items-center gap-6 px-2">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                                </div>
+                                <h2
+                                    class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
+                                    Developer Workbench</h2>
+                            </div>
+
+                            <!-- Tab Toggles -->
+                            <div
+                                class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                                <button onclick="window.toggleEditorPanel('html')" id="btn-toggle-html"
+                                    class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400">HTML</button>
+                                <button onclick="window.toggleEditorPanel('css')" id="btn-toggle-css"
+                                    class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all">CSS</button>
+                                <button onclick="window.toggleEditorPanel('js')" id="btn-toggle-js"
+                                    class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all">JS</button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 pr-2">
+                            <button onclick="window.clearCode()"
+                                class="p-2.5 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all"
+                                title="Clear All Sensors">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="window.resetToDefault()"
+                                class="p-2.5 text-slate-400 hover:text-indigo-500 hover:bg-indigo-500/10 rounded-xl transition-all"
+                                title="Reset to Template">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            </button>
+                            <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                            <button onclick="window.runCode()" id="playground-run-btn"
+                                class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 transition-all flex items-center gap-2 active:scale-95">
+                                <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Run App
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Editor & Preview Container -->
+                    <div class="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
+                        <!-- Left: Editors -->
+                        <div class="flex-1 flex flex-col gap-4 min-h-0">
+
+
+                            <div class="flex-1 flex flex-col gap-4 overflow-hidden relative">
+                                <!-- HTML Editor Panel -->
+                                <div id="panel-html"
+                                    class="flex-1 flex flex-col min-h-0 glass-dark rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
+                                    <div
+                                        class="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
+                                        <div class="flex items-center gap-3">
+                                            <!-- Window Controls -->
+                                            <div class="flex gap-1.5 px-1">
+                                                <span
+                                                    class="w-2.5 h-2.5 rounded-full bg-[#ff5f56] shadow-inner shadow-black/20"></span>
+                                                <span
+                                                    class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e] shadow-inner shadow-black/20"></span>
+                                                <span
+                                                    class="w-2.5 h-2.5 rounded-full bg-[#27c93f] shadow-inner shadow-black/20"></span>
+                                            </div>
+                                            <div class="h-4 w-[1px] bg-white/10 mx-1"></div>
+                                            <span
+                                                class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                <i data-lucide="file-code" class="w-3 h-3 text-orange-400"></i>
+                                                index.html
+                                            </span>
+                                        </div>
+                                        <div
+                                            class="text-[8px] font-bold text-slate-600 uppercase tracking-tighter group-hover:text-slate-400 transition-colors">
+                                            STRUCTURE
+                                        </div>
+                                    </div>
+                                    <textarea id="code-html" spellcheck="false" oninput="window.runCodeDebounced()"
+                                        class="flex-1 w-full bg-[#0d1624] text-indigo-50/90 p-5 font-mono text-[12px] leading-relaxed focus:outline-none resize-none custom-scrollbar selection:bg-indigo-500/30"
+                                        placeholder="&lt;!-- Start building your magic here... --&gt;"></textarea>
+                                    <div
+                                        class="px-4 py-1.5 bg-slate-900/40 border-t border-white/5 flex justify-between items-center text-[8px] font-bold text-slate-600 tracking-widest">
+                                        <span>UTF-8</span>
+                                        <span>HTML5</span>
+                                    </div>
+                                </div>
+
+                                <!-- CSS Editor Panel -->
+                                <div id="panel-css"
+                                    class="flex-1 hidden flex flex-col min-h-0 glass-dark rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
+                                    <div
+                                        class="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex gap-1.5 px-1">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f56] opacity-40"></span>
+                                                <span class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e] opacity-40"></span>
+                                                <span class="w-2.5 h-2.5 rounded-full bg-[#27c93f] opacity-40"></span>
+                                            </div>
+                                            <div class="h-4 w-[1px] bg-white/10 mx-1"></div>
+                                            <span
+                                                class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                <i data-lucide="palette" class="w-3 h-3 text-blue-400"></i> style.css
+                                            </span>
+                                        </div>
+                                        <div
+                                            class="text-[8px] font-bold text-slate-600 uppercase tracking-tighter group-hover:text-slate-400 transition-colors">
+                                            VISUALS
+                                        </div>
+                                    </div>
+                                    <textarea id="code-css" spellcheck="false" oninput="window.runCodeDebounced()"
+                                        class="flex-1 w-full bg-[#121a29] text-indigo-50/90 p-5 font-mono text-[12px] leading-relaxed focus:outline-none resize-none custom-scrollbar selection:bg-indigo-500/30"
+                                        placeholder="/* Add smooth styles... */"></textarea>
+                                    <div
+                                        class="px-4 py-1.5 bg-slate-900/40 border-t border-white/5 flex justify-between items-center text-[8px] font-bold text-slate-600 tracking-widest">
+                                        <span>CSS3</span>
+                                        <span>Cascading Style</span>
+                                    </div>
+                                </div>
+
+                                <!-- JS Editor Panel -->
+                                <div id="panel-js"
+                                    class="flex-1 hidden flex flex-col min-h-0 glass-dark rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
+                                    <div
+                                        class="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex gap-1.5 px-1">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f56] opacity-40"></span>
+                                                <span class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e] opacity-40"></span>
+                                                <span class="w-2.5 h-2.5 rounded-full bg-[#27c93f] opacity-40"></span>
+                                            </div>
+                                            <div class="h-4 w-[1px] bg-white/10 mx-1"></div>
+                                            <span
+                                                class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                <i data-lucide="zap" class="w-3 h-3 text-yellow-500"></i> script.js
+                                            </span>
+                                        </div>
+                                        <div
+                                            class="text-[8px] font-bold text-slate-600 uppercase tracking-tighter group-hover:text-slate-400 transition-colors">
+                                            DYNAMICS
+                                        </div>
+                                    </div>
+                                    <textarea id="code-js" spellcheck="false" oninput="window.runCodeDebounced()"
+                                        class="flex-1 w-full bg-[#161e2e] text-indigo-50/90 p-5 font-mono text-[12px] leading-relaxed focus:outline-none resize-none custom-scrollbar selection:bg-indigo-500/30"
+                                        placeholder="// Make it alive..."></textarea>
+                                    <div
+                                        class="px-4 py-1.5 bg-slate-900/40 border-t border-white/5 flex justify-between items-center text-[8px] font-bold text-slate-600 tracking-widest">
+                                        <span>ES6+</span>
+                                        <span>JavaScript Runtime</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Preview (Professional Browser Frame) -->
+                        <div
+                            class="flex-1 flex flex-col min-h-0 glass border border-white/20 rounded-2xl shadow-2xl overflow-hidden group">
+                            <!-- Browser Chrome -->
+                            <div
+                                class="flex items-center gap-3 px-4 py-3 bg-slate-100 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex gap-1.5">
+                                        <i data-lucide="chevron-left" class="w-3.5 h-3.5 text-slate-400"></i>
+                                        <i data-lucide="chevron-right"
+                                            class="w-3.5 h-3.5 text-slate-400 opacity-50"></i>
+                                    </div>
+                                    <div class="h-4 w-[1px] bg-slate-300 dark:bg-white/10"></div>
+                                    <i data-lucide="rotate-ccw"
+                                        class="w-3.5 h-3.5 text-slate-400 hover:text-indigo-500 transition-colors cursor-pointer"
+                                        onclick="window.runCode()"></i>
+                                </div>
+
+                                <!-- Mock URL Bar -->
+                                <div
+                                    class="flex-1 flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-950/80 rounded-lg border border-slate-200 dark:border-white/5">
+                                    <i data-lucide="lock" class="w-2.5 h-2.5 text-emerald-500"></i>
+                                    <span
+                                        class="text-[9px] font-bold text-slate-400 truncate tracking-tight">localhost:3000/playground/live-server</span>
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <div id="output-loader" class="hidden"><i data-lucide="loader-2"
+                                            class="w-3.5 h-3.5 animate-spin text-indigo-500"></i></div>
+                                    <button onclick="window.toggleFullScreenPreview()"
+                                        class="p-1.5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg transition-all"
+                                        title="Full Preview">
+                                        <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex-1 bg-white relative">
+                                <iframe id="code-preview" class="w-full h-full border-none bg-white"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
 
 
@@ -3572,7 +3387,8 @@
                                     class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Personal
                                     Cloud Storage</h2>
                                 <p id="storage-page-subtitle"
-                                    class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">Manage your
+                                    class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                                    Manage your
                                     documents and resources securely.</p>
                             </div>
                             <div class="flex items-center gap-2">
@@ -3874,6 +3690,7 @@
 
                 <!-- Spacer for Mobile Nav -->
                 <div class="h-20 lg:hidden"></div>
+            </div>
         </main>
         <!-- Mobile Bottom Navigation -->
 
@@ -4447,8 +4264,8 @@
             }
         };
 
-        const SUPABASE_URL = "YOUR_SUPABASE_URL_HERE";
-        const SUPABASE_KEY = "YOUR_SUPABASE_KEY_HERE";
+        const SUPABASE_URL = "https://fnkctvhrilynnmphdxuo.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_q_jbUM95dckWS7YF1XSRgg_NvhZ4iyU";
         // Initialize Supabase Client
         let client; // Renamed from 'supabase' to 'client' to match original usage
         window.SUPABASE_AVAILABLE = false;
@@ -4528,12 +4345,27 @@
             const activeClass = "bg-white dark:bg-[#1e293b] shadow-sm text-indigo-600 dark:text-indigo-400";
             const inactiveClass = "text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300";
 
-            if (role === 'admin') {
+            const isStudent = role === 'student';
+
+            if (!isStudent) {
                 $('#tab-admin').addClass(activeClass).removeClass(inactiveClass);
                 $('#tab-student').removeClass(activeClass).addClass(inactiveClass);
+
+                // Admin is login only
+                $('#name-field, #avatar-field').slideUp(200);
+                $('#toggle-auth-mode').hide();
+                if (typeof customToggleMode === 'function' && $('#auth-btn span').text() === 'Create Account') {
+                    customToggleMode();
+                }
             } else {
                 $('#tab-student').addClass(activeClass).removeClass(inactiveClass);
                 $('#tab-admin').removeClass(activeClass).addClass(inactiveClass);
+
+                // Form Fields State
+                if ($('#auth-btn span').text() === 'Create Account') {
+                    $('#name-field, #avatar-field').slideDown(200);
+                }
+                $('#toggle-auth-mode').show();
             }
         };
 
@@ -4551,11 +4383,18 @@
             try {
                 // Robust Session Check with Timeout
                 const sessionPromise = client.auth.getSession();
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error("Session Check Timeout")), 5000)
+                const timeoutPromise = new Promise((resolve, reject) =>
+                    setTimeout(() => reject(new Error("Session Check Timeout")), 8000) // Reduced to 8s
                 );
 
-                const { data } = await Promise.race([sessionPromise, timeoutPromise]);
+                const { data, error } = await Promise.race([sessionPromise, timeoutPromise]);
+
+                if (error) {
+                    console.warn("Session check returned error (Token likely expired/invalid):", error.message);
+                    finishInitialization(false);
+                    return;
+                }
+
                 const session = data?.session;
 
                 if (session) {
@@ -4566,8 +4405,11 @@
                 }
             } catch (err) {
                 // Handle AbortError and Timeout gracefully
-                if (err.name === 'AbortError' || err.message?.includes('aborted')) {
-                    console.warn("Session check aborted (likely due to navigation or timeout). Treating as logged out.");
+                window.sessionInitPromise = null; // Clear lock
+                isInitializing = false;
+
+                if (err.name === 'AbortError' || err.message?.includes('aborted') || err.message === 'Session Check Timeout') {
+                    console.warn(`Session check failed (${err.message}). Treating as logged out.`);
                 } else {
                     console.error("Session check failed:", err);
                 }
@@ -4591,6 +4433,29 @@
                 localStorage.removeItem('supabase_profile_cache');
                 finishInitialization(false);
                 return;
+            }
+
+            // CROSS-TAB LOGIN PREVENTION (Ultimate Failsafe)
+            // Fix: Read from localStorage first, fallback to UI tab, because onAuthStateChange 
+            // fires before $(document).ready() can set the tab visually.
+            const savedRole = localStorage.getItem('last_auth_tab');
+            const intendedRole = savedRole ? savedRole : ($('#tab-student').hasClass('bg-white') ? 'student' : 'admin');
+
+            // Check cache first to see if we can fail instantly without an API call
+            const cachedParams = localStorage.getItem('supabase_profile_cache');
+            if (cachedParams) {
+                try {
+                    const parsed = JSON.parse(cachedParams);
+                    if (parsed.uid === user.id && parsed.role !== intendedRole) {
+                        console.warn(`[Failsafe] Blocked ${parsed.role} from entering ${intendedRole} portal from cache.`);
+                        await client.auth.signOut();
+                        localStorage.removeItem('supabase_profile_cache');
+                        finishInitialization(false);
+                        return; // Stop right here
+                    }
+                } catch (e) {
+                    // Ignore parsing errors, let the API call handle it
+                }
             }
 
             // PROMISE-BASED LOCK: Request Coalescing
@@ -4627,7 +4492,21 @@
                     // DEFINE the fresh fetch promise
                     let fetchProfilePromise;
                     if (client) {
-                        fetchProfilePromise = client.from('profiles').select('*').eq('uid', user.id).maybeSingle();
+                        fetchProfilePromise = client.from('profiles').select('*').eq('uid', user.id).single()
+                            .then(async ({ data: profile, error }) => {
+                                if (error) throw error;
+                                if (!profile) throw new Error("Profile not found.");
+
+                                // ULTIMATE API VALIDATION
+                                if (profile.role !== intendedRole) {
+                                    console.warn(`[Failsafe API] Blocked ${profile.role} from entering ${intendedRole} portal.`);
+                                    await client.auth.signOut();
+                                    localStorage.removeItem('supabase_profile_cache');
+                                    throw new Error(`Access Denied: You cannot log into the ${intendedRole.toUpperCase()} portal with a ${profile.role.toUpperCase()} account.`);
+                                }
+
+                                return { data: profile, error: null };
+                            });
                     } else {
                         // Offline Mock Promise
                         console.warn("Offline Mode: Skipping background profile sync.");
@@ -4681,12 +4560,14 @@
                         localStorage.removeItem('supabase_profile_cache');
                         throw new Error("Access Revoked: Your account has been deleted by an administrator.");
                     } else {
-                        // ROLE CHECK with Auto-Correction
-                        const intendedRole = $('#tab-student').hasClass('bg-white') ? 'student' : 'admin';
+                        // ROLE CHECK with Strict Enforcement
+                        const currentTabRole = localStorage.getItem('last_auth_tab') || ($('#tab-student').hasClass('bg-white') ? 'student' : 'admin');
 
-                        if (profile.role !== intendedRole) {
-                            console.log(`[Session] Role mismatch detected. Auto-switching to ${profile.role} view.`);
-                            if (window.switchAuth) window.switchAuth(profile.role);
+                        if (profile.role !== currentTabRole && profile.role !== intendedRole) {
+                            console.warn(`[Session API] Blocked ${profile.role} from entering ${currentTabRole} portal.`);
+                            await client.auth.signOut();
+                            localStorage.removeItem('supabase_profile_cache');
+                            throw new Error(`Access Denied: You cannot log into the ${currentTabRole.toUpperCase()} portal with a ${profile.role.toUpperCase()} account. Please use the correct login tab.`);
                         }
 
                         if (profile.status === 'pending') {
@@ -4759,6 +4640,15 @@
                 $('#dashboard-layout').addClass('hidden');
                 $('#mobile-nav-bar').addClass('hidden'); // Hide Mobile Nav
                 $('#auth-wrapper').removeClass('hidden');
+
+                // CRITICAL FIX: Always reset the login button state when returning to the auth screen
+                const authBtn = $('#auth-btn');
+                if (authBtn.length > 0) {
+                    authBtn.prop('disabled', false);
+                    const isReg = $('#name-field').hasClass('hidden') ? 'Sign In' : 'Create Account';
+                    authBtn.html(`<span>${isReg}</span> <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>`);
+                }
+
                 // Ensure credentials are shown when returning to auth screen
                 if (window.populateRememberedCredentials) window.populateRememberedCredentials();
                 window.safeCreateIcons(); // Force refresh icons for eye button
@@ -4767,6 +4657,7 @@
 
         if (client && client.auth) {
             client.auth.onAuthStateChange(async (event, session) => {
+                if (window.isRoleValidating) return; // Wait for manual role validation before firing UI changes
                 console.log("Supabase Auth Event:", event);
                 if (event === 'PASSWORD_RECOVERY') {
                     // Show Reset Password Modal
@@ -4852,761 +4743,23 @@
             lucide.createIcons();
         };
 
-        // --- EXAM SYSTEM ---
-        let examQuestions = [];
-        let currentQuestionIndex = 0;
-        let userAnswers = {};
-        let examActive = false; // Admin toggle state
-
-        // 1. Initialize Exam View
-        async function initExamSystem() {
-            if (!currentUser || !userProfile) return;
-
-            // Reset Views
-            $('#exam-admin-panel, #exam-admin-results, #exam-student-area, #exam-locked-screen, #exam-start-screen, #exam-interface, #exam-result-card').addClass('hidden');
-
-            if (userProfile.role === 'admin') {
-                // Admin View
-                $('#exam-admin-panel').removeClass('hidden');
-                $('#exam-admin-results').removeClass('hidden');
-                fetchExamStatus(); // Check if active
-                fetchAdminExamResults();
-            } else {
-                // Student View
-                $('#exam-student-area').removeClass('hidden');
-                // Check if already attempted
-                const attempted = await checkStudentAttempt();
-                if (attempted) {
-                    showExamResult(attempted.score, attempted.total_marks, true); // Show previous result
-                } else {
-                    // Check for ongoing exam resume
-                    const savedStart = localStorage.getItem('exam_start_time');
-                    // Check for stale session (older than 100 mins)
-                    // Exam is 90 mins. If older than 100 mins, they have no time left, so clear it to allow restart.
-                    if (savedStart && (Date.now() - parseInt(savedStart) > (100 * 60 * 1000))) {
-                        console.log("Clearing stale exam session (Time expired)...");
-                        localStorage.removeItem('exam_start_time');
-                        localStorage.removeItem('exam_answers');
-                        // savedStart is now effectively null for the next check, so we fetch status
-                        fetchExamStatus();
-                    } else if (savedStart) {
-                        $('#exam-interface').removeClass('hidden');
-                        examQuestions = generateQuestions();
-
-                        const savedAnswers = localStorage.getItem('exam_answers');
-                        if (savedAnswers) userAnswers = JSON.parse(savedAnswers);
-                        else userAnswers = {};
-
-                        currentQuestionIndex = 0;
-                        renderQuestion();
-                        startTimer();
-                    } else {
-                        fetchExamStatus(); // Check if active to show Start or Lock screen
-                    }
-                }
-            }
-        }
-
-        // 2. Fetch Exam Status (Active/Locked)
-        const fetchExamStatus = async () => {
-            if (!window.client) return;
-
-            // We'll use a table 'exam_settings' with a row id=1
-            const { data, error } = await window.client
-                .from('exam_settings')
-                .select('is_active')
-                .eq('id', 1)
-                .single();
-
-            if (data) {
-                examActive = data.is_active;
-            } else {
-                // Default to false if table doesn't exist yet
-                examActive = false;
-            }
-
-            updateExamUIState();
-        }
-
-        function updateExamUIState() {
-            const statusBadge = $('#exam-status-badge');
-            const toggleBtn = $('#exam-toggle-btn');
-
-            if (examActive) {
-                // Admin UI
-                statusBadge.removeClass('bg-rose-500/20 text-rose-400 border-rose-500/20')
-                    .addClass('bg-emerald-500/20 text-emerald-500 border-emerald-500/20').text('ACTIVE');
-                toggleBtn.text('Disable Exam').removeClass('bg-indigo-600').addClass('bg-rose-600 hover:bg-rose-700');
-
-                // Student UI
-                // SECURITY CHECK: If attempt exists, prevent Start Screen
-                if (window.existingAttempt) {
-                    $('#exam-start-screen').addClass('hidden');
-                    // Ensure result card is shown if not already
-                    if ($('#exam-result-card').hasClass('hidden')) {
-                        showExamResult(window.existingAttempt.score, window.existingAttempt.total_marks, true);
-                    }
-                    return;
-                }
-
-                if (userProfile.role !== 'admin' && $('#exam-result-card').hasClass('hidden')) {
-                    $('#exam-locked-screen').addClass('hidden');
-                    $('#exam-start-screen').removeClass('hidden');
-                }
-            } else {
-                // Admin UI
-                statusBadge.removeClass('bg-emerald-500/20 text-emerald-500 border-emerald-500/20')
-                    .addClass('bg-rose-500/20 text-rose-400 border-rose-500/20').text('LOCKED');
-                toggleBtn.text('Enable Exam').removeClass('bg-rose-600').addClass('bg-indigo-600 hover:bg-indigo-700');
-
-                // Student UI
-                if (userProfile.role !== 'admin' && $('#exam-result-card').hasClass('hidden')) {
-                    $('#exam-start-screen').addClass('hidden');
-                    $('#exam-locked-screen').removeClass('hidden');
-                }
-            }
-        }
-
-        // 3. Admin Toggle Exam
-        window.toggleExamStatus = async () => {
-            const newStatus = !examActive;
-            const { error } = await window.client
-                .from('exam_settings')
-                .upsert({ id: 1, is_active: newStatus });
-
-            if (!error) {
-                examActive = newStatus;
-                updateExamUIState();
-                showToast(`Exam ${newStatus ? 'Enabled' : 'Disabled'}`);
-            } else {
-                console.error(error);
-                showToast('Error updating status', 'error');
-            }
-        };
-
-        // 4. Student Attempt Check (Robust & Safe)
-        async function checkStudentAttempt() {
-            // Auto-Sync Check: Try to upload pending offline exams
-            try {
-                if (currentUser) {
-                    const pendingKey = `pending_exam_sync_${currentUser.id}`;
-                    const pending = localStorage.getItem(pendingKey);
-                    if (pending && navigator.onLine) {
-                        const payload = JSON.parse(pending);
-                        console.log("Syncing pending exam...");
-                        const { error } = await window.client.from('exam_results').insert(payload);
-                        if (!error) {
-                            localStorage.removeItem(pendingKey);
-                            showToast("Offline exam synced successfully!", "success");
-                        } else {
-                            console.warn("Sync failed:", error);
-                        }
-                    }
-                }
-            } catch (e) { console.error("Auto-sync error:", e); }
-
-            // Return cached result if available
-            if (window.existingAttempt) return window.existingAttempt;
-
-            // 1. Check by IDs (Current ID + Legacy UID)
-            const idsToCheck = [currentUser.id];
-            if (userProfile?.uid && userProfile.uid !== currentUser.id) {
-                idsToCheck.push(userProfile.uid);
-            }
-
-            let { data } = await window.client
-                .from('exam_results')
-                .select('id, score, total_marks, status, certificate_id, created_at, student_id, student_name')
-                .in('student_id', idsToCheck)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle();
-
-            // 2. Fallback: Check by Name (if no result found by ID)
-            if (!data && userProfile?.name) {
-                try {
-                    const safeName = userProfile.name.trim();
-                    // Try exact match first
-                    let { data: byName } = await window.client
-                        .from('exam_results')
-                        .select('id, score, total_marks, status, certificate_id, created_at, student_id, student_name')
-                        .eq('student_name', safeName)
-                        .order('created_at', { ascending: false })
-                        .limit(1)
-                        .maybeSingle();
-
-                    // If not found, try looser match (handle spaces/case if possible via wildcard)
-                    if (!byName) {
-                        const { data: byLike } = await window.client
-                            .from('exam_results')
-                            .select('id, score, total_marks, status, certificate_id, created_at, student_id, student_name')
-                            .ilike('student_name', `%${safeName}%`)
-                            .order('created_at', { ascending: false })
-                            .limit(1)
-                            .maybeSingle();
-                        byName = byLike;
-                    }
-                    data = byName;
-                } catch (e) {
-                    console.warn("Name check failed:", e);
-                }
-            }
-
-            // 3. Fallback: Check Local Pending Sync (Offline Attempt)
-            if (!data) {
-                try {
-                    const pending = localStorage.getItem(`pending_exam_sync_${currentUser.id}`);
-                    if (pending) {
-                        data = JSON.parse(pending);
-                        // Mark as pending/offline for UI if needed
-                        console.log("Found pending offline exam attempt");
-                    }
-                } catch (e) { console.error("Pending check failed", e); }
-            }
-
-            if (data) {
-                window.existingAttempt = data;
-
-                // SYNC LOGIC: If server missing details but local has them, sync it
-                // Logic disabled until columns added to DB
-                // if ((!data.answers_json || !data.questions_json) && currentUser) {
-                if (false && currentUser) {
-                    try {
-                        const ls = localStorage.getItem(`exam_review_${currentUser.id}`);
-                        if (ls) {
-                            const parsed = JSON.parse(ls);
-                            window.previousReviewSnapshot = parsed; // Use local immediately
-
-                            // Background sync to server (DISABLED until columns added to DB)
-                            /*
-                            window.client.from('exam_results')
-                                .update({ 
-                                    answers_json: parsed.answers,
-                                    questions_json: parsed.questions
-                                })
-                                .eq('id', data.id)
-                                .then(({ error }) => {
-                                    if(!error) console.log("Synced legacy exam data to server");
-                                });
-                            */
-                        }
-                    } catch (e) { console.warn("Sync check failed", e); }
-                }
-
-                // if (data.answers_json || data.questions_json) {
-                if (false) {
-                    window.previousReviewSnapshot = {
-                        // answers: data.answers_json || {},
-                        // questions: data.questions_json || []
-                        answers: {},
-                        questions: []
-                    };
-                }
-            } else {
-                try {
-                    const ls = localStorage.getItem(`exam_review_${currentUser.id}`);
-                    if (ls) {
-                        window.previousReviewSnapshot = JSON.parse(ls);
-                    }
-                } catch { }
-            }
-            return data;
-        }
-
-        // 5. Start Exam
-        let examTimerInterval;
-        const EXAM_DURATION_MS = 60 * 60 * 1000; // 60 minutes for 100 questions
-
-        window.startExam = async () => {
-            const attempted = await checkStudentAttempt();
-            if (attempted) {
-                showExamResult(attempted.score, attempted.total_marks, true);
-                return;
-            }
-            if (!localStorage.getItem('exam_start_time')) {
-                localStorage.setItem('exam_start_time', Date.now());
-                localStorage.removeItem('exam_answers');
-                userAnswers = {};
-            }
-            $('#exam-start-screen').addClass('hidden');
-            $('#exam-interface').removeClass('hidden');
-            examQuestions = generateQuestions();
-            const savedAnswers = localStorage.getItem('exam_answers');
-            if (savedAnswers) {
-                userAnswers = JSON.parse(savedAnswers);
-            }
-            currentQuestionIndex = 0;
-            renderQuestion();
-            startTimer();
-        };
-
-        function startTimer() {
-            if (examTimerInterval) clearInterval(examTimerInterval);
-
-            const update = () => {
-                const startTime = parseInt(localStorage.getItem('exam_start_time'));
-                if (!startTime) return;
-
-                const now = Date.now();
-                const elapsed = now - startTime;
-                const remaining = EXAM_DURATION_MS - elapsed;
-
-                if (remaining <= 0) {
-                    clearInterval(examTimerInterval);
-                    $('#exam-timer-display').text("00:00").addClass('text-rose-500');
-                    alert("Time's up! Submitting your exam now.");
-                    submitExam(true);
-                    return;
-                }
-
-                const totalSeconds = Math.floor(remaining / 1000);
-                const m = Math.floor(totalSeconds / 60);
-                const s = totalSeconds % 60;
-                $('#exam-timer-display').text(`${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
-
-                if (remaining < 300000) { // 5 mins warning
-                    $('#exam-timer-display').addClass('text-rose-500 animate-pulse');
-                } else {
-                    $('#exam-timer-display').removeClass('text-rose-500 animate-pulse');
-                }
-            };
-
-            update();
-            examTimerInterval = setInterval(update, 1000);
-        }
-
-        // 6. Generate 100 HTML Questions
-        function generateQuestions() {
-            const allQ = [
-                { q: "HTML ka full form kya hai?", options: ["Hyper Text Markup Language", "High Text Machine Language", "Hyper Tool Markup Language", "Hyper Text Machine Language"], correct: 0 },
-                { q: "HTML ka use kis liye hota hai?", options: ["Styling", "Programming", "Web page ka structure", "Database"], correct: 2 },
-                { q: "HTML file ka extension kya hota hai?", options: [".ht", ".html", ".web", ".doc"], correct: 1 },
-                { q: "Root element kaunsa hota hai?", options: ["<head>", "<body>", "<html>", "<title>"], correct: 2 },
-                { q: "Page ka title kahan likhte hain?", options: ["<body>", "<meta>", "<title>", "<h1>"], correct: 2 },
-                { q: "Heading tags ka range kya hai?", options: ["<h1> to <h3>", "<h1> to <h6>", "<h2> to <h6>", "<h1> to <h5>"], correct: 1 },
-                { q: "Paragraph ke liye kaunsa tag hai?", options: ["<para>", "<p>", "<text>", "<pg>"], correct: 1 },
-                { q: "Line break ke liye kaunsa tag?", options: ["<lb>", "<br>", "<break>", "<hr>"], correct: 1 },
-                { q: "Horizontal line ke liye?", options: ["<br>", "<line>", "<hr>", "<border>"], correct: 2 },
-                { q: "Anchor tag ka use?", options: ["Image", "Link", "Form", "Table"], correct: 1 },
-                { q: "Link ka address kis attribute me hota hai?", options: ["src", "href", "link", "url"], correct: 1 },
-                { q: "New tab me link open karne ke liye?", options: ["open", "blank", "target=\"_blank\"", "new"], correct: 2 },
-                { q: "Image ke liye kaunsa tag?", options: ["<image>", "<img>", "<pic>", "<src>"], correct: 1 },
-                { q: "Image ka path kis attribute se dete hain?", options: ["href", "src", "alt", "title"], correct: 1 },
-                { q: "Image ka alternative text?", options: ["name", "title", "alt", "value"], correct: 2 },
-                { q: "HTML comment ka sahi tareeqa?", options: ["// comment", "/* comment */", "<!-- comment -->", "## comment"], correct: 2 },
-                { q: "Bold text ke liye?", options: ["<b>", "<strong>", "Dono A aur B", "<bold>"], correct: 2 },
-                { q: "Italic text ke liye?", options: ["<i>", "<em>", "Dono A aur B", "<italic>"], correct: 2 },
-                { q: "Underline ke liye?", options: ["<u>", "<ul>", "<underline>", "<li>"], correct: 0 },
-                { q: "Subscript ke liye?", options: ["<sup>", "<sub>", "<small>", "<big>"], correct: 1 },
-                { q: "Superscript ke liye?", options: ["<sub>", "<sup>", "<small>", "<big>"], correct: 1 },
-                { q: "Ordered list ka tag?", options: ["<ul>", "<ol>", "<li>", "<list>"], correct: 1 },
-                { q: "Unordered list ka tag?", options: ["<ul>", "<ol>", "<li>", "<u>"], correct: 0 },
-                { q: "List item ka tag?", options: ["<item>", "<li>", "<list>", "<il>"], correct: 1 },
-                { q: "Description list ka main tag?", options: ["<dl>", "<dt>", "<dd>", "<list>"], correct: 0 },
-                { q: "Definition term ka tag?", options: ["<dl>", "<dt>", "<dd>", "<li>"], correct: 1 },
-                { q: "Definition description ka tag?", options: ["<dl>", "<dt>", "<dd>", "<li>"], correct: 2 },
-                { q: "Form banane ka tag?", options: ["<input>", "<form>", "<label>", "<fieldset>"], correct: 1 },
-                { q: "Label ka use?", options: ["Styling", "Input ka naam show", "Data store", "Validation"], correct: 1 },
-                { q: "Text input ke liye?", options: ["email", "password", "text", "number"], correct: 2 },
-                { q: "Email input type?", options: ["mail", "email", "text", "gmail"], correct: 1 },
-                { q: "Password input type?", options: ["hidden", "secure", "password", "lock"], correct: 2 },
-                { q: "Radio button ka type?", options: ["checkbox", "radio", "select", "option"], correct: 1 },
-                { q: "Checkbox ka type?", options: ["check", "tick", "checkbox", "box"], correct: 2 },
-                { q: "Mobile number ke liye type?", options: ["phone", "tel", "number", "mobile"], correct: 1 },
-                { q: "Textarea ka use?", options: ["Single line text", "Multiple line text", "Image upload", "Dropdown"], correct: 1 },
-                { q: "Dropdown banane ka tag?", options: ["<option>", "<select>", "<list>", "<input>"], correct: 1 },
-                { q: "Dropdown ke option ka tag?", options: ["<li>", "<option>", "<select>", "<opt>"], correct: 1 },
-                { q: "Fieldset ka use?", options: ["Button banana", "Form fields group", "Styling", "Input hide"], correct: 1 },
-                { q: "Fieldset ka title?", options: ["<title>", "<label>", "<legend>", "<head>"], correct: 2 },
-                { q: "Table banane ka tag?", options: ["<tbl>", "<table>", "<tr>", "<td>"], correct: 1 },
-                { q: "Table row ka tag?", options: ["<td>", "<tr>", "<th>", "<row>"], correct: 1 },
-                { q: "Table heading cell?", options: ["<td>", "<tr>", "<th>", "<thead>"], correct: 2 },
-                { q: "Table data cell?", options: ["<th>", "<td>", "<tr>", "<cell>"], correct: 1 },
-                { q: "Table border attribute?", options: ["frame", "border", "cellpadding", "cellspacing"], correct: 1 },
-                { q: "Cell ke andar space?", options: ["cellspacing", "cellpadding", "margin", "padding"], correct: 1 },
-                { q: "Cells ke darmiyan space?", options: ["border", "cellpadding", "cellspacing", "space"], correct: 2 },
-                { q: "Object tag ka use?", options: ["Image", "External resource embed", "Form", "Table"], correct: 1 },
-                { q: "Object tag me file path ka attribute?", options: ["src", "data", "href", "link"], correct: 1 },
-                { q: "Object tag ka alternate content kyun?", options: ["Styling", "Load fail hone par", "Validation", "Database"], correct: 1 },
-                { q: "iframe ka use?", options: ["Image", "Video", "Another webpage show", "Form"], correct: 2 },
-                { q: "iframe ka attribute jo URL deta hai?", options: ["href", "src", "link", "path"], correct: 1 },
-                { q: "iframe kis cheez ke liye common hai?", options: ["PDF", "Google Maps", "YouTube", "All of these"], correct: 3 },
-                { q: "Audio tag ka use?", options: ["Video", "Sound play", "Image", "Text"], correct: 1 },
-                { q: "Audio tag ka attribute jo controls show kare?", options: ["play", "show", "controls", "audio"], correct: 2 },
-                { q: "Audio file ka common format?", options: [".mp3", ".jpg", ".html", ".css"], correct: 0 },
-                { q: "Video tag ka use?", options: ["Audio", "Image", "Video play", "Form"], correct: 2 },
-                { q: "Video controls dikhane ke liye?", options: ["play", "show", "controls", "view"], correct: 2 },
-                { q: "Video ke liye common format?", options: [".mp4", ".mp3", ".png", ".css"], correct: 0 },
-                { q: "Video autoplay ka attribute?", options: ["auto", "play", "autoplay", "start"], correct: 2 },
-                { q: "muted attribute ka use?", options: ["Sound increase", "Sound band", "Video stop", "Reload"], correct: 1 },
-                { q: "loop attribute ka use?", options: ["Video band", "Repeat play", "Fast", "Pause"], correct: 1 },
-                { q: "Form data submit karne ke liye?", options: ["reset", "submit", "button", "send"], correct: 1 },
-                { q: "Reset button ka kaam?", options: ["Submit", "Clear form", "Save", "Reload"], correct: 1 },
-                { q: "Placeholder ka use?", options: ["Value store", "Hint dikhana", "Label banana", "Hide"], correct: 1 },
-                { q: "Required attribute ka use?", options: ["Optional banana", "Field mandatory banana", "Styling", "Hide"], correct: 1 },
-                { q: "Name attribute ka kaam?", options: ["Styling", "Data identify", "Size", "Color"], correct: 1 },
-                { q: "Select tag kis ke sath use hota hai?", options: ["<li>", "<option>", "<input>", "<label>"], correct: 1 },
-                { q: "Audio tag ke andar source ka tag?", options: ["<src>", "<file>", "<source>", "<link>"], correct: 2 },
-                { q: "Video tag ke andar source?", options: ["<src>", "<file>", "<source>", "<link>"], correct: 2 },
-                { q: "iframe ek ______ element hai", options: ["Form", "Media", "Inline frame", "Block"], correct: 2 },
-                { q: "object tag kis type ka content load karta hai?", options: ["External", "Internal", "CSS", "Script"], correct: 0 },
-                { q: "HTML case sensitive hoti hai?", options: ["Yes", "No", "Kabhi kabhi", "Attributes only"], correct: 1 },
-                { q: "HTML ek ______ language hai", options: ["Programming", "Scripting", "Markup", "Query"], correct: 2 },
-                { q: "Meta tag kahan hota hai?", options: ["body", "footer", "head", "html"], correct: 2 },
-                { q: "Charset ka kaam?", options: ["Font size", "Encoding batana", "Color", "Layout"], correct: 1 },
-                { q: "Viewport ka use?", options: ["SEO", "Responsive design", "Database", "Security"], correct: 1 },
-                { q: "iframe me height/width kis liye?", options: ["Style", "Size control", "Color", "Border"], correct: 1 },
-                { q: "Audio autoplay attribute?", options: ["auto", "play", "autoplay", "start"], correct: 2 },
-                { q: "Video poster attribute ka use?", options: ["Thumbnail image", "Sound", "Caption", "Loop"], correct: 0 },
-                { q: "iframe me border remove karne ke liye?", options: ["border", "frameborder=\"0\"", "none", "remove"], correct: 1 },
-                { q: "Object tag me width/height?", options: ["Styling", "Size define", "Link", "Validation"], correct: 1 },
-                { q: "Form ka method attribute?", options: ["get/post", "send", "push", "fetch"], correct: 0 },
-                { q: "Action attribute ka use?", options: ["Styling", "Data submit URL", "Validation", "Hide"], correct: 1 },
-                { q: "Label ko input se connect karne ke liye?", options: ["name", "id", "for", "class"], correct: 2 },
-                { q: "iframe me sandbox attribute?", options: ["Styling", "Security", "Layout", "Audio"], correct: 1 },
-                { q: "Audio loop attribute?", options: ["repeat", "loop", "again", "play"], correct: 1 },
-                { q: "Video muted attribute?", options: ["Sound off", "Sound on", "Replay", "Pause"], correct: 0 },
-                { q: "Object tag fallback content kab dikhta hai?", options: ["Jab load ho", "Jab fail ho", "Hamesha", "Kabhi nahi"], correct: 1 },
-                { q: "iframe ke andar text likha ja sakta hai?", options: ["Yes", "No", "Kabhi kabhi", "CSS se"], correct: 0 },
-                { q: "Audio controls attribute?", options: ["show", "controls", "play", "sound"], correct: 1 },
-                { q: "Video controls attribute?", options: ["show", "controls", "view", "play"], correct: 1 },
-                { q: "Object tag ke andar kis type ka content ho sakta hai?", options: ["Text", "Image", "Media", "All"], correct: 3 },
-                { q: "iframe inline element hai ya block?", options: ["Block", "Inline", "Dono", "None"], correct: 1 },
-                { q: "Video tag ke sath kis tag ka use hota hai?", options: ["<link>", "<source>", "<img>", "<file>"], correct: 1 },
-                { q: "Audio tag kis section me hota hai?", options: ["head", "body", "footer", "meta"], correct: 1 },
-                { q: "iframe ka common use?", options: ["Image", "Map", "External page", "All"], correct: 3 },
-                { q: "HTML me multimedia tags kaunse hain?", options: ["audio, video", "img, link", "p, h1", "form, input"], correct: 0 },
-                { q: "Object tag HTML me kyun use hota hai?", options: ["Styling", "Embed resources", "Layout", "Validation"], correct: 1 },
-                { q: "HTML beginners ke liye sabse pehle kya seekhna chahiye?", options: ["JavaScript", "CSS", "HTML structure & basic tags", "Database"], correct: 2 }
-            ];
-
-            // Shuffle function to randomize questions
-            function shuffle(array) {
-                let currentIndex = array.length, randomIndex;
-                while (currentIndex != 0) {
-                    randomIndex = Math.floor(Math.random() * currentIndex);
-                    currentIndex--;
-                    [array[currentIndex], array[randomIndex]] = [
-                        array[randomIndex], array[currentIndex]];
-                }
-                return array;
-            }
-
-            return shuffle(allQ).slice(0, 100);
-        }
-
-        // 7. Render Question
-        function renderQuestion() {
-            const q = examQuestions[currentQuestionIndex];
-            $('#current-q-num').text(currentQuestionIndex + 1);
-            $('#question-text').text(q.q);
-
-            const progress = ((currentQuestionIndex + 1) / examQuestions.length) * 100;
-            $('#exam-progress-bar').css('width', `${progress}%`);
-
-            const container = $('#options-container').empty();
-            q.options.forEach((opt, idx) => {
-                const isChecked = userAnswers[currentQuestionIndex] === idx;
-
-                // Escape HTML tags in options
-                const escapedOpt = opt.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-                const el = $(`
-                    <label class="group relative flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${isChecked ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 shadow-lg shadow-indigo-500/10' : 'bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md'}">
-                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? 'border-indigo-500 bg-indigo-500 text-white scale-110' : 'border-slate-300 dark:border-slate-600 group-hover:border-indigo-400'}">
-                            ${isChecked ? '<i data-lucide="check" class="w-5 h-5"></i>' : '<span class="text-xs font-bold text-slate-400 group-hover:text-indigo-400">' + String.fromCharCode(65 + idx) + '</span>'}
-                        </div>
-                        <input type="radio" name="q_opt" value="${idx}" class="hidden" ${isChecked ? 'checked' : ''}>
-                        <span class="text-base font-medium text-slate-700 dark:text-slate-200 option-text leading-relaxed group-hover:text-slate-900 dark:group-hover:text-white transition-colors"></span>
-                        
-                        ${isChecked ? '<div class="absolute inset-0 rounded-2xl ring-2 ring-indigo-500 ring-offset-2 ring-offset-transparent pointer-events-none"></div>' : ''}
-                    </label>
-                `);
-                el.find('.option-text').html(escapedOpt); // Use .html() to render escaped entities correctly
-
-                el.click(() => selectOption(idx));
-                container.append(el);
-            });
-
-            // Re-initialize icons for the new content
-            if (window.lucide) lucide.createIcons();
-
-            $('#btn-prev').prop('disabled', currentQuestionIndex === 0);
-            if (currentQuestionIndex === examQuestions.length - 1) {
-                $('#btn-next').addClass('hidden');
-                $('#btn-submit').removeClass('hidden');
-            } else {
-                $('#btn-next').removeClass('hidden');
-                $('#btn-submit').addClass('hidden');
-            }
-        }
-
-        window.selectOption = (idx) => {
-            userAnswers[currentQuestionIndex] = idx;
-            localStorage.setItem('exam_answers', JSON.stringify(userAnswers));
-            renderQuestion();
-        };
-
-        window.nextQuestion = () => {
-            if (currentQuestionIndex < examQuestions.length - 1) {
-                currentQuestionIndex++;
-                renderQuestion();
-            }
-        };
-
-        window.prevQuestion = () => {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                renderQuestion();
-            }
-        };
-
-        // 8. Submit Exam
-        window.submitExam = async (force = false) => {
-            if (!force && !confirm("Are you sure you want to submit? You cannot undo this.")) return;
-
-            clearInterval(examTimerInterval);
-            localStorage.removeItem('exam_start_time');
-            localStorage.removeItem('exam_answers');
-
-            let score = 0;
-            examQuestions.forEach((q, idx) => {
-                if (userAnswers[idx] === q.correct) score++;
-            });
-
-            const percentage = Math.round((score / examQuestions.length) * 100);
-            const passed = percentage >= 40;
-
-            // Generate unique Certificate ID if passed
-            let certId = null;
-            if (passed) {
-                const randomPart = Math.floor(1000 + Math.random() * 9000); // 4 digit
-                certId = "BBS-HTML-" + new Date().getFullYear() + "-" + randomPart;
-            }
-
-            if (window.client && currentUser && userProfile) {
-                // Snapshot for review persistence
-                const reviewSnapshot = {
-                    questions: examQuestions.map(q => ({ q: q.q, options: q.options, correct: q.correct })),
-                    answers: userAnswers
-                };
-
-                // Save to localStorage as a backup (for same-device review)
-                try {
-                    localStorage.setItem(`exam_review_${currentUser.id}`, JSON.stringify(reviewSnapshot));
-                } catch { }
-
-                // OFFLINE SUPPORT: Create a pending payload
-                const payload = {
-                    student_id: currentUser.id,
-                    student_name: userProfile.name,
-                    score: percentage,
-                    total_marks: 100,
-                    status: passed ? 'PASS' : 'FAIL',
-                    certificate_id: certId,
-                    created_at: new Date().toISOString()
-                };
-
-                // Save to Pending Sync (Robust Offline Mode)
-                try {
-                    localStorage.setItem(`pending_exam_sync_${currentUser.id}`, JSON.stringify(payload));
-                } catch (e) { console.error("Local save failed", e); }
-
-                try {
-                    const { error } = await window.client.from('exam_results').insert(payload);
-                    if (error) {
-                        console.warn("Upload failed, saved offline:", error);
-                        showToast("You are offline. Result saved locally and will sync when online.", "warning");
-                    } else {
-                        // Success! Remove pending sync
-                        localStorage.removeItem(`pending_exam_sync_${currentUser.id}`);
-                        showToast("Exam submitted successfully!", "success");
-                    }
-                } catch (err) {
-                    console.warn("Network error, saved offline:", err);
-                    showToast("Network error. Result saved locally.", "warning");
-                }
-            }
-
-            showExamResult(percentage, examQuestions.length, false);
-        };
-
-        function showExamResult(percentage, total, isHistory) {
-            $('#exam-interface').addClass('hidden');
-            $('#exam-start-screen').addClass('hidden');
-            $('#exam-result-card').removeClass('hidden');
-
-            const passed = percentage >= 40;
-
-            $('#result-score').text(percentage + '%').removeClass('text-emerald-500 text-rose-500').addClass(passed ? 'text-emerald-500' : 'text-rose-500');
-            $('#result-message').text(passed ? 'Congratulations! You Passed.' : 'Better luck next time.');
-
-            const icon = passed ? '<i data-lucide="trophy" class="w-12 h-12 text-emerald-600"></i>' : '<i data-lucide="x-circle" class="w-12 h-12 text-rose-600"></i>';
-            $('#result-icon-container').html(icon).removeClass('bg-emerald-100 bg-rose-100').addClass(passed ? 'bg-emerald-100' : 'bg-rose-100');
-
-            // Show Download Button if passed
-            if (passed) {
-                $('#btn-download-cert').removeClass('hidden');
-            } else {
-                $('#btn-download-cert').addClass('hidden');
-            }
-
-            lucide.createIcons();
-        }
-
-        // 10. Download Certificate
-        window.downloadCertificate = async () => {
-            if (!window.jspdf || !window.html2canvas) {
-                showToast("Certificate system loading... Please try again in a few seconds.", "error");
-                return;
-            }
-
-            const container = $('#certificate-container');
-            const name = (userProfile && userProfile.name) ? userProfile.name : "Student Name";
-            const score = $('#result-score').text();
-            const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            // Generate a random ID for "authenticity"
-            const certId = "BBS-HTML-" + new Date().getFullYear() + "-" + Math.floor(1000 + Math.random() * 9000);
-
-            // Populate Data
-            $('#cert-student-name').text(name);
-            $('#cert-score').text(score);
-            $('#cert-date').text(date);
-            $('#cert-id').text(certId);
-
-            showToast("Generating Certificate... Please wait.", "info");
-
-            // Create a clone of the certificate for capture
-            // This avoids issues with hidden elements or existing transforms
-            const originalElement = document.getElementById('certificate-template');
-            const clone = originalElement.cloneNode(true);
-
-            // Setup clone for perfect capture
-            clone.id = 'certificate-template-clone';
-            clone.style.position = 'absolute';
-            clone.style.top = '0';
-            clone.style.left = '0';
-            clone.style.transform = 'none';
-            clone.style.margin = '0';
-            clone.style.zIndex = '9999';
-            clone.style.width = '1123px';
-            clone.style.height = '900px';
-
-            // Important: Ensure images in clone are loaded or have correct src
-            // The cloneNode(true) copies attributes, but we need to ensure the signature image source is set if it was set via JS
-            const originalSig = originalElement.querySelector('#admin-sig-img');
-            const cloneSig = clone.querySelector('#admin-sig-img');
-            if (originalSig && cloneSig) {
-                cloneSig.src = originalSig.src;
-            }
-
-            document.body.appendChild(clone);
-
-            // Lock body scroll
-            const bodyOverflow = document.body.style.overflow;
-            document.body.style.overflow = 'hidden';
-            window.scrollTo(0, 0);
-
-            try {
-                // Wait for render (fonts, images)
-                await new Promise(r => setTimeout(r, 1000));
-
-                const canvas = await html2canvas(clone, {
-                    scale: 3, // Higher quality
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                    width: 1123,
-                    height: 900,
-                    scrollX: 0,
-                    scrollY: 0,
-                    x: 0,
-                    y: 0
-                });
-
-                const { jsPDF } = window.jspdf;
-                // Create PDF with custom dimensions matching the captured canvas aspect ratio
-                // Use pixels (or points) to match canvas dimensions 1:1 to avoid cropping
-                const pdf = new jsPDF('l', 'px', [1123, 900]);
-
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-
-                const imgData = canvas.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-
-                pdf.save(`HTML_Certificate_${name.replace(/[^a-z0-9]/gi, '_')}.pdf`);
-
-                showToast("Certificate downloaded successfully!");
-            } catch (err) {
-                console.error("Certificate Generation Error:", err);
-                showToast("Failed to generate certificate.", "error");
-            } finally {
-                // Remove clone and restore body
-                if (clone && clone.parentNode) {
-                    clone.parentNode.removeChild(clone);
-                }
-                document.body.style.overflow = bodyOverflow;
-            }
-        };
-
-        // 9. Admin Results
-        async function fetchAdminExamResults() {
-            if (!userProfile || userProfile.role !== 'admin') return;
-
-            const tbody = $('#exam-results-body');
-            tbody.html('<tr><td colspan="4" class="p-4 text-center">Loading...</td></tr>');
-
-            const { data } = await window.client
-                .from('exam_results')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (!data || data.length === 0) {
-                tbody.html('<tr><td colspan="4" class="p-4 text-center text-slate-400">No results found.</td></tr>');
-                return;
-            }
-
-            tbody.empty();
-            data.forEach(row => {
-                const date = new Date(row.created_at).toLocaleDateString();
-                const isPass = row.status === 'PASS';
-                const tr = `
-                    <tr class="border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td class="p-3 font-bold text-slate-800 dark:text-slate-200">${row.student_name || row.student_id}</td>
-                        <td class="p-3 font-black ${isPass ? 'text-emerald-500' : 'text-rose-500'}">${row.score}%</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${isPass ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}">${row.status}</span></td>
-                        <td class="p-3 text-xs text-slate-400">${date}</td>
-                        <td class="p-3 text-right">
-                            <button onclick="resetExamResult('${row.id}', '${row.student_name || 'Student'}')" 
-                                    class="p-2 bg-slate-100 hover:bg-rose-100 text-slate-400 hover:text-rose-500 rounded-lg transition-colors" 
-                                    title="Reset Result (Allow Retake)">
-                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tbody.append(tr);
-            });
-            lucide.createIcons();
-        }
-
-        window.resetExamResult = async (resultId, name) => {
-            if (!confirm(`Are you sure you want to RESET the exam result for ${name}?\n\nThis will delete their current score and allow them to take the exam again.`)) return;
-
-            const { error } = await window.client
-                .from('exam_results')
-                .delete()
-                .eq('id', resultId);
-
-            if (!error) {
-                showToast(`Result for ${name} has been reset.`);
-                fetchAdminExamResults();
-            } else {
-                console.error(error);
-                showToast('Failed to reset result.', 'error');
-            }
-        };
+        /*
+        // --- EXAM SYSTEM (DISABLED) ---
+        // (Previously commented out in stages, now consolidated to fix syntax errors)
+        
+        // [A massive block of exam logic was removed from here, including:
+        //  - initExamSystem
+        //  - fetchExamStatus
+        //  - updateExamUIState
+        //  - toggleExamStatus
+        //  - checkStudentAttempt
+        //  - generateQuestions (100 Qs)
+        //  - renderQuestion
+        //  - submitExam
+        //  - downloadCertificate
+        //  - fetchAdminExamResults
+        //  - resetExamResult]
+        */
 
         // --- STUDENT COUNT LOGIC ---
         const initStudentCounter = () => {
@@ -5659,6 +4812,8 @@
             }
             container.html(html);
         };
+
+
 
         window.handleAuthSubmit = async (e) => {
             e.preventDefault();
@@ -5762,13 +4917,14 @@
 
                     // Create or Update Profile (Upsert ensures data sync)
                     const { error: profileError } = await client.from('profiles').upsert({
+                        id: userId,
                         uid: userId,
-                        name: name,
+                        full_name: name,
                         email,
                         role: 'student',
                         status: 'pending',
                         avatar_url: avatarUrl
-                    }, { onConflict: 'uid' });
+                    }, { onConflict: 'id' });
 
                     if (profileError) throw profileError;
 
@@ -5782,21 +4938,34 @@
                     btn.prop('disabled', false);
                 } else {
                     // Standard Login
+                    const currentTabRole = localStorage.getItem('last_auth_tab') || ($('#tab-student').hasClass('bg-white') ? 'student' : 'admin');
+
                     const { data, error } = await client.auth.signInWithPassword({ email, password: pass });
                     if (error) throw error;
 
-                    // EXPLICIT MODE: Immediately handle the user session
-                    // This prevents sticking on "Verifying..." if onAuthStateChange is slow/missed.
                     if (data?.user) {
+                        // Strict Role Validation
+                        const { data: profile } = await client.from('profiles').select('role').eq('uid', data.user.id).single();
+                        if (profile && profile.role !== currentTabRole) {
+                            await client.auth.signOut();
+                            throw new Error('Access Denied: You cannot log into the ' + currentTabRole.toUpperCase() + ' portal with a ' + profile.role.toUpperCase() + ' account. Please use the correct login tab.');
+                        }
+
+                        // EXPLICIT MODE: Immediately handle the user session
+                        // This prevents sticking on "Verifying..." if onAuthStateChange is slow/missed.
                         await handleUserSession(data.user);
                     }
                 }
             } catch (err) {
-                console.error("Auth Error:", err);
+                console.error("Auth Full Error:", JSON.stringify(err, null, 2));
+
+                // CRITICAL FIX: Ensure the global loader isn't stuck if an error threw early
+                $('#global-loader').fadeOut(300);
+
                 let msg = err.message;
-                // Specific handling for the 500 Trigger Error (Duplicate Key / Zombie Profile)
-                if (msg.includes('500') || (err.status === 500) || msg.includes('Database error')) {
-                    msg = "Database Error (500). An old Profile is likely blocking registration. Please run the 'fix_signup_error.sql' script in your Supabase Dashboard.";
+                // Specific handling for the 500 Trigger Error (Unexpected Failure)
+                if (err.status === 500 || msg.includes('500') || err.code === 'unexpected_failure') {
+                    msg = "Database Error (500). A broken Backend Trigger is likely blocking signup. Please run the 'fix_profiles_trigger.sql' script in your Supabase Dashboard.";
                 }
                 errorElement.text(msg).removeClass('hidden');
                 btn.prop('disabled', false).find('span').text(originalText);
@@ -6249,6 +5418,14 @@
         };
 
         function initDashboard() {
+            if (!userProfile) {
+                console.error("Critical: initDashboard called but userProfile is null.");
+                showToast("System failed to load user profile. Please try logging in again.", "error");
+                return;
+            }
+            // Ensure backwards compatibility between name and full_name
+            userProfile.name = userProfile.name || userProfile.full_name || 'User';
+
             // OPTIMIZATION: Render "shell" and cached content IMMEDIATELY before hiding loader
 
             // 1. Basic Text & Profile Info
@@ -6346,15 +5523,17 @@
                 const greeting = hours < 12 ? "Good Morning" : hours < 18 ? "Good Afternoon" : "Good Evening";
                 $('#live-clock').text(now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }));
                 $('#live-date').text(now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' }));
-                $('#dynamic-greeting-text').text(`${greeting}, ${userProfile.name.split(' ')[0]}`);
+
+                const fullName = userProfile.full_name || 'User';
+                $('#dynamic-greeting-text').text(`${greeting}, ${fullName.split(' ')[0]}`);
 
                 // SYNC MOBILE SIDEBAR PROFILE
-                $('.mobile-user-name').text(userProfile.name);
+                $('.mobile-user-name').text(fullName);
                 if (userProfile.avatar_url) {
                     $('#mobile-sidebar-avatar').attr('src', userProfile.avatar_url).removeClass('hidden');
                     $('.mobile-avatar-initial').addClass('hidden');
                 } else {
-                    $('.mobile-avatar-initial').text(userProfile.name.charAt(0)).removeClass('hidden');
+                    $('.mobile-avatar-initial').text(fullName.charAt(0)).removeClass('hidden');
                     $('#mobile-sidebar-avatar').addClass('hidden');
                 }
             };
@@ -7406,6 +6585,7 @@
                 console.error("fetchUsers Error:", error);
                 showToast("Failed to fetch students. Check console.");
             } else {
+                if (users) { users.forEach(u => u.name = u.name || u.full_name || 'Student'); }
                 window.allUsersCache = users || []; // Cache users IMMEDIATELY after fetch
                 const studentCount = users ? users.filter(u => u.role === 'student').length : 0;
                 console.log(`Fetched ${users ? users.length : 0} total users. ${studentCount} are students.`);
@@ -7426,7 +6606,7 @@
             const container = $('#user-table-body').empty();
             const query = $('#user-search').val().toLowerCase();
 
-            users.filter(u => u.role === 'student' && (u.name.toLowerCase().includes(query) || (u.email && u.email.toLowerCase().includes(query)))).forEach(u => {
+            users.filter(u => u.role === 'student' && ((u.name || u.full_name || "").toLowerCase().includes(query) || (u.email && u.email.toLowerCase().includes(query)))).forEach(u => {
                 // ROBUST ID CHECK: Use uid or id
                 const userId = u.uid || u.id;
 
@@ -7519,7 +6699,7 @@
                              ${status === 'pending' ? `<button onclick="approveUser('${userId}')" class="p-2 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-all"><i data-lucide="shield-check" class="w-4 h-4"></i></button>` : ''}
                             <button onclick="window.viewStudentFiles('${userId}', '${(u.name || "").replace(/'/g, "\\'")}')" class="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-all" title="View Student Files"><i data-lucide="folder-open" class="w-4 h-4"></i></button>
                             <button onclick="window.adminResetPassword('${userId}', '${(u.name || "").replace(/'/g, "\\'")}')" class="p-2 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-all" title="Reset Credentials"><i data-lucide="key-round" class="w-4 h-4"></i></button>
-                            <button onclick="window.adminResetExam('${userId}', '${(u.name || "").replace(/'/g, "\\'")}')" class="p-2 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-all" title="Reset Exam"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+                            <!-- <button onclick="window.adminResetExam('${userId}', '${(u.name || "").replace(/'/g, "\\'")}')" class="p-2 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-all" title="Reset Exam"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button> -->
                             <button onclick="generateResult('${userId}')" class="p-2 text-teal-500 hover:bg-teal-50 dark:hover:bg-teal-500/10 rounded-lg transition-all" title="Intelligence Report"><i data-lucide="file-bar-chart-2" class="w-4 h-4"></i></button>
                             <button onclick="deleteUser('${userId}')" class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all" title="Purge Record"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </td >
@@ -7599,7 +6779,7 @@
             console.log("Fetching feedback...");
             const { data: feedback, error } = await client.from('feedback')
                 .select('*')
-                .order('created_at', { ascending: false });
+                .order('submitted_at', { ascending: false });
 
             if (error) {
                 console.error("fetchFeedback Error:", error);
@@ -8672,9 +7852,11 @@
             }
 
             // Exam
+            /*
             if (tabId === 'exam') {
                 if (typeof initExamSystem === 'function') initExamSystem();
             }
+            */
 
             // Tasks
             if (tabId === 'tasks') {
@@ -8812,15 +7994,15 @@
         window.currentViewingStudentId = null;
 
         window.loadUserFiles = async (targetUserId = null, studentName = null) => {
-            if (!userProfile) return;
+            if (!currentUser) return;
 
             // If Admin and no target user, show Student Directory
-            if (userProfile.role === 'admin' && !targetUserId) {
+            if (userProfile?.role === 'admin' && !targetUserId) {
                 renderStudentDirectory();
                 return;
             }
 
-            const uid = targetUserId || userProfile.uid || userProfile.id;
+            const uid = targetUserId || currentUser.id;
             window.currentViewingStudentId = targetUserId;
 
             console.log("Loading files for UID:", uid, "Is Student View:", !!targetUserId);
@@ -9108,7 +8290,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                         const stats = statsMap[id] || { count: 0 };
 
                         html += `
-                            <div onclick="loadUserFiles('${id}', '${student.name.replace(/'/g, "\\'")}')" 
+                            <div onclick="loadUserFiles('${id}', '${(student.name || student.full_name || "Unknown").replace(/'/g, "\\'")}')" 
                                  class="group flex flex-col items-center text-center ${config.cardPadding} bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all cursor-pointer">
                                 
                                 <!-- Configurable Folder Icon -->
@@ -9119,7 +8301,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                                 <!-- Core Details -->
                                 <div class="w-full">
                                     <h4 class="${config.titleSize} font-bold text-slate-800 dark:text-white truncate leading-tight group-hover:text-indigo-600 transition-colors">
-                                        ${student.name}
+                                        ${student.name || student.full_name || "Unknown"}
                                     </h4>
                                     <p class="${config.subtextSize} font-medium text-slate-400 mt-0.5">
                                         ${stats.count} Files
@@ -9163,7 +8345,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             try {
                 const { error } = await client
                     .from('personal_storage')
-                    .update({ name: newName })
+                    .update({ full_name: newName })
                     .eq('id', fileId);
 
                 if (error) throw error;
@@ -9190,8 +8372,8 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             if (!userProfile) return showToast("Please login.", "error");
 
             const uid = userProfile.uid || userProfile.id;
-            const CLOUD_NAME = "dlm3iaqjn";
-            const UPLO_PRESET = "lms_assignments";
+            const CLOUD_NAME = "dwowte8ny";
+            const UPLO_PRESET = "navttc-lms";
 
             $('#storage-upload-progress').removeClass('hidden');
             $('#storage-upload-percent').text(`0%`);
@@ -9278,11 +8460,14 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
 
         window.uploadFile = async (files) => {
             if (!files || files.length === 0) return;
-            if (!userProfile) return showToast("Please login to upload files.", "error");
 
-            const uid = userProfile.uid || userProfile.id;
-            const CLOUD_NAME = "dlm3iaqjn";
-            const UPLO_PRESET = "lms_assignments";
+            if (!currentUser) {
+                return showToast("Please login to upload files.", "error");
+            }
+
+            const uid = currentUser.id;
+            const CLOUD_NAME = "dwowte8ny";
+            const UPLO_PRESET = "navttc-lms";
 
             $('#storage-upload-progress').removeClass('hidden');
             let successCount = 0;
@@ -9294,12 +8479,13 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                 $('#storage-progress-bar').css('width', `${percent}%`);
 
                 try {
+                    console.log(`[Storage] Starting upload for: ${file.name} (${file.size} bytes)`);
+
                     // 1. Upload to Cloudinary
                     const formData = new FormData();
                     formData.append('file', file);
                     formData.append('upload_preset', UPLO_PRESET);
                     formData.append('folder', `personal_storage/${uid}`);
-                    formData.append('public_id', `${file.name.split('.')[0]}_${Date.now()}`); // Allowed in unsigned upload
 
                     const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
                         method: 'POST',
@@ -9307,45 +8493,72 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                     });
 
                     const cloudinaryData = await res.json();
-                    if (cloudinaryData.error) throw new Error(cloudinaryData.error.message);
+
+                    if (cloudinaryData.error) {
+                        console.error("[Cloudinary Error]", cloudinaryData.error);
+                        throw new Error(`Cloudinary: ${cloudinaryData.error.message}`);
+                    }
+
+                    console.log("[Cloudinary Success]", cloudinaryData.secure_url);
 
                     // 2. Save metadata to Supabase
-                    const { error: dbError, status: dbStatus } = await client
+                    // We omit public_id just in case the database schema is outdated 
+                    // and doesn't have it, which causes a silent failure during insert.
+                    const insertPayload = {
+                        user_id: uid,
+                        name: file.name,
+                        url: cloudinaryData.secure_url,
+                        size: file.size,
+                        type: file.type,
+                        created_at: new Date().toISOString()
+                    };
+
+                    if (cloudinaryData.public_id) {
+                        insertPayload.public_id = cloudinaryData.public_id;
+                    }
+
+                    const { error: dbError, status: dbStatus, data: insertedData } = await client
                         .from('personal_storage')
-                        .insert([{
-                            user_id: uid,
-                            name: file.name,
-                            url: cloudinaryData.secure_url,
-                            size: file.size,
-                            type: file.type,
-                            created_at: new Date().toISOString()
-                        }]);
+                        .insert([insertPayload])
+                        .select(); // Added .select() to force data return and clean promise resolution
 
                     if (dbError) {
+                        console.error("[Supabase Error]", dbError);
                         if (dbStatus === 404 || dbError.message.includes('relation "personal_storage" does not exist')) {
                             showToast("Critical Error: Database table 'personal_storage' not found.", "error");
                             throw new Error("Table 'personal_storage' missing. Check console for SQL setup.");
                         }
-                        throw dbError;
+
+                        // Fallback: If error is column 'public_id' does not exist, retry without it
+                        if (dbError.message && dbError.message.includes("public_id")) {
+                            console.warn("[Upload Debug] Schema mismatch detected. Retrying without public_id.");
+                            delete insertPayload.public_id;
+                            const { error: retryError } = await client.from('personal_storage').insert([insertPayload]);
+                            if (retryError) throw new Error(`Database Retry: ${retryError.message}`);
+                        } else {
+                            throw new Error(`Database: ${dbError.message}`);
+                        }
                     }
+
                     successCount++;
                 } catch (err) {
                     console.error("Upload Error:", err);
-                    showToast(`Failed to upload ${file.name}: ${err.message}`, "error");
+                    showToast(`Failed: ${err.message}`, "error");
                 }
             }
 
-            $('#storage-upload-percent').text(`100%`);
-            $('#storage-progress-bar').css('width', `100%`);
+            if (successCount > 0) {
+                $('#storage-upload-percent').text(`100%`);
+                $('#storage-progress-bar').css('width', `100%`);
+                showToast(`Successfully uploaded ${successCount} file(s)!`, "success");
+                loadUserFiles(window.currentViewingStudentId);
+            }
 
+            // Small delay before hiding progress
             setTimeout(() => {
                 $('#storage-upload-progress').addClass('hidden');
-                $('#storage-progress-bar').css('width', `0%`);
-                if (successCount > 0) {
-                    showToast(`Successfully uploaded ${successCount} file(s)!`, "success");
-                    loadUserFiles(window.currentViewingStudentId);
-                }
-            }, 1000);
+                $('#storage-progress-bar').css('width', '0%');
+            }, 1500);
         };
 
         window.deleteFile = async (fileId) => {
@@ -9897,6 +9110,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             }
         };
 
+        /*
         window.adminResetExam = async (uid, name) => {
             if (!confirm(`Are you sure you want to RESET the exam for ${name}? \n\nThis will: \n1. Delete their exam result record. \n2. Allow them to retake the test.`)) return;
 
@@ -9921,6 +9135,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                 showToast('An unexpected error occurred.', 'error');
             }
         };
+        */
 
         window.setupRealtime = () => {
             // Task Comments Realtime
@@ -10555,8 +9770,8 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
 
             try {
                 let cloudFileUrl = null;
-                const CLOUD_NAME = "dlm3iaqjn";
-                const UPLO_PRESET = "lms_assignments";
+                const CLOUD_NAME = "dwowte8ny";
+                const UPLO_PRESET = "navttc-lms";
 
                 if (file) {
                     const formData = new FormData();
@@ -10692,8 +9907,8 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             }).toBlob(async (blob) => {
                 if (!blob) return;
 
-                const CLOUD_NAME = "dlm3iaqjn";
-                const UPLO_PRESET = "lms_assignments";
+                const CLOUD_NAME = "dwowte8ny";
+                const UPLO_PRESET = "navttc-lms";
                 const formData = new FormData();
                 formData.append('file', blob, 'avatar.png');
                 formData.append('upload_preset', UPLO_PRESET);
@@ -10744,7 +9959,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                 if (nPass && nPass !== cPass) throw new Error("Passwords do not match.");
 
                 // Update Profile Table
-                const { error: pErr } = await client.from('profiles').update({ name }).eq('uid', currentUser.id);
+                const { error: pErr } = await client.from('profiles').update({ full_name: name }).eq('uid', currentUser.id);
                 if (pErr) throw pErr;
 
                 // Update Auth User
@@ -10828,8 +10043,8 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
 
             if (refFile) {
                 try {
-                    const CLOUD_NAME = "dlm3iaqjn";
-                    const UPLO_PRESET = "lms_assignments";
+                    const CLOUD_NAME = "dwowte8ny";
+                    const UPLO_PRESET = "navttc-lms";
                     const formData = new FormData();
                     formData.append('file', refFile);
                     formData.append('upload_preset', UPLO_PRESET);
@@ -11256,8 +10471,8 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
 
                 // Upload to Cloudinary if file present
                 if (file) {
-                    const CLOUD_NAME = "dlm3iaqjn";
-                    const UPLO_PRESET = "lms_assignments";
+                    const CLOUD_NAME = "dwowte8ny";
+                    const UPLO_PRESET = "navttc-lms";
                     const formData = new FormData();
                     formData.append('file', file);
                     formData.append('upload_preset', UPLO_PRESET);
@@ -11694,6 +10909,73 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                 console.warn("[Arcade] Progress sync failed.", e);
             }
         }
+
+        // --- ARCADE DATA & RENDERING ---
+        const gamesData = [
+            {
+                id: 'html_master',
+                title: 'HTML Master',
+                desc: 'Defeat bugs by answering HTML element questions correctly.',
+                icon: 'code-2',
+                color: 'blue',
+                levelKey: 'html_master_level'
+            },
+            {
+                id: 'drag_master',
+                title: 'Element Architect',
+                desc: 'Drag and drop code blocks the correct order to solve missions.',
+                icon: 'blocks',
+                color: 'emerald',
+                levelKey: 'drag_master_level'
+            },
+            {
+                id: 'js_logic',
+                title: 'JS Logic',
+                desc: 'Solve algorithmic challenges to power up your ship.',
+                icon: 'terminal',
+                color: 'amber',
+                levelKey: 'js_logic_level'
+            }
+        ];
+
+        window.renderGames = () => {
+            const grid = $('#arcade-grid');
+            grid.empty();
+
+            gamesData.forEach(game => {
+                const currentLevel = parseInt(localStorage.getItem(game.levelKey)) || 1;
+                const isLocked = currentLevel < 1; // You can add actual unlock logic here if needed
+
+                const cardHtml = `
+                    <div class="glass dark:glass-dark rounded-2xl p-6 border border-slate-200/50 dark:border-white/5 hover:border-${game.color}-500 transition-all cursor-pointer group relative overflow-hidden flex flex-col h-full ${isLocked ? 'opacity-50 grayscale' : ''}" onclick="${isLocked ? '' : `if(window.startArcadeGame) window.startArcadeGame('${game.id}')`}">
+                        <div class="absolute -right-6 -top-6 w-32 h-32 bg-${game.color}-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="w-14 h-14 rounded-2xl bg-${game.color}-50 dark:bg-${game.color}-500/10 flex items-center justify-center mb-6 border border-${game.color}-100 dark:border-${game.color}-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="${game.icon}" class="w-7 h-7 text-${game.color}-600 dark:text-${game.color}-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${game.title}</h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 flex-1">${game.desc}</p>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-white/5">
+                            <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                                ${isLocked ? 'Locked' : `Level ${currentLevel}`}
+                            </div>
+                            <button class="w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-${game.color}-500 group-hover:text-white transition-colors">
+                                <i data-lucide="${isLocked ? 'lock' : 'play'}" class="w-4 h-4 ml-0.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.append(cardHtml);
+            });
+            window.safeCreateIcons();
+        };
+
+        // Hook renderGames into the tab switcher if it exists, or run it on load
+        $(document).ready(() => {
+            // Render once initially
+            if ($('#arcade-grid').length > 0) {
+                window.renderGames();
+            }
+        });
 
         // ADAPTIVE DIFFICULTY CONTENT BANKS
         const htmlQB = {
@@ -12265,29 +11547,49 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
         };
 
         window.clearCode = () => {
+            if (!confirm("Are you sure you want to clear all your code? This cannot be undone.")) return;
             $('#code-html').val('');
             $('#code-css').val('');
             $('#code-js').val('');
-            window.runCode(); // Clear preview in Web mode
+            window.runCode();
+            showToast("Editor workspace cleared", "success");
+        };
+
+        window.resetToDefault = () => {
+            if (!confirm("Reset to default template? Your current changes will be lost.")) return;
+
+            const defaultHTML = `<!-- Welcome to Developer Workbench -->\n<div class="card">\n  <h1>Live Preview</h1>\n  <p>Start editing code on the left to see changes here in real-time!</p>\n  <button id="alertBtn">Click Me</button>\n</div>`;
+            const defaultCSS = `body { \n  font-family: system-ui, -apple-system, sans-serif;\n  background: #f8fafc;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  height: 100vh;\n  margin: 0;\n}\n\n.card {\n  background: white;\n  padding: 2rem;\n  border-radius: 1.5rem;\n  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);\n  text-align: center;\n  max-width: 400px;\n}\n\nh1 { color: #4f46e5; margin-bottom: 0.5rem; }\np { color: #64748b; margin-bottom: 2rem; }\n\nbutton {\n  background: #4f46e5;\n  color: white;\n  border: none;\n  padding: 0.75rem 1.5rem;\n  border-radius: 0.75rem;\n  font-weight: 700;\n  cursor: pointer;\n  transition: all 0.2s;\n}\n\nbutton:hover { background: #4338ca; transform: translateY(-2px); }`;
+            const defaultJS = `// Interactive Logic\ndocument.getElementById('alertBtn').addEventListener('click', () => {\n  alert('Hello from your Workbench!');\n});`;
+
+            $('#code-html').val(defaultHTML);
+            $('#code-css').val(defaultCSS);
+            $('#code-js').val(defaultJS);
+
+            window.runCode();
+            showToast("Template restored", "success");
         };
 
 
         window.toggleEditorPanel = (type) => {
+            // HTML is always on, do nothing
+            if (type === 'html') return;
+
             const panel = $(`#panel-${type}`);
             const btn = $(`#btn-toggle-${type}`);
 
             if (panel.hasClass('hidden')) {
+                // Show selected panel
                 panel.removeClass('hidden');
-                btn.removeClass('opacity-50 grayscale');
-
-                // Auto-open HTML if CSS or JS is opened
-                if (type === 'css' || type === 'js') {
-                    $('#panel-html').removeClass('hidden');
-                    $('#btn-toggle-html').removeClass('opacity-50 grayscale');
-                }
+                // Add active styles to selected button
+                btn.addClass('bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400')
+                    .removeClass('text-slate-400 hover:text-slate-600 dark:hover:text-slate-200');
             } else {
+                // Hide selected panel
                 panel.addClass('hidden');
-                btn.addClass('opacity-50 grayscale');
+                // Remove active styles from selected button
+                btn.removeClass('bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400')
+                    .addClass('text-slate-400 hover:text-slate-600 dark:hover:text-slate-200');
             }
         };
 
