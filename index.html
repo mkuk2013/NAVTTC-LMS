@@ -1918,10 +1918,7 @@
 
     <style>
         /* ===== LIVE EDITOR WIDTH FIX ===== */
-        .content-view {
-            width: 100% !important;
-            height: 100% !important;
-        }
+        .content-view { width: 100% !important; }
     </style>
 
 
@@ -1979,55 +1976,72 @@
 
             /* Ensure close button (X) is visible but adapts */
             /* We need to ensure the header layout supports 80px width */
-            /* Header Layout Fix for Collapsed Mobile State */
-            /* Header Layout Fix for Collapsed Mobile State */
-            /* Header Layout Fix for Collapsed Mobile State: Vertical Stack */
-            #main-sidebar.collapsed .px-2.mb-8 {
-                position: relative;
-                height: auto !important;
-                display: flex !important;
-                flex-direction: column-reverse !important;
-                /* Button Top, Logo Bottom */
-                align-items: center !important;
-                justify-content: flex-end !important;
-                gap: 12px !important;
-                /* Space between X and Logo */
-                margin-top: 10px !important;
-                margin-bottom: 30px !important;
+            
+        /* ======================================================
+           CLEAN COLLAPSED SIDEBAR ON MOBILE
+        ====================================================== */
+        @media (max-width: 768px) {
+            /* When collapsed (80px wide), center everything cleanly */
+            #main-sidebar.collapsed {
+                width: 68px !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
             }
 
-            /* Logo Wrapper (Bottom) */
-            #main-sidebar.collapsed .px-2.mb-8>div:first-child {
-                opacity: 1 !important;
+            /* Brand header row: stack logo on top, X below */
+            #main-sidebar.collapsed .px-6.mb-10 {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 12px 0 !important;
+                margin-bottom: 16px !important;
+                gap: 8px !important;
+            }
+
+            /* Logo stays centered */
+            #main-sidebar.collapsed .px-6.mb-10 > div {
                 width: 100% !important;
                 justify-content: center !important;
+                gap: 0 !important;
             }
 
-            /* Ensure text is hidden */
-            #main-sidebar.collapsed .px-2.mb-8>div:first-child .hide-on-collapse {
+            /* Close (X) button: centered below logo */
+            #main-sidebar.collapsed .px-6.mb-10 > button {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 6px !important;
+                border-radius: 10px !important;
+            }
+
+            /* Nav items: icons centered perfectly */
+            #main-sidebar.collapsed nav .nav-item {
+                justify-content: center !important;
+                padding: 12px 0 !important;
+                width: 100% !important;
+            }
+
+            /* Nav icons: use full sidebar width minus small padding */
+            #main-sidebar.collapsed nav {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+            }
+
+            /* Logo icon: keep size correct */
+            #main-sidebar.collapsed .px-6.mb-10 .w-12.h-12 {
+                width: 42px !important;
+                height: 42px !important;
+                border-radius: 14px !important;
+            }
+
+            /* Hide admin separator text when collapsed */
+            #main-sidebar.collapsed #admin-nav > div:first-child {
                 display: none !important;
             }
+        }
 
-            /* X Button (Top) */
-            #main-sidebar.collapsed .px-2.mb-8>button {
-                position: static !important;
-                transform: none !important;
-                right: auto;
-                top: auto;
-                background-color: transparent !important;
-                box-shadow: none !important;
-                padding: 4px;
-                /* Make icon red/prominent if desired, or keep default */
-            }
-
-            /* Dark mode text/icon colors are inherited */
-
-            /* Dark mode adjustment for button bg */
-            .dark #main-sidebar.collapsed .px-2.mb-8>button {
-                background-color: rgba(30, 41, 59, 0.8);
-            }
-
-            /* SMART TOGGLE VISIBILITY ON MOBILE */
+        /* SMART TOGGLE VISIBILITY ON MOBILE */
             /* 1. Default: Hide the toggle button on mobile (so it doesn't float when closed) */
             #desktop-toggle-btn {
                 display: none !important;
@@ -2041,6 +2055,182 @@
     </style>
 
 
+
+
+    <style>
+        /* ======================================================
+           COMPREHENSIVE MOBILE RESPONSIVENESS OVERRIDES
+           Applied globally across all LMS views.
+        ====================================================== */
+
+        /* --- Content Area Padding on small screens --- */
+        @media (max-width: 640px) {
+            .content-main {
+                padding: 12px !important;
+            }
+
+            /* Stats grid: 2 cols on xs instead of 1 */
+            .grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 12px !important;
+            }
+
+            /* KPI cards compact */
+            .v-card.p-6.group {
+                padding: 14px !important;
+            }
+
+            /* Stat numbers scale down */
+            .text-4xl.font-black {
+                font-size: 1.75rem !important;
+            }
+
+            /* Single column grids for resource, task, game cards */
+            #resource-grid,
+            #task-grid,
+            #arcade-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Greeting banner padding */
+            #view-dashboard .p-8 {
+                padding: 20px !important;
+            }
+            #dynamic-greeting-text {
+                font-size: 1.75rem !important;
+            }
+        }
+
+        /* --- Tablet padding --- */
+        @media (min-width: 641px) and (max-width: 1023px) {
+            .content-main {
+                padding: 16px !important;
+            }
+        }
+
+        /* --- Bottom nav safe area & table scrolling (all mobile) --- */
+        @media (max-width: 1024px) {
+            /* Keep content from hiding behind bottom nav */
+            .content-view {
+                padding-bottom: 88px !important;
+            }
+            #view-playground {
+                padding-bottom: 100px !important;
+            }
+
+            /* All tables inside content views must scroll horizontally */
+            .content-view table {
+                min-width: 480px;
+            }
+            .content-view .overflow-x-auto {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* --- No horizontal overflow on body --- */
+        body { overflow-x: hidden; }
+
+        /* --- Modals: full-width bottom-sheet on mobile --- */
+        @media (max-width: 640px) {
+            .modal-dialog,
+            .modal-panel {
+                max-width: 100vw !important;
+                width: 100% !important;
+                border-radius: 20px 20px 0 0 !important;
+                margin: 0 auto !important;
+            }
+        }
+    </style>
+
+
+    <style>
+        /* ======================================================
+           MOBILE CENTERING & MAX-WIDTH CONSTRAINTS
+           Makes all views look centered and professional on mobile.
+        ====================================================== */
+
+        /* Give all content views a max-width and auto margins to center them */
+        .content-view > *,
+        .content-view > div {
+            /* Constrain card-level children so they don't stretch too wide */
+        }
+
+        /* On small phones: constrain the whole content-main area itself */
+        @media (max-width: 1024px) {
+            .content-main {
+                max-width: 100%;
+            }
+        }
+
+        /* Center glassmorphic headers and ensure they don't hug edges */
+        @media (max-width: 640px) {
+            /* Each content view content gets max-width + auto margin */
+            .content-view {
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+            }
+
+            /* Center all v-cards with a small margin so they float nicely */
+            .v-card {
+                margin-left: auto;
+                margin-right: auto;
+                max-width: 100%;
+            }
+
+            /* Centered glassmorphic section headers */
+            .flex.flex-col.lg\:flex-row.justify-between {
+                text-align: center;
+            }
+
+            /* Center title text in headers */
+            .flex-shrink-0 h3,
+            .flex-shrink-0 p,
+            .flex-shrink-0 h2 {
+                text-align: left;
+            }
+
+            /* Center action controls in header */
+            .flex.flex-col.sm\:flex-row.items-center.gap-4.w-full.lg\:w-auto {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            /* Task / Resource card grid centered */
+            #task-grid,
+            #resource-grid,
+            #arcade-grid {
+                max-width: 480px;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+
+            /* Login card fully centered */
+            #auth-wrapper > div {
+                margin: 0 auto !important;
+            }
+
+            /* Dashboard greeting centered */
+            #view-dashboard > .mb-10 {
+                text-align: left;
+            }
+        }
+
+        /* Tablets: slight horizontal padding for breathing room */
+        @media (min-width: 641px) and (max-width: 1023px) {
+            .content-main {
+                padding-left: 24px !important;
+                padding-right: 24px !important;
+            }
+
+            /* Content gets a max-width for a centered, readable feel */
+            .content-view {
+                max-width: 960px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
 
 </head>
 
@@ -2271,6 +2461,10 @@
                 <button onclick="switchTab('arcade')" id="nav-arcade" class="nav-item w-full"
                     data-tooltip="Games Arcade">
                     <i data-lucide="gamepad-2" class="w-5 h-5"></i> <span class="hide-on-collapse">Games Arcade</span>
+                </button>
+                <button onclick="switchTab('playground')" id="nav-playground" class="nav-item w-full"
+                    data-tooltip="Code Editor">
+                    <i data-lucide="code-2" class="w-5 h-5"></i> <span class="hide-on-collapse">Code Editor</span>
                 </button>
                 <button onclick="switchTab('storage')" id="nav-storage" class="nav-item w-full"
                     data-tooltip="My Storage">
@@ -2737,11 +2931,17 @@
 
                     <!-- 2. Menu State (Games List) -->
                     <div id="arcade-menu" class="hidden flex-1 flex flex-col gap-6">
-                        <div class="mb-8">
-                            <h2 class="text-3xl font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight">
-                                Games Arcade</h2>
-                            <p class="text-slate-500 font-bold mt-1">Level up your coding skills through interactive
-                                challenges.</p>
+                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md mb-4">
+                            <div class="flex-shrink-0">
+                                <h2 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">Games Arcade</h2>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Level up your coding skills</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-2 px-4 py-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl">
+                                    <i data-lucide="gamepad-2" class="w-4 h-4 text-indigo-500"></i>
+                                    <span class="text-[9px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Interactive Challenges</span>
+                                </div>
+                            </div>
                         </div>
                         <div id="arcade-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <!-- Injected by script_18.js -->
@@ -2777,26 +2977,28 @@
                 <!-- 2. Tasks View -->
 
                 <div id="view-tasks" class="content-view hidden animate-in slide-in-from-bottom-4 duration-500">
-                    <!-- Advanced Filter Bar -->
-                    <div class="w-full mb-8 text-center">
-                        <div class="max-w-md mx-auto mb-6 relative"> <!-- SEARCH BAR -->
-                            <i data-lucide="search" class="absolute left-4 top-3.5 w-4 h-4 text-slate-400"></i>
-                            <input type="text" id="task-search" oninput="filterTasks(window.currentTaskFilter || 'all')"
-                                placeholder="Search tasks..."
-                                class="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#1e293b] border border-slate-100 dark:border-slate-800 rounded-xl text-sm font-bold shadow-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-900 dark:text-slate-200">
+                    <!-- Standardized Header + Filter -->
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
+                        <div class="flex-shrink-0">
+                            <h3 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">My Tasks</h3>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Track your learning assignments</p>
                         </div>
-                        <div class="task-tabs-container mx-auto">
-                            <input type="radio" id="radio-1" name="tabs" checked onchange="filterTasks('all')">
-                            <label class="tab" for="radio-1">All Tasks</label>
-
-                            <input type="radio" id="radio-2" name="tabs" onchange="filterTasks('pending')">
-                            <label class="tab" for="radio-2">Pending</label>
-
-                            <input type="radio" id="radio-3" name="tabs" onchange="filterTasks('completed')">
-                            <label class="tab" for="radio-3">Completed</label>
-
-                            <input type="radio" id="radio-4" name="tabs" onchange="filterTasks('expired')">
-                            <label class="tab" for="radio-4">Expired</label>
+                        <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                            <div class="relative w-full sm:w-64">
+                                <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                <input type="text" id="task-search" oninput="filterTasks(window.currentTaskFilter || 'all')" placeholder="Search tasks..."
+                                    class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-slate-900 dark:text-slate-200 shadow-sm">
+                            </div>
+                            <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <input type="radio" id="radio-1" name="tabs" checked onchange="filterTasks('all')">
+                                <label class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400" for="radio-1" id="task-label-all">All</label>
+                                <input type="radio" id="radio-2" name="tabs" onchange="filterTasks('pending')">
+                                <label class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" for="radio-2" id="task-label-pending">Pending</label>
+                                <input type="radio" id="radio-3" name="tabs" onchange="filterTasks('completed')">
+                                <label class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" for="radio-3" id="task-label-completed">Done</label>
+                                <input type="radio" id="radio-4" name="tabs" onchange="filterTasks('expired')">
+                                <label class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" for="radio-4" id="task-label-expired">Expired</label>
+                            </div>
                         </div>
                     </div>
                     <div id="task-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -2807,41 +3009,38 @@
                 <!-- 3. Intelligence View -->
                 <div id="view-resources" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
                     <!-- Resource Header & Filter -->
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                        <div>
-                            <h3
-                                class="text-xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200">
-                                Learning Library</h3>
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Curated
-                                materials
-                                for your growth</p>
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
+                        <div class="flex-shrink-0">
+                            <h3 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">Learning Library</h3>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Curated materials for your growth</p>
                         </div>
-                        <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                            <div class="relative">
-                                <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                        
+                        <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                            <!-- Search Bar -->
+                            <div class="relative w-full sm:w-64">
+                                <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
                                 <input type="text" id="resource-search" placeholder="Search resources..."
-                                    class="w-full sm:w-64 pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-slate-900 dark:text-slate-200">
+                                    class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-slate-900 dark:text-slate-200 shadow-sm">
                             </div>
+
+                            <!-- Filter Tabs -->
+                            <div class="task-tabs-container !shadow-none !bg-transparent !p-0">
+                                <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                    <input type="radio" id="res-radio-1" name="res-tabs" checked onchange="filterResources('all')">
+                                    <label class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all" for="res-radio-1" id="res-label-all">All</label>
+
+                                    <input type="radio" id="res-radio-2" name="res-tabs" onchange="filterResources('video')">
+                                    <label class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" for="res-radio-2" id="res-label-video">Videos</label>
+
+                                    <input type="radio" id="res-radio-3" name="res-tabs" onchange="filterResources('doc')">
+                                    <label class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" for="res-radio-3" id="res-label-doc">Docs</label>
+                                </div>
+                            </div>
+                            
                             <button onclick="openCreateResourceModal()" id="add-resource-btn"
-                                class="hidden btn-command px-4 py-2 rounded-xl text-[9px] flex items-center gap-2 whitespace-nowrap">
+                                class="hidden btn-command px-4 py-2.5 rounded-xl text-[9px] flex items-center gap-2 whitespace-nowrap shadow-indigo-500/20">
                                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Material
                             </button>
-                        </div>
-
-                        <!-- New Centered Filter Tabs for Resources -->
-                        <div class="w-full mt-4 mb-8 text-center">
-                            <div class="task-tabs-container">
-                                <input type="radio" id="res-radio-1" name="res-tabs" checked
-                                    onchange="filterResources('all')">
-                                <label class="tab" for="res-radio-1">All</label>
-
-                                <input type="radio" id="res-radio-2" name="res-tabs"
-                                    onchange="filterResources('video')">
-                                <label class="tab" for="res-radio-2">Videos</label>
-
-                                <input type="radio" id="res-radio-3" name="res-tabs" onchange="filterResources('doc')">
-                                <label class="tab" for="res-radio-3">Docs</label>
-                            </div>
                         </div>
                     </div>
 
@@ -2853,23 +3052,19 @@
 
                 <!-- 4. LEADERBOARD VIEW -->
                 <div id="view-leaderboard" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
-                    <div class="v-card overflow-hidden">
-                        <div
-                            class="p-5 bg-gradient-to-br from-indigo-600 to-indigo-800 text-white flex justify-between items-center">
-                            <div>
-                                <h3 class="text-xl font-black uppercase tracking-tighter leading-none mb-1">
-                                    Student
-                                    Ranking
-                                </h3>
-                                <p class="text-indigo-100/70 text-[8px] font-black uppercase tracking-widest">
-                                    Best
-                                    Performers</p>
-                            </div>
-                            <div
-                                class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
-                                <i data-lucide="trophy" class="w-5 h-5 text-white"></i>
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
+                        <div class="flex-shrink-0">
+                            <h3 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">Student Ranking</h3>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Best performers this cycle</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2 px-4 py-2.5 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-xl">
+                                <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
+                                <span class="text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Live Rankings</span>
                             </div>
                         </div>
+                    </div>
+                    <div class="v-card overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left font-bold text-xs">
                                 <thead
@@ -2899,29 +3094,21 @@
 
 
                 <div id="view-grading" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                        <div>
-                            <h3
-                                class="text-xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200">
-                                Grading
-                                Center</h3>
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Review
-                                and
-                                grade
-                                student tasks</p>
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
+                        <div class="flex-shrink-0">
+                            <h3 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">Grading Center</h3>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Review & grade student tasks</p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div
-                                class="px-4 py-2 bg-white dark:bg-[#1e293b] rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-2">
-                                <i data-lucide="filter" class="w-3 h-3 text-slate-400"></i>
+                            <div class="px-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm flex items-center gap-2">
+                                <i data-lucide="filter" class="w-3.5 h-3.5 text-slate-400"></i>
                                 <select onchange="renderGrading(window.allSubmissions)" id="grading-filter"
                                     class="bg-transparent text-[9px] font-black uppercase tracking-widest outline-none text-slate-600 dark:text-slate-300 cursor-pointer">
-                                    <option value="all">Check All Student's</option>
+                                    <option value="all">All Students</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-
                     <div id="grading-list" class="space-y-4 pb-10">
                         <!-- Submissions Injected -->
                     </div>
@@ -2929,35 +3116,30 @@
 
                 <!-- 6. Admin Student Directory -->
                 <div id="view-users" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
-                    <div class="v-card"> <!-- Removed overflow-hidden to allow children to handle it better -->
-                        <div
-                            class="p-4 border-b border-slate-100 dark:border-slate-800/50 flex flex-col md:flex-row gap-3 items-center justify-between">
-                            <div class="relative w-full md:max-w-xs">
-                                <i data-lucide="search"
-                                    class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5"></i>
-                                <input type="text" id="user-search" placeholder="Search..."
-                                    class="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-[10px] transition-all text-slate-900 dark:text-slate-100">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
+                        <div class="flex-shrink-0">
+                            <h3 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">Student Directory</h3>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Manage all enrolled students</p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                            <div class="relative w-full sm:w-64">
+                                <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                                <input type="text" id="user-search" placeholder="Search students..."
+                                    class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-900 dark:text-slate-100 shadow-sm">
                             </div>
-                            <div class="flex items-center gap-4">
-                                <span id="online-student-count"
-                                    class="text-[10px] font-black uppercase tracking-widest text-emerald-500 hidden sm:block cursor-pointer hover:underline"
-                                    onclick="showOnlineStudentsModal()">0 Online</span>
-                                <span id="total-student-count"
-                                    class="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:block">0
-                                    Records</span>
-                                <div class="flex gap-2">
-                                    <button onclick="window.approveAllUsers()"
-                                        class="px-4 py-2.5 rounded-lg bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-[8px] font-black uppercase tracking-widest flex items-center gap-1.5 hover:scale-105 active:scale-95">
-                                        <i data-lucide="check-circle-2" class="w-3 h-3"></i> Approve All
-                                    </button>
-                                    <button onclick="downloadAllReports()"
-                                        class="btn-command px-4 py-2.5 rounded-lg text-[8px] flex items-center gap-1.5 hover:scale-105 active:scale-95 transition-transform">
-                                        <i data-lucide="download" class="w-3 h-3"></i> Export All
-                                    </button>
-                                </div>
+                            <div class="flex items-center gap-3">
+                                <span id="online-student-count" class="text-[10px] font-black uppercase tracking-widest text-emerald-500 hidden sm:block cursor-pointer hover:underline" onclick="showOnlineStudentsModal()">0 Online</span>
+                                <span id="total-student-count" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:block">0 Records</span>
+                                <button onclick="window.approveAllUsers()" class="px-4 py-2.5 rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Approve All
+                                </button>
+                                <button onclick="downloadAllReports()" class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Export
+                                </button>
                             </div>
                         </div>
-                        <div class="overflow-x-auto custom-scrollbar w-full">
+                    </div>
+                    <div class="v-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar w-full">
                             <table class="min-w-[800px] w-full text-left font-bold">
                                 <thead
                                     class="bg-slate-50 dark:bg-[#1e293b] text-[9px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest border-b border-slate-100 dark:border-slate-800">
@@ -2966,6 +3148,7 @@
                                         <th class="px-5 py-3 text-center hidden sm:table-cell">Tasks</th>
                                         <th class="px-5 py-3 text-center">Grade</th>
                                         <th class="px-5 py-3 text-center">Arcade</th>
+                                        <th class="px-6 py-3 text-center">Activity</th>
                                         <th class="px-6 py-3 text-center">Status</th>
                                         <th class="px-5 py-3 text-right">Actions</th>
                                     </tr>
@@ -2985,26 +3168,19 @@
 
                 <!-- 7. Admin Feedback View -->
                 <div id="view-feedback" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
-                    <div class="v-card">
-                        <div
-                            class="p-4 border-b border-slate-100 dark:border-slate-800/50 flex flex-col md:flex-row gap-3 items-center justify-between">
-                            <div>
-                                <h3
-                                    class="text-xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200">
-                                    Student Feedback</h3>
-                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Review student
-                                    opinions</p>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span id="total-feedback-count"
-                                    class="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:block">0
-                                    Records</span>
-                                <button onclick="renderFeedback()"
-                                    class="px-4 py-2.5 rounded-lg bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-all text-[8px] font-black uppercase tracking-widest flex items-center gap-1.5 hover:scale-105 active:scale-95">
-                                    <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
-                                </button>
-                            </div>
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
+                        <div class="flex-shrink-0">
+                            <h3 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">Student Feedback</h3>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Review student opinions</p>
                         </div>
+                        <div class="flex items-center gap-4">
+                            <span id="total-feedback-count" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:block">0 Records</span>
+                            <button onclick="renderFeedback()" class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                                <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="v-card overflow-hidden"></div>
                         <div class="overflow-x-auto custom-scrollbar w-full">
                             <table class="min-w-[900px] w-full text-left font-bold">
                                 <thead
@@ -3157,25 +3333,20 @@
                 </div>
 
                 <!-- 9. LIVE CODE PLAYGROUND (CodePen Style) -->
-                <div id="view-playground"
-                    class="content-view hidden h-[calc(100vh-160px)] flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-500">
+                <div id="view-playground" class="content-view hidden h-auto lg:h-[calc(100vh-185px)] flex flex-col gap-6 sm:gap-8 p-2 sm:p-4 lg:p-10 pb-32 lg:pb-10 animate-in fade-in zoom-in-95 duration-500">
                     <!-- Professional Toolbar -->
-                    <div
-                        class="flex items-center justify-between glass p-2 rounded-2xl border border-white/20 shadow-xl">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between glass p-2 rounded-2xl border border-white/20 shadow-xl mb-4 gap-4 sm:gap-0">
                         <div class="flex items-center gap-6 px-2">
                             <div class="flex items-center gap-3">
                                 <div
                                     class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
                                     <i data-lucide="terminal" class="w-4 h-4"></i>
                                 </div>
-                                <h2
-                                    class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
-                                    Developer Workbench</h2>
+                                <h2 class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest hidden sm:block">Developer Workbench</h2>
                             </div>
 
                             <!-- Tab Toggles -->
-                            <div
-                                class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center justify-center sm:justify-start gap-1.5 p-1 bg-slate-100 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800">
                                 <button onclick="window.toggleEditorPanel('html')" id="btn-toggle-html"
                                     class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400">HTML</button>
                                 <button onclick="window.toggleEditorPanel('css')" id="btn-toggle-css"
@@ -3185,7 +3356,7 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2 pr-2">
+                        <div class="flex items-center justify-center sm:justify-end gap-2 pr-2">
                             <button onclick="window.clearCode()"
                                 class="p-2.5 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all"
                                 title="Clear All Sensors">
@@ -3205,15 +3376,14 @@
                     </div>
 
                     <!-- Editor & Preview Container -->
-                    <div class="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
+                    <div class="flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10 min-h-0">
                         <!-- Left: Editors -->
                         <div class="flex-1 flex flex-col gap-4 min-h-0">
 
 
                             <div class="flex-1 flex flex-col gap-4 overflow-hidden relative">
                                 <!-- HTML Editor Panel -->
-                                <div id="panel-html"
-                                    class="flex-1 flex flex-col min-h-0 glass-dark rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
+                                <div id="panel-html" class="flex-1 flex flex-col min-h-[400px] lg:min-h-0 glass-dark rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
                                     <div
                                         class="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
                                         <div class="flex items-center gap-3">
@@ -3249,8 +3419,7 @@
                                 </div>
 
                                 <!-- CSS Editor Panel -->
-                                <div id="panel-css"
-                                    class="flex-1 hidden flex flex-col min-h-0 glass-dark rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
+                                <div id="panel-css" class="flex-1 hidden flex flex-col min-h-[400px] lg:min-h-0 glass-dark rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
                                     <div
                                         class="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
                                         <div class="flex items-center gap-3">
@@ -3281,8 +3450,7 @@
                                 </div>
 
                                 <!-- JS Editor Panel -->
-                                <div id="panel-js"
-                                    class="flex-1 hidden flex flex-col min-h-0 glass-dark rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
+                                <div id="panel-js" class="flex-1 hidden flex flex-col min-h-[400px] lg:min-h-0 glass-dark rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
                                     <div
                                         class="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
                                         <div class="flex items-center gap-3">
@@ -3316,7 +3484,7 @@
 
                         <!-- Right: Preview (Professional Browser Frame) -->
                         <div
-                            class="flex-1 flex flex-col min-h-0 glass border border-white/20 rounded-2xl shadow-2xl overflow-hidden group">
+                            class="flex-1 flex flex-col min-h-[450px] lg:min-h-0 glass border border-white/20 rounded-2xl shadow-2xl overflow-hidden group">
                             <!-- Browser Chrome -->
                             <div
                                 class="flex items-center gap-3 px-4 py-3 bg-slate-100 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5">
@@ -3634,8 +3802,8 @@
                                     class="text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-tight leading-none mb-1">NAVTTC
                                     LMS <span class="text-indigo-500 text-[10px] ml-1">v2.0</span></span>
                                 <span
-                                    class="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none">�
-                                    <span class="dynamic-year">2025</span> Super Systech Computers Umerkot</span>
+                                    class="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none">&copy;
+                                    <span id="footer-year">2026</span> Super Systech Computers Umerkot</span>
                             </div>
                         </div>
 
@@ -3676,8 +3844,32 @@
             </div>
         </main>
         <!-- Mobile Bottom Navigation -->
-
-    </div>
+        <div class="fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-around z-[50] lg:hidden">
+            <button onclick="switchTab('dashboard')" id="mob-nav-dashboard" class="mobile-nav-btn active">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Home</span>
+            </button>
+            <button onclick="switchTab('tasks')" id="mob-nav-tasks" class="mobile-nav-btn">
+                <i data-lucide="list-checks" class="w-5 h-5"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Tasks</span>
+            </button>
+            <button onclick="switchTab('playground')" id="mob-nav-playground" class="mobile-nav-btn">
+                <i data-lucide="code-2" class="w-5 h-5"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Code</span>
+            </button>
+            <button onclick="switchTab('arcade')" id="mob-nav-arcade" class="mobile-nav-btn">
+                <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Arcade</span>
+            </button>
+            <button onclick="switchTab('leaderboard')" id="mob-nav-leaderboard" class="mobile-nav-btn">
+                <i data-lucide="trophy" class="w-5 h-5"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Board</span>
+            </button>
+            <button onclick="switchTab('profile')" id="mob-nav-profile" class="mobile-nav-btn">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Profile</span>
+            </button>
+        </div>
 
 
 
@@ -5432,7 +5624,7 @@
                 $('#nav-tasks').removeClass('hidden').html('<i data-lucide="clipboard-list" class="w-5 h-5"></i> <span class="hide-on-collapse">Manage Tasks</span>');
                 // Admin Storage View
                 $('#nav-storage').html('<i data-lucide="database" class="w-5 h-5"></i> <span class="hide-on-collapse">Student\'s Storage</span>').attr('data-tooltip', 'Student Files');
-                $('#nav-arcade, #nav-playground, #nav-verify').addClass('hidden');
+                $('#nav-arcade, #nav-playground, #nav-verify, #nav-resources').addClass('hidden');
             } else {
                 $('#nav-dashboard, #nav-tasks, #nav-leaderboard, #nav-resources, #profile-tab, #nav-arcade, #nav-playground, #nav-verify').removeClass('hidden');
                 $('#nav-tasks').html('<i data-lucide="clipboard-list" class="w-5 h-5"></i> <span class="hide-on-collapse">My Tasks</span>');
@@ -5443,6 +5635,13 @@
 
             // 4. Load Cached Data & Render Charts (CRITICAL FOR INSTANT FEEL)
             switchTab('dashboard');
+            if (window.updateActivity && userProfile.role === 'student') {
+                window.updateActivity('Viewing Dashboard');
+            }
+            // Update footer year dynamically
+            const footerYear = document.getElementById('footer-year');
+            if (footerYear) footerYear.textContent = new Date().getFullYear();
+
             startSync(); // This calls loadCachedData() internally
             initChart();
 
@@ -6199,6 +6398,11 @@
                 console.error("Task not found for ID:", tid);
                 return;
             }
+
+            // Activity Tracking
+            if (window.updateActivity) {
+                window.updateActivity(`Viewing Task: ${t.title.substring(0, 20)}...`);
+            }
             window.currentTask = t;
             console.log("Opening details for:", t.id, t.title);
 
@@ -6659,6 +6863,24 @@
                                 ${levelBadge(cssLvl, 'cyan')}
                                 ${levelBadge(jsLvl, 'yellow')}
                             </div>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            ${(() => {
+                        if (!isOnline) return '<span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Offline</span>';
+                        // Find this user in onlineUsers cache
+                        const ou = window.onlineUsers.find(x => x.user_id === userId);
+                        const act = ou?.activity || 'Dashboard';
+                        const isIdle = ou?.status === 'idle';
+                        return `
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="flex items-center gap-1.5 text-[8px] font-black uppercase tracking-widest ${isIdle ? 'text-amber-500' : 'text-emerald-500'}">
+                                            <span class="w-1.5 h-1.5 rounded-full ${isIdle ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse'}"></span>
+                                            ${isIdle ? 'Idle' : 'Active'}
+                                        </span>
+                                        <span class="text-[7px] font-bold text-indigo-500 uppercase tracking-tight truncate max-w-[80px]" title="${act}">${act}</span>
+                                    </div>
+                                `;
+                    })()}
                         </td>
                         <td class="px-6 py-4 text-center">
                             <span class="px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-[0.15em] shadow-sm ${status === 'approved' || status === 'active' || status === 'online' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}">${status === 'online' ? 'approved' : status}</span>
@@ -7712,6 +7934,20 @@
             console.log("Switching to:", tabId);
             activeTab = tabId;
 
+            // Activity Tracking
+            if (window.updateActivity) {
+                const activityMap = {
+                    'dashboard': 'Viewing Dashboard',
+                    'tasks': 'Browsing Tasks',
+                    'resources': 'Learning Resources',
+                    'leaderboard': 'Checking Leaderboard',
+                    'arcade': 'Games Arcade',
+                    'storage': 'Managing Storage',
+                    'profile': 'Updating Profile'
+                };
+                window.updateActivity(activityMap[tabId] || `Viewing ${tabId}`);
+            }
+
             // --- 1. PRE-SWITCH CLEANUP (Arcade & Game Logic) ---
             $('#game-stage').addClass('hidden');
             if (window.activeGameTimer) clearInterval(window.activeGameTimer);
@@ -7780,6 +8016,7 @@
                 'profile': 'My Profile',
                 'exam': 'Online Examination',
                 'arcade': 'Games Arcade',
+                'playground': 'Online Code Editor',
                 'storage': 'My Personal Storage'
             };
             $('#page-title').text(titles[tabId] || 'NAVTTC LMS');
@@ -10583,8 +10820,20 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
         window.currentResourceFilter = 'all';
 
         window.filterResources = (cat) => {
-            // Radio UI handles visual state automatically
             window.currentResourceFilter = cat;
+            
+            // Update UI Visual State
+            ['all', 'video', 'doc'].forEach(c => {
+                const label = $(`#res-label-${c}`);
+                if (c === cat) {
+                    label.addClass('bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400')
+                         .removeClass('text-slate-400 hover:text-slate-600 dark:hover:text-slate-200');
+                } else {
+                    label.removeClass('bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400')
+                         .addClass('text-slate-400 hover:text-slate-600 dark:hover:text-slate-200');
+                }
+            });
+
             renderResources(cat);
         };
 
@@ -10735,6 +10984,9 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
         window.activeGameTimer = null;
 
         window.startArcadeGame = (gameId) => {
+            if (window.updateActivity) {
+                window.updateActivity(`Playing Game: ${gameId.toUpperCase()}`);
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (window.activeGameTimer) clearInterval(window.activeGameTimer);
 
