@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -92,12 +92,12 @@
             // console.log("FixEncoding Input:", str); // Debug
 
             // 1. Explicit Replacements for known patterns (based on user feedback)
-            // Ø=ÜØ -> 📘 (Blue Book)
-            fixed = fixed.replace(/Ø=ÜØ/g, '\uD83D\uDCD8');
-            // Ø=ÜM -> 👍 (Thumbs Up)
-            fixed = fixed.replace(/Ø=ÜM/g, '\uD83D\uDC4D');
-            // Ø<ß  -> 🎓 (Graduation Cap)
-            fixed = fixed.replace(/Ø<ß/g, '\uD83C\uDF93');
+            // �=�� -> ?? (Blue Book)
+            fixed = fixed.replace(/�=��/g, '\uD83D\uDCD8');
+            // �=�M -> ?? (Thumbs Up)
+            fixed = fixed.replace(/�=�M/g, '\uD83D\uDC4D');
+            // �<�  -> ?? (Graduation Cap)
+            fixed = fixed.replace(/�<�/g, '\uD83C\uDF93');
 
             // 2. Generic Regex for "Double-Encoded" Surrogates
             // Pattern: High(D8-DB) Byte2 Low(DC-DF) Byte4
@@ -347,29 +347,35 @@
         }
 
         :root {
-            --plus-indigo: #6366f1;
-            --plus-indigo-glow: rgba(99, 102, 241, 0.15);
-            --plus-cyan: #22d3ee;
+            --plus-indigo: #4f46e5;
+            --plus-indigo-glow: rgba(79, 70, 229, 0.15);
+            --plus-cyan: #06b6d4;
             --plus-bg: #f8fafc;
             --plus-card: #ffffff;
-            --plus-border: rgba(99, 102, 241, 0.1);
+            --plus-border: rgba(226, 232, 240, 0.8);
             --plus-text: #0f172a;
             --plus-text-muted: #64748b;
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 80px;
         }
 
-
+        .dark {
+            --plus-bg: #0f172a;
+            --plus-card: #1e293b;
+            --plus-border: rgba(51, 65, 85, 0.5);
+            --plus-text: #f1f5f9;
+            --plus-text-muted: #94a3b8;
+        }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--plus-bg);
-            /* Education Icon Pattern Background */
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-image: radial-gradient(circle at 2px 2px, rgba(99, 102, 241, 0.05) 1px, transparent 0);
+            background-size: 32px 32px;
             color: var(--plus-text);
-            line-height: 1.5;
-            font-size: 13px;
+            line-height: 1.6;
+            font-size: 14px;
             transition: background 0.3s ease;
-            overflow-y: scroll;
-            /* Force scrollbar */
         }
 
         /* Global Premium Scrollbar */
@@ -379,73 +385,110 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: transparent;
+            background: rgba(0, 0, 0, 0.02);
         }
 
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
-            border-radius: 10px;
-            border: 2px solid var(--plus-bg);
+            border-radius: 20px;
+            border: 2px solid transparent;
+            background-clip: content-box;
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
+            background-clip: content-box;
+        }
+
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .dark ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-color: #0f172a;
+            background: #475569;
+        }
+
+        .custom-scrollbar {
+            max-height: 70vh;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 12px;
+            /* Thicker for horizontal scroll */
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.08);
+            /* More visible track */
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #6366f1;
+            border-radius: 10px;
+            border: 3px solid transparent;
+            background-clip: content-box;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #4f46e5;
+            background-clip: content-box;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #818cf8;
         }
 
         .v-card {
             background-color: var(--plus-card);
             border: 1px solid var(--plus-border);
-            border-radius: 20px;
-            box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.05);
-            /* Colored Premium Shadow */
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 24px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.01), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 100%;
         }
 
         .v-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 20px -5px var(--plus-indigo-glow);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
             border-color: var(--plus-indigo);
         }
 
-        .glass-dark {
-            background: rgba(15, 23, 42, 0.8) !important;
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .sidebar {
-            width: 260px;
+            width: var(--sidebar-width);
             height: 100vh;
             position: fixed;
             left: 0;
             top: 0;
-            background-color: rgba(255, 255, 255, 0.85);
-            /* Glassmorphism Base */
-            backdrop-filter: blur(20px);
-            /* Frosted Effect */
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(226, 232, 240, 0.6);
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-right: 1px solid var(--plus-border);
             z-index: 1000;
-            padding: 24px 12px;
+            padding: 24px 0px;
+            /* Removed horizontal padding to allow scrollbar to edge */
             display: flex;
             flex-direction: column;
-            overflow: visible !important;
-            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            /* Bouncy Spring Effect */
-            will-change: width;
-        }
-
-        .sidebar.collapsed {
-            overflow: visible !important;
-        }
-
-        .sidebar:not(.collapsed) {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: visible !important;
         }
 
@@ -453,17 +496,12 @@
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding-right: 4px;
+            padding: 0 16px;
             scrollbar-width: thin;
-            scrollbar-color: #cbd5e1 transparent;
         }
 
         .sidebar-nav::-webkit-scrollbar {
             width: 4px;
-        }
-
-        .sidebar-nav::-webkit-scrollbar-track {
-            background: transparent;
         }
 
         .sidebar-nav::-webkit-scrollbar-thumb {
@@ -475,48 +513,87 @@
             background: #334155;
         }
 
-        /* Ensure tooltips are not clipped when sidebar is NOT collapsed */
-        .sidebar:not(.collapsed) .sidebar-nav {
-            overflow-y: auto;
+        .dark .sidebar {
+            background-color: rgba(15, 23, 42, 0.8);
         }
 
-        /* If collapsed, we might need to handle tooltips differently or accept clipping */
-        .sidebar.collapsed .sidebar-nav {
-            overflow: visible !important;
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 14px;
+            font-weight: 600;
+            color: var(--plus-text-muted);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
         }
 
-        /* Core Utilities */
+        .nav-item:hover {
+            background: rgba(79, 70, 229, 0.05);
+            color: var(--plus-indigo);
+        }
 
-        /* Mobile Nav Active State (Strict Override) */
-        .mobile-nav-btn .active-line,
-        .mobile-nav-btn .active-light {
+        .nav-item.active {
+            background: var(--plus-indigo);
+            color: white !important;
+            box-shadow: 0 10px 15px -3px var(--plus-indigo-glow);
+        }
+
+        .nav-item.active i {
+            color: white !important;
+        }
+
+        .nav-item i {
+            width: 20px;
+            height: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+            padding: 24px 12px;
+        }
+
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .sidebar.collapsed .hide-on-collapse {
             display: none;
         }
 
-        .mobile-nav-btn.active .active-line {
-            display: block;
+        .content-main {
+            margin-left: var(--sidebar-width);
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 0;
+            width: calc(100% - var(--sidebar-width));
         }
 
-        /* Design A Glow Effect */
-        .mobile-nav-btn.active .active-light {
-            display: block;
-            background: linear-gradient(to bottom, rgba(26, 115, 232, 0.15) 0%, rgba(26, 115, 232, 0) 100%);
+        .sidebar.collapsed~.content-main {
+            margin-left: var(--sidebar-collapsed-width);
+            width: calc(100% - var(--sidebar-collapsed-width));
         }
 
-        .mobile-nav-btn.active i,
-        .mobile-nav-btn.active svg {
-            color: #1a73e8 !important;
-            stroke: #1a73e8 !important;
-            fill: none !important;
-            /* Transparent inside */
-            transform: translateY(-2px);
-            /* Slight bump up */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .content-main {
+                margin-left: 0 !important;
+                padding: 20px;
+            }
         }
 
-        .mobile-nav-btn.active span {
-            color: #1a73e8 !important;
-            font-weight: 700;
-        }
 
         /* Dark Mode overrides */
         .dark .mobile-nav-btn.active i {
@@ -2059,9 +2136,9 @@
 
             <div id="auth-tabs"
                 class="flex p-1 bg-slate-100 dark:bg-[#0b1120] rounded-xl mb-6 border dark:border-slate-800">
-                <button onclick="switchAuth('student')" id="tab-student"
+                <button onclick="window.switchAuth('student')" id="tab-student"
                     class="flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all bg-white dark:bg-[#1e293b] shadow-sm text-indigo-600 dark:text-indigo-400">Student</button>
-                <button onclick="switchAuth('admin')" id="tab-admin"
+                <button onclick="window.switchAuth('admin')" id="tab-admin"
                     class="flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all text-slate-500">Admin</button>
             </div>
 
@@ -2148,52 +2225,44 @@
                     class="w-3 h-3 transition-transform duration-500 group-hover:scale-125"></i>
             </button>
 
-            <!-- Header with Toggle -->
-            <!-- Header with Toggle -->
-            <div class="px-2 mb-8 flex items-center justify-between">
-                <!-- Left: Logo & Text -->
-                <div class="flex items-center gap-3 w-full">
-                    <div class="logo-container w-10 h-10 flex-shrink-0 flex items-center justify-center pt-1">
-                        <img src="assets/logo.png" alt="NAVTTC Logo"
-                            class="w-full h-full object-contain drop-shadow-sm">
-                    </div>
+            <!-- Brand Section -->
+            <div class="px-6 mb-10 flex items-center justify-between">
+                <div class="flex items-center gap-4 w-full">
                     <div
-                        class="hide-on-collapse flex flex-col justify-center translate-y-[2px] overflow-hidden transition-all duration-300">
-                        <h1
-                            class="font-black text-[15px] tracking-tight uppercase leading-none flex items-center flex-wrap gap-1 text-slate-800 dark:text-white m-0 p-0">
-                            NAVTTC LMS
-                            <span
-                                class="text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded-md font-bold shadow-sm whitespace-nowrap leading-none inline-block">V2.0</span>
+                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                        <img src="assets/logo.png" alt="Logo" class="w-8 h-8 object-contain brightness-0 invert">
+                    </div>
+                    <div class="hide-on-collapse">
+                        <h1 class="font-black text-lg tracking-tight text-slate-900 dark:text-white leading-none">
+                            NAVTTC <span class="text-indigo-500">LMS</span>
                         </h1>
-                        <p
-                            class="text-[9px] font-bold tracking-[0.1em] text-slate-500 uppercase mt-1 leading-none m-0 p-0">
-                            Enterprise Portal
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Enterprise v2.0
                         </p>
                     </div>
                 </div>
-
-                <!-- Right: Mobile Close Button (X) -->
                 <button onclick="window.toggleMobileSidebar()"
-                    class="md:hidden p-2 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors">
+                    class="md:hidden p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
 
-            <nav class="sidebar-nav space-y-1">
+            <!-- Navigation -->
+            <nav class="sidebar-nav space-y-1.5 px-2">
                 <div
-                    class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2 mt-2 hide-on-collapse">
-                    Menu</div>
+                    class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4 mb-4 hide-on-collapse opacity-50">
+                    Main Menu</div>
 
                 <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full active"
                     data-tooltip="Dashboard">
-                    <i data-lucide="layout-grid" class="w-5 h-5"></i> <span class="hide-on-collapse">Dashboard</span>
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> <span
+                        class="hide-on-collapse">Dashboard</span>
                 </button>
                 <button onclick="switchTab('tasks')" id="nav-tasks" class="nav-item w-full" data-tooltip="My Tasks">
-                    <i data-lucide="clipboard-list" class="w-5 h-5"></i> <span class="hide-on-collapse">My Tasks</span>
+                    <i data-lucide="list-checks" class="w-5 h-5"></i> <span class="hide-on-collapse">My Tasks</span>
                 </button>
                 <button onclick="switchTab('resources')" id="nav-resources" class="nav-item w-full"
                     data-tooltip="Resources">
-                    <i data-lucide="folder-open" class="w-5 h-5"></i> <span class="hide-on-collapse">Resources</span>
+                    <i data-lucide="library" class="w-5 h-5"></i> <span class="hide-on-collapse">Resources</span>
                 </button>
                 <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="nav-item w-full"
                     data-tooltip="Leaderboard">
@@ -2203,35 +2272,28 @@
                     data-tooltip="Games Arcade">
                     <i data-lucide="gamepad-2" class="w-5 h-5"></i> <span class="hide-on-collapse">Games Arcade</span>
                 </button>
-                <button onclick="openLiveEditor()" id="nav-playground" class="nav-item w-full"
-                    data-tooltip="Code Editor">
-                    <i data-lucide="code-2" class="w-5 h-5"></i> <span class="hide-on-collapse">Code Editor</span>
-                </button>
-
                 <button onclick="switchTab('storage')" id="nav-storage" class="nav-item w-full"
                     data-tooltip="My Storage">
                     <i data-lucide="hard-drive" class="w-5 h-5"></i> <span class="hide-on-collapse">My Storage</span>
                 </button>
 
-
-
                 <!-- Admin items -->
-                <div id="admin-nav" class="hidden pt-6 mt-6 border-t border-slate-100 dark:border-slate-800">
+                <div id="admin-nav" class="hidden pt-8 mt-8 border-t border-slate-100 dark:border-slate-800/50">
                     <div
-                        class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-6 mb-2 hide-on-collapse">
-                        Admin Panel
-                    </div>
+                        class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4 mb-4 hide-on-collapse opacity-50">
+                        Administration</div>
                     <button onclick="switchTab('grading')" class="nav-item w-full" data-tooltip="Grade Tasks">
-                        <i data-lucide="award" class="w-5 h-5"></i> <span class="hide-on-collapse">Grade Tasks</span>
+                        <i data-lucide="check-square" class="w-5 h-5"></i> <span class="hide-on-collapse">Grade
+                            Tasks</span>
                     </button>
                     <button onclick="switchTab('users')" class="nav-item w-full" data-tooltip="Students">
-                        <i data-lucide="users" class="w-5 h-5"></i> <span class="hide-on-collapse">Students</span>
+                        <i data-lucide="users-2" class="w-5 h-5"></i> <span class="hide-on-collapse">Students</span>
                     </button>
                     <button onclick="switchTab('feedback')" class="nav-item w-full relative" data-tooltip="Feedback">
-                        <i data-lucide="message-square" class="w-5 h-5"></i> <span
+                        <i data-lucide="message-circle" class="w-5 h-5"></i> <span
                             class="hide-on-collapse">Feedback</span>
                         <span id="feedback-notification"
-                            class="hidden absolute top-2 right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm animate-pulse">0</span>
+                            class="hidden absolute top-3 right-4 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
                     </button>
                 </div>
             </nav>
@@ -2298,7 +2360,7 @@
                 <!-- Mobile Header (Visible only on mobile) -->
                 <div class="md:hidden flex items-center justify-start gap-4 mb-6 relative z-[9050]">
                     <!-- 1. Hamburger Button (Left) -->
-                    <button id="mobile-menu-btn" onclick="window.toggleMobileSidebar?.()"
+                    <button id="mobile-menu-btn" onclick="window.toggleMobileSidebar && window.toggleMobileSidebar()"
                         class="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 active:scale-95 transition-all duration-300"
                         style="z-index: 9001;">
                         <i data-lucide="menu" class="w-6 h-6"></i>
@@ -2360,11 +2422,6 @@
                                             class="text-[8px] text-slate-400 uppercase tracking-widest leading-none">System
                                             Online</span>
                                     </div>
-                                    <button onclick="openLiveEditor()"
-                                        class="flex items-center gap-1.5 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors border border-indigo-100 dark:border-indigo-800/50">
-                                        <i data-lucide="play" class="w-2.5 h-2.5"></i>
-                                        Code Play
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -2473,270 +2530,193 @@
                 <!-- Chat View Removed -->
 
                 <div id="view-dashboard" class="content-view animate-in fade-in duration-500">
-
-
-
-
                     <!-- Professional Greeting Banner -->
-
-                    <div class="mb-8 relative overflow-hidden rounded-3xl shadow-2xl shadow-indigo-500/20 border border-white/10"
-                        style="background-color: #4b44d4;">
-                        <!-- Background Pattern -->
-                        <div class="absolute inset-0 opacity-10"
-                            style="background-image: radial-gradient(#6366f1 1px, transparent 1px); background-size: 20px 20px;">
+                    <div class="mb-10 relative overflow-hidden rounded-[32px] border border-white/10 glass shadow-2xl shadow-indigo-500/10"
+                        style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+                        <div class="absolute inset-0 opacity-20"
+                            style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');">
                         </div>
-                        <div
-                            class="absolute -right-10 -top-10 w-64 h-64 bg-indigo-600 rounded-full blur-[100px] opacity-20">
+                        <div class="absolute -right-20 -top-20 w-96 h-96 bg-white/10 rounded-full blur-[120px]"></div>
+                        <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-indigo-400/20 rounded-full blur-[120px]">
                         </div>
 
                         <div
-                            class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            <div>
-                                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-[#e5e7eb] mb-2">
-                                    Workspace Dashboard</p>
-                                <h2 class="text-2xl md:text-4xl font-black text-[#f9fafb] tracking-tighter leading-none"
+                            class="relative z-10 p-8 md:p-12 flex flex-col md:flex-row justify-between items-center gap-8">
+                            <div class="flex-1">
+                                <div
+                                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-4">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-white/90">LMS
+                                        Portal Active</span>
+                                </div>
+                                <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight leading-none mb-4"
                                     id="dynamic-greeting-text">
                                     Welcome Back
                                 </h2>
-                                <p class="text-xs text-[#e5e7eb] font-medium mt-2 max-w-md">Ready to build something
-                                    amazing today? Check your pending tasks regarding Python & Web Development.</p>
+                                <p class="text-indigo-100 text-sm md:text-base font-medium max-w-lg opacity-90">
+                                    Explore your personalized learning path and track your progress in real-time.
+                                    Ready to master new skills today?
+                                </p>
                             </div>
-                            <div class="text-center md:text-right w-full md:w-auto">
-                                <h3 class="text-2xl md:text-3xl font-black text-[#f9fafb] tracking-tight"
-                                    id="live-clock">
-                                    00:00</h3>
-                                <p class="text-[10px] font-bold uppercase tracking-widest text-[#e5e7eb]"
+                            <div
+                                class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center md:text-right min-w-[200px]">
+                                <h3 class="text-3xl font-black text-white tracking-tight" id="live-clock">00:00</h3>
+                                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-100 mt-1"
                                     id="live-date">...</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Hidden Legacy Alert (Logic Preserved) -->
-                    <div id="student-alerts" class="hidden mb-6"></div>
-
-
-
-                    <!-- NEW: Notice Board (Global) -->
-                    <div id="announcement-section"
-                        class="w-full mb-6 hidden animate-in slide-in-from-top-5 duration-500">
-                        <!-- Ticker for High Priority -->
-                        <div id="urgent-ticker"
-                            class="w-full bg-rose-500 text-white text-xs font-bold uppercase tracking-widest py-2 px-4 rounded-xl mb-4 hidden shadow-lg shadow-rose-500/30 flex items-center gap-3 overflow-hidden">
-                            <i data-lucide="megaphone" class="w-4 h-4 shrink-0 animate-pulse"></i>
-                            <div class="overflow-hidden w-full">
-                                <p id="ticker-text" class="whitespace-nowrap animate-marquee">IMPORTANT: System
-                                    maintenance scheduled for tonight at 11 PM.</p>
-                            </div>
-                        </div>
-
-                        <div class="v-card p-6 border-l-4 border-indigo-500 relative overflow-hidden">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3
-                                    class="text-lg font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 flex items-center gap-2">
-                                    <i data-lucide="bell" class="w-5 h-5 text-indigo-500"></i> Announcements
-                                </h3>
-                                <button onclick="refreshNotices()"
-                                    class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
-                                    <i data-lucide="refresh-cw" class="w-4 h-4 text-slate-400"></i>
-                                </button>
-                            </div>
-
-                            <!-- Notices List -->
-                            <div id="notice-list" class="space-y-3 max-h-48 overflow-y-auto custom-scrollbar pr-2">
-                                <div class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-wide">
-                                    No new announcements.
-                                </div>
-                            </div>
-
-                            <!-- Admin Post Button -->
-                            <div id="admin-notice-actions"
-                                class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 hidden">
-                                <button onclick="openNoticeModal()"
-                                    class="w-full py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-                                    + Post New Notice
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Admin Live Widget -->
-                    <div id="admin-live-widget" class="hidden w-full mb-6 animate-in slide-in-from-top-5">
-                        <div class="v-card p-4 border-l-4 border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/10 flex items-center justify-between cursor-pointer hover:bg-emerald-100/50 transition-colors"
+                    <div id="admin-live-widget" class="hidden w-full mb-10 animate-in slide-in-from-top-5">
+                        <div class="v-card p-6 border-l-4 border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/5 flex items-center justify-between cursor-pointer hover:bg-emerald-100/50 transition-all duration-300"
                             onclick="showOnlineStudentsModal()">
-                            <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-6">
                                 <div class="relative">
                                     <span
-                                        class="absolute top-0 right-0 w-3 h-3 bg-emerald-500 rounded-full animate-ping"></span>
+                                        class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full animate-ping opacity-75"></span>
                                     <div
-                                        class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center">
-                                        <i data-lucide="users" class="w-5 h-5"></i>
+                                        class="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 flex items-center justify-center">
+                                        <i data-lucide="users" class="w-7 h-7"></i>
                                     </div>
                                 </div>
                                 <div>
                                     <h4
-                                        class="text-sm font-black uppercase text-emerald-700 dark:text-emerald-400 tracking-wider">
+                                        class="text-xs font-black uppercase text-emerald-700 dark:text-emerald-400 tracking-widest mb-1">
                                         Live Activity</h4>
-                                    <p class="text-xs font-bold text-emerald-600/80 dark:text-emerald-500/80"><span
+                                    <p class="text-lg font-black text-slate-900 dark:text-white"><span
                                             id="dashboard-online-count">0</span> Students Online Now</p>
                                 </div>
                             </div>
-                            <div class="text-emerald-500">
+                            <div
+                                class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm text-emerald-500">
                                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Stats Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        <!-- Stat 1: Pending Tasks (Gradient) -->
-                        <div
-                            class="v-card p-5 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border-0 shadow-lg bg-gradient-to-br from-indigo-500 to-indigo-600">
-                            <div
-                                class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8 blur-2xl group-hover:bg-white/20 transition-all">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                        <!-- Stat 1: Active -->
+                        <div class="v-card p-6 group flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-8">
+                                <div
+                                    class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <i data-lucide="layout-grid" class="w-6 h-6"></i>
+                                </div>
+                                <span
+                                    class="text-[10px] font-black text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1.5 rounded-xl uppercase tracking-widest border border-indigo-100 dark:border-indigo-500/20">Status</span>
                             </div>
-
-                            <div class="relative z-10 flex flex-col h-full justify-between">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div
-                                        class="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm text-white border border-white/10">
-                                        <i data-lucide="target" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[9px] font-black text-indigo-100 bg-indigo-500/40 px-2 py-1 rounded-lg uppercase tracking-widest">Active</span>
-                                </div>
-                                <div>
-                                    <h3 class="text-3xl font-black text-white tracking-tighter mb-1" id="stat-active">0
-                                    </h3>
-                                    <p class="text-[9px] font-bold text-indigo-100 uppercase tracking-widest opacity-80"
-                                        id="stat-label-1">Pending Tasks</p>
-                                </div>
+                            <div>
+                                <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-1.5 leading-none"
+                                    id="stat-active">0</h3>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">
+                                    Active Tasks</p>
                             </div>
                         </div>
 
-                        <!-- Stat 2: Completed Tasks (Gradient) -->
-                        <div
-                            class="v-card p-5 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-emerald-600">
-                            <div
-                                class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8 blur-2xl group-hover:bg-white/20 transition-all">
+                        <!-- Stat 2: Completed -->
+                        <div class="v-card p-6 group flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-8">
+                                <div
+                                    class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <i data-lucide="check-circle" class="w-6 h-6"></i>
+                                </div>
+                                <span
+                                    class="text-[10px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-xl uppercase tracking-widest border border-emerald-100 dark:border-emerald-500/20">Progress</span>
                             </div>
-
-                            <div class="relative z-10 flex flex-col h-full justify-between">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div
-                                        class="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm text-white border border-white/10">
-                                        <i data-lucide="shield-check" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[9px] font-black text-emerald-100 bg-emerald-500/40 px-2 py-1 rounded-lg uppercase tracking-widest">Achieved</span>
-                                </div>
-                                <div>
-                                    <h3 class="text-3xl font-black text-white tracking-tighter mb-1"
-                                        id="stat-completed">0</h3>
-                                    <p class="text-[9px] font-bold text-emerald-100 uppercase tracking-widest opacity-80"
-                                        id="stat-label-2">Completed Tasks</p>
-                                </div>
+                            <div>
+                                <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-1.5 leading-none"
+                                    id="stat-completed">0</h3>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">
+                                    Tasks Finished</p>
                             </div>
                         </div>
-                        <!-- Stat 3: Avg Grade (Gradient) -->
-                        <div
-                            class="v-card p-5 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border-0 shadow-lg bg-gradient-to-br from-violet-500 to-purple-600 sm:col-span-2 lg:col-span-1">
-                            <div
-                                class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8 blur-2xl group-hover:bg-white/20 transition-all">
-                            </div>
 
-                            <div class="relative z-10 flex flex-col h-full justify-between">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div
-                                        class="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm text-white border border-white/10">
-                                        <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[9px] font-black text-violet-100 bg-violet-500/40 px-2 py-1 rounded-lg uppercase tracking-widest">Performance</span>
+                        <!-- Stat 3: Performance -->
+                        <div class="v-card p-6 group flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-8">
+                                <div
+                                    class="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
                                 </div>
-                                <div>
-                                    <h3 class="text-3xl font-black text-white tracking-tighter mb-1" id="stat-score">0%
-                                    </h3>
-                                    <p class="text-[9px] font-bold text-violet-100 uppercase tracking-widest opacity-80"
-                                        id="stat-label-3">Average Grade</p>
-                                </div>
+                                <span
+                                    class="text-[10px] font-black text-violet-600 bg-violet-50 dark:bg-violet-500/10 px-3 py-1.5 rounded-xl uppercase tracking-widest border border-violet-100 dark:border-violet-500/20">Grades</span>
+                            </div>
+                            <div>
+                                <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-1.5 leading-none"
+                                    id="stat-score">0%</h3>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">
+                                    Performance Score</p>
                             </div>
                         </div>
-                        <!-- NEW GAMIFICATION STAT -->
-                        <!-- NEW GAMIFICATION STAT (Gradient) -->
-                        <div id="student-level-ui"
-                            class="v-card p-5 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border-0 shadow-lg bg-gradient-to-br from-amber-400 to-orange-500 hidden sm:col-span-2 lg:col-span-1">
 
-                            <div
-                                class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-3xl group-hover:bg-white/20 transition-all">
-                            </div>
-
-                            <div class="relative z-10 flex flex-col h-full justify-between">
-                                <div class="flex justify-between items-start mb-3">
-                                    <div
-                                        class="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm text-white border border-white/10">
-                                        <i data-lucide="crown" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[9px] font-bold text-amber-900/60 uppercase tracking-wide">Rank</span>
+                        <!-- Stat 4: Rank -->
+                        <div class="v-card p-6 group flex flex-col justify-between" id="student-level-ui">
+                            <div class="flex items-center justify-between mb-6">
+                                <div
+                                    class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <i data-lucide="award" class="w-6 h-6"></i>
                                 </div>
-                                <div>
-                                    <h3 class="text-2xl font-black text-white tracking-tighter mb-2" id="rank-name">
-                                        Rookie</h3>
-                                    <div class="w-full h-1.5 bg-black/10 rounded-full overflow-hidden">
-                                        <div id="xp-bar" class="h-full bg-white w-0 transition-all duration-1000"></div>
+                                <span
+                                    class="text-[10px] font-black text-amber-600 bg-amber-50 dark:bg-amber-500/10 px-3 py-1.5 rounded-xl uppercase tracking-widest border border-amber-100 dark:border-amber-500/20">Level</span>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-3 leading-none"
+                                    id="rank-name">Rookie</h3>
+                                <div
+                                    class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5">
+                                    <div id="xp-bar"
+                                        class="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full w-0 transition-all duration-1000">
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div> <!-- End of Stats Grid -->
+                    </div>
 
-
-
-                    <!-- DAILY QUESTS WIDGET (NEW) -->
-
-
-                    <!-- Bottom Grid (Activities & Analytics) -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Bottom Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
                         <!-- Recent Activity -->
-                        <div class="v-card p-6 min-h-[300px] flex flex-col">
-                            <div class="flex justify-between items-center mb-6">
+                        <div class="v-card p-8 flex flex-col">
+                            <div class="flex justify-between items-center mb-8">
                                 <h3
-                                    class="font-black text-xs uppercase tracking-tighter text-slate-900 dark:text-slate-200 flex items-center gap-2">
-                                    <i data-lucide="activity" class="w-4 h-4 text-indigo-500"></i> Recent Activities
+                                    class="font-black text-sm uppercase tracking-widest text-slate-900 dark:text-slate-200 flex items-center gap-3">
+                                    <span
+                                        class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
+                                        <i data-lucide="activity" class="w-4 h-4 text-indigo-500"></i>
+                                    </span>
+                                    Recent Activities
                                 </h3>
                                 <button onclick="switchTab('tasks')"
-                                    class="text-[9px] font-black uppercase text-indigo-500 tracking-widest hover:underline">View
-                                    All Tasks</button>
+                                    class="text-[10px] font-black uppercase text-indigo-500 tracking-widest hover:text-indigo-600 transition-colors">View
+                                    All</button>
                             </div>
-                            <div id="recent-activity-list" class="space-y-4 flex-1">
-                                <!-- Activities injected here -->
-                                <div
-                                    class="text-center py-10 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                                    Loading activity history...
+                            <div id="recent-activity-list" class="space-y-6 flex-1">
+                                <div class="flex items-center justify-center py-12">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Performance Chart -->
-                        <div class="v-card p-6 min-h-[300px] flex flex-col">
-                            <div class="flex justify-between items-center mb-4">
+                        <div class="v-card p-8 flex flex-col">
+                            <div class="flex justify-between items-center mb-8">
                                 <div>
                                     <h3
-                                        class="font-black text-xs uppercase tracking-tighter text-slate-900 dark:text-slate-200">
+                                        class="font-black text-sm uppercase tracking-widest text-slate-900 dark:text-slate-200">
                                         Perf. Analytics</h3>
-                                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Live
-                                        Statistical Data</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                                        Real-time data</p>
                                 </div>
                                 <span
-                                    class="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[8px] font-black uppercase tracking-widest rounded-lg animate-pulse">Live
-                                    Tracking</span>
+                                    class="px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase tracking-widest rounded-full">Live</span>
                             </div>
                             <div class="flex-1 flex items-center justify-center">
-                                <canvas id="performanceChart" class="max-h-[200px] w-full"></canvas>
+                                <canvas id="performanceChart" class="max-h-[240px] w-full"></canvas>
                             </div>
                         </div>
                     </div>
-                </div> <!-- End of view-dashboard -->
+                </div>
 
                 <!-- GAMES ARCADE SECTION -->
                 <div id="view-arcade"
@@ -2783,7 +2763,7 @@
                             </div>
                         </div>
                         <div id="game-container"
-                            class="flex-1 glass-dark rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden min-h-[500px]">
+                            class="flex-1 bg-white dark:bg-[#0b1120] rounded-3xl border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden min-h-[500px] p-8 md:p-12 lg:p-16">
                             <!-- Game injected here -->
                         </div>
                     </div>
@@ -2949,7 +2929,7 @@
 
                 <!-- 6. Admin Student Directory -->
                 <div id="view-users" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
-                    <div class="v-card overflow-hidden">
+                    <div class="v-card"> <!-- Removed overflow-hidden to allow children to handle it better -->
                         <div
                             class="p-4 border-b border-slate-100 dark:border-slate-800/50 flex flex-col md:flex-row gap-3 items-center justify-between">
                             <div class="relative w-full md:max-w-xs">
@@ -2977,8 +2957,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left font-bold">
+                        <div class="overflow-x-auto custom-scrollbar w-full">
+                            <table class="min-w-[800px] w-full text-left font-bold">
                                 <thead
                                     class="bg-slate-50 dark:bg-[#1e293b] text-[9px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest border-b border-slate-100 dark:border-slate-800">
                                     <tr>
@@ -3005,7 +2985,7 @@
 
                 <!-- 7. Admin Feedback View -->
                 <div id="view-feedback" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
-                    <div class="v-card overflow-hidden">
+                    <div class="v-card">
                         <div
                             class="p-4 border-b border-slate-100 dark:border-slate-800/50 flex flex-col md:flex-row gap-3 items-center justify-between">
                             <div>
@@ -3025,8 +3005,8 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left font-bold">
+                        <div class="overflow-x-auto custom-scrollbar w-full">
+                            <table class="min-w-[900px] w-full text-left font-bold">
                                 <thead
                                     class="bg-slate-50 dark:bg-[#1e293b] text-[9px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest border-b border-slate-100 dark:border-slate-800">
                                     <tr>
@@ -3456,7 +3436,7 @@
                                                         class="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                                         <div id="storage-progress-bar"
                                                             class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
-                                                            style="width: 0%"></div>
+                                                            style="width: 0%;"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -3654,7 +3634,7 @@
                                     class="text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-tight leading-none mb-1">NAVTTC
                                     LMS <span class="text-indigo-500 text-[10px] ml-1">v2.0</span></span>
                                 <span
-                                    class="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none">©
+                                    class="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none">�
                                     <span class="dynamic-year">2025</span> Super Systech Computers Umerkot</span>
                             </div>
                         </div>
@@ -4223,7 +4203,7 @@
                         </button>
                     </div>
 
-                    <!-- 🗣️ DISCUSSION HUB (NEW) -->
+                    <!-- ??? DISCUSSION HUB (NEW) -->
                     <div class="mt-12 pt-12 border-t border-slate-100 dark:border-slate-800">
                         <div class="flex items-center gap-3 mb-6">
                             <div
@@ -4356,7 +4336,7 @@
 
                 // Admin is login only
                 $('#name-field, #avatar-field').slideUp(200);
-                $('#toggle-auth-mode').hide();
+                $('#auth-footer').hide();
                 if (typeof customToggleMode === 'function' && $('#auth-btn span').text() === 'Create Account') {
                     customToggleMode();
                 }
@@ -4368,7 +4348,7 @@
                 if ($('#auth-btn span').text() === 'Create Account') {
                     $('#name-field, #avatar-field').slideDown(200);
                 }
-                $('#toggle-auth-mode').show();
+                $('#auth-footer').show();
             }
         };
 
@@ -4682,7 +4662,7 @@
 
         $(document).ready(() => {
             const savedRole = localStorage.getItem('last_auth_tab') || 'student';
-            switchAuth(savedRole);
+            window.switchAuth(savedRole);
 
             // Explicitly check for Recovery Hash to ensure Modal opens
             if (window.isRecoveryMode) {
@@ -4720,6 +4700,7 @@
                 // SWITCH TO SIGNUP
                 nameField.removeClass('hidden');
                 avatarField.removeClass('hidden');
+                $('#auth-tabs').addClass('hidden');
 
                 btn.find('span').text('Create Account');
                 // Icon Logic
@@ -4731,6 +4712,7 @@
                 // SWITCH TO LOGIN
                 nameField.addClass('hidden');
                 avatarField.addClass('hidden');
+                $('#auth-tabs').removeClass('hidden');
 
                 btn.find('span').text('Sign In');
                 // Icon Logic
@@ -5318,23 +5300,6 @@
             } catch (err) {
                 msgEl.text("Update Failed: " + err.message).addClass('text-rose-500').removeClass('hidden');
                 btn.prop('disabled', false).text('Update Password');
-            }
-        };
-
-        window.toggleMode = () => {
-            $('#auth-error').addClass('hidden').text('');
-            const isReg = $('#auth-btn span').text() === "Create Account";
-            if (isReg) {
-                $('#name-field').addClass('hidden');
-                $('#auth-tabs').removeClass('hidden');
-                $('#auth-btn span').text('Sign In');
-                $('#auth-footer').html('New here? <button onclick="toggleMode()" class="text-indigo-500 font-black uppercase tracking-widest text-[9px] hover:underline">Create Account</button>');
-            } else {
-                switchAuth('student');
-                $('#name-field').removeClass('hidden');
-                $('#auth-tabs').addClass('hidden');
-                $('#auth-btn span').text('Create Account');
-                $('#auth-footer').html('Already have an account? <button onclick="toggleMode()" class="text-indigo-500 font-black uppercase tracking-widest text-[9px] hover:underline">Sign In</button>');
             }
         };
 
@@ -7174,17 +7139,17 @@
             // Generate remarks based on average grade (WITH EMOJIS)
             let instructorRemarks = "";
             if (avgGrade >= 90) {
-                instructorRemarks = "Outstanding performance! 🌟 The student has demonstrated exceptional understanding and mastery of the concepts. Keep up the excellent work and continue to challenge yourself with advanced topics. 🚀";
+                instructorRemarks = "Outstanding performance! ?? The student has demonstrated exceptional understanding and mastery of the concepts. Keep up the excellent work and continue to challenge yourself with advanced topics. ??";
             } else if (avgGrade >= 80) {
-                instructorRemarks = "Excellent work! ✨ The student shows strong grasp of the material and consistent effort. Continue this momentum and focus on refining advanced skills for even better results. 💪";
+                instructorRemarks = "Excellent work! ? The student shows strong grasp of the material and consistent effort. Continue this momentum and focus on refining advanced skills for even better results. ??";
             } else if (avgGrade >= 70) {
-                instructorRemarks = "Good progress! 👍 The student is performing well and shows solid understanding. With more practice and attention to detail, performance can reach the next level. 📈";
+                instructorRemarks = "Good progress! ?? The student is performing well and shows solid understanding. With more practice and attention to detail, performance can reach the next level. ??";
             } else if (avgGrade >= 60) {
-                instructorRemarks = "Satisfactory performance. The student demonstrates basic understanding but needs to focus more on core concepts. Additional practice and review of fundamentals is recommended. 📚";
+                instructorRemarks = "Satisfactory performance. The student demonstrates basic understanding but needs to focus more on core concepts. Additional practice and review of fundamentals is recommended. ??";
             } else if (avgGrade >= 50) {
-                instructorRemarks = "Needs improvement. ⚠️ The student should dedicate more time to studying and seek help when needed. Regular practice and consultation with instructors will help improve performance.";
+                instructorRemarks = "Needs improvement. ?? The student should dedicate more time to studying and seek help when needed. Regular practice and consultation with instructors will help improve performance.";
             } else {
-                instructorRemarks = "Requires immediate attention. 🚨 The student is struggling with the material and needs significant support. Please schedule one-on-one sessions and focus on building foundational skills.";
+                instructorRemarks = "Requires immediate attention. ?? The student is struggling with the material and needs significant support. Please schedule one-on-one sessions and focus on building foundational skills.";
             }
 
             // Render Remarks as Image (for Emoji support)
@@ -7814,7 +7779,7 @@
                 'feedback': 'Student Feedback',
                 'profile': 'My Profile',
                 'exam': 'Online Examination',
-
+                'arcade': 'Games Arcade',
                 'storage': 'My Personal Storage'
             };
             $('#page-title').text(titles[tabId] || 'NAVTTC LMS');
@@ -8129,7 +8094,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
         let globalFileStatsCache = null;
 
         /**
-         * 🔒 PROTECTED STORAGE UI CONFIGURATION
+         * ?? PROTECTED STORAGE UI CONFIGURATION
          * Yeh section storage ki UI settings ko handle karta hai.
          * Isay edit karte waqt dhyan rakhein taaki persistence kharab na ho.
          */
@@ -8336,27 +8301,55 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
         };
 
         window.viewStudentFiles = (studentId, studentName) => {
-            if (!userProfile || userProfile.role !== 'admin') return;
+            const profile = window.userProfile;
+            if (!profile || profile.role !== 'admin') return;
             switchTab('storage');
             loadUserFiles(studentId, studentName);
         };
 
-        window.renameFile = async (fileId, currentName) => {
-            const newName = prompt("Enter new name for the file:", currentName);
-            if (!newName || newName === currentName) return;
+        window.renameFile = (fileId, currentName) => {
+            $('#rename-file-id').val(fileId);
+            $('#rename-file-name').val(currentName);
+            const modal = new bootstrap.Modal(document.getElementById('renameFileModal'));
+            modal.show();
+        };
+
+        window.submitRename = async () => {
+            const fileId = $('#rename-file-id').val();
+            const newName = $('#rename-file-name').val().trim();
+            const saveBtn = $('#rename-save-btn');
+            const profile = window.userProfile;
+
+            if (!newName) return showToast("Filename cannot be empty.", "error");
+            if (!profile) return showToast("Please login.", "error");
+
+            saveBtn.prop('disabled', true).text('Saving...');
 
             try {
                 const { error } = await client
                     .from('personal_storage')
-                    .update({ full_name: newName })
+                    .update({ name: newName })
                     .eq('id', fileId);
 
                 if (error) throw error;
+
                 showToast("File renamed successfully.");
-                loadUserFiles(window.currentViewingStudentId);
+
+                const modalEl = document.getElementById('renameFileModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+
+                if (window.currentViewingStudentId) {
+                    loadUserFiles(window.currentViewingStudentId);
+                } else {
+                    const uid = profile.uid || profile.id;
+                    loadUserFiles(uid);
+                }
             } catch (err) {
                 console.error("Rename Error:", err);
                 showToast("Failed to rename file.", "error");
+            } finally {
+                saveBtn.prop('disabled', false).text('Save Changes');
             }
         };
 
@@ -8699,7 +8692,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             const prevBtn = $('#preview-prev-btn');
             const nextBtn = $('#preview-next-btn');
 
-            // 🛠️ CLOUDINARY PREVIEW FIX
+            // ??? CLOUDINARY PREVIEW FIX
             let previewUrl = url;
             if (url.includes('cloudinary.com')) {
                 previewUrl = url.replace(/\/fl_attachment\//g, '/')
@@ -8757,7 +8750,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                 // Handle Preview Types
                 let previewHtml = '';
 
-                // 📹 VIDEO HANDLING (YouTube/Vimeo)
+                // ?? VIDEO HANDLING (YouTube/Vimeo)
                 const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
                 const isVimeo = url.includes('vimeo.com');
 
@@ -8776,7 +8769,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                                     <img src="${previewUrl}" class="max-w-full max-h-full object-contain rounded-lg shadow-lg">
                                    </div>`;
                 } else if (isPdf) {
-                    // 🛠️ USE GOOGLE DOCS VIEWER FOR RELIABLE PDF PREVIEW
+                    // ??? USE GOOGLE DOCS VIEWER FOR RELIABLE PDF PREVIEW
                     const gDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(previewUrl)}&embedded=true`;
                     previewHtml = `<iframe src="${gDocsUrl}" class="w-full h-full border-0 bg-white rounded-lg"></iframe>`;
                 } else if (['html', 'txt', 'js', 'css', 'json', 'py', 'php', 'sql'].includes(ext)) {
@@ -8951,7 +8944,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <h6 class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" title="${file.name}">${file.name}</h6>
-                                    <p class="text-[10px] text-slate-400 font-medium">${size} • ${date}</p>
+                                    <p class="text-[10px] text-slate-400 font-medium">${size} � ${date}</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
@@ -9282,7 +9275,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
 
                     // Show SweetAlert
                     Swal.fire({
-                        title: '👋 Admin Nudge!',
+                        title: '?? Admin Nudge!',
                         text: 'Admin is requesting your attention. Please check your pending tasks.',
                         icon: 'info',
                         confirmButtonText: 'Okay, I am here!',
@@ -9316,7 +9309,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                     audio.volume = 0.5;
                     audio.play().catch(e => { });
 
-                    showToast(`✅ ${payload.user_name} acknowledged your nudge!`, 'success');
+                    showToast(`? ${payload.user_name} acknowledged your nudge!`, 'success');
                 }
             });
 
@@ -10361,21 +10354,21 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
 
             // Determine encouragement level and message
             let message = '';
-            let icon = '🎉';
+            let icon = '??';
             let level = 'good';
 
             // Determine encouragement based on metrics
             if (avgGrade >= 85 && completionRate >= 80) {
-                message = `🌟 Excellent Progress! You're crushing it! Average Grade: ${avgGrade.toFixed(1)}% | Completed: ${gradedSubmissions.length}/${totalTasks}`;
+                message = `?? Excellent Progress! You're crushing it! Average Grade: ${avgGrade.toFixed(1)}% | Completed: ${gradedSubmissions.length}/${totalTasks}`;
                 level = 'excellent';
             } else if (avgGrade >= 75 && completionRate >= 60) {
-                message = `🚀 Great Work! You're doing amazing! Keep it up! Average Grade: ${avgGrade.toFixed(1)}% | ${gradedSubmissions.length} tasks completed`;
+                message = `?? Great Work! You're doing amazing! Keep it up! Average Grade: ${avgGrade.toFixed(1)}% | ${gradedSubmissions.length} tasks completed`;
                 level = 'great';
             } else if (avgGrade >= 60 || completionRate >= 40) {
-                message = `💪 Good Progress! You're on the right track. Keep pushing! ${Math.round(completionRate)}% tasks completed`;
+                message = `?? Good Progress! You're on the right track. Keep pushing! ${Math.round(completionRate)}% tasks completed`;
                 level = 'good';
             } else if (gradedSubmissions.length > 0) {
-                message = `📚 Get Started! Complete more tasks to see your progress grow!`;
+                message = `?? Get Started! Complete more tasks to see your progress grow!`;
                 level = 'start';
             } else {
                 return; // No progress yet, no encouragement needed
@@ -10738,6 +10731,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
         };
 
         // --- ARCADE GAME ENGINE ---
+        // --- ARCADE GAME ENGINE ---
         window.activeGameTimer = null;
 
         window.startArcadeGame = (gameId) => {
@@ -10913,73 +10907,6 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             }
         }
 
-        // --- ARCADE DATA & RENDERING ---
-        const gamesData = [
-            {
-                id: 'html_master',
-                title: 'HTML Master',
-                desc: 'Defeat bugs by answering HTML element questions correctly.',
-                icon: 'code-2',
-                color: 'blue',
-                levelKey: 'html_master_level'
-            },
-            {
-                id: 'drag_master',
-                title: 'Element Architect',
-                desc: 'Drag and drop code blocks the correct order to solve missions.',
-                icon: 'blocks',
-                color: 'emerald',
-                levelKey: 'drag_master_level'
-            },
-            {
-                id: 'js_logic',
-                title: 'JS Logic',
-                desc: 'Solve algorithmic challenges to power up your ship.',
-                icon: 'terminal',
-                color: 'amber',
-                levelKey: 'js_logic_level'
-            }
-        ];
-
-        window.renderGames = () => {
-            const grid = $('#arcade-grid');
-            grid.empty();
-
-            gamesData.forEach(game => {
-                const currentLevel = parseInt(localStorage.getItem(game.levelKey)) || 1;
-                const isLocked = currentLevel < 1; // You can add actual unlock logic here if needed
-
-                const cardHtml = `
-                    <div class="glass dark:glass-dark rounded-2xl p-6 border border-slate-200/50 dark:border-white/5 hover:border-${game.color}-500 transition-all cursor-pointer group relative overflow-hidden flex flex-col h-full ${isLocked ? 'opacity-50 grayscale' : ''}" onclick="${isLocked ? '' : `if(window.startArcadeGame) window.startArcadeGame('${game.id}')`}">
-                        <div class="absolute -right-6 -top-6 w-32 h-32 bg-${game.color}-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
-                        <div class="w-14 h-14 rounded-2xl bg-${game.color}-50 dark:bg-${game.color}-500/10 flex items-center justify-center mb-6 border border-${game.color}-100 dark:border-${game.color}-500/20 group-hover:scale-110 transition-transform">
-                            <i data-lucide="${game.icon}" class="w-7 h-7 text-${game.color}-600 dark:text-${game.color}-400"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${game.title}</h3>
-                        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 flex-1">${game.desc}</p>
-                        <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-white/5">
-                            <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                                ${isLocked ? 'Locked' : `Level ${currentLevel}`}
-                            </div>
-                            <button class="w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-${game.color}-500 group-hover:text-white transition-colors">
-                                <i data-lucide="${isLocked ? 'lock' : 'play'}" class="w-4 h-4 ml-0.5"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                grid.append(cardHtml);
-            });
-            window.safeCreateIcons();
-        };
-
-        // Hook renderGames into the tab switcher if it exists, or run it on load
-        $(document).ready(() => {
-            // Render once initially
-            if ($('#arcade-grid').length > 0) {
-                window.renderGames();
-            }
-        });
-
         // ADAPTIVE DIFFICULTY CONTENT BANKS
         const htmlQB = {
             easy: [
@@ -11000,7 +10927,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             ],
             moderate: [
                 { q: "Choose the correct HTML5 element for the main content?", a: ["<article>", "<main>", "<content>", "<body>"], r: ["<main>"] },
-                { q: "How do you define an internal style sheet?", a: ["<style>", "<css>", "<script>", "<design>"], r: ["<style>"] },
+                { q: "How do you define an internal style sheet?", a: ["<style>", "<css>", "", "<design>"], r: ["<style>"] },
                 { q: "Which attribute is used to specify a unique ID?", a: ["class", "id", "name", "tag"], r: ["id"] },
                 { q: "Correct input type for email?", a: ["type='text'", "type='email'", "type='mail'", "format='email'"], r: ["type='email'"] },
                 { q: "Which tag is used to define a table row?", a: ["<th>", "<td>", "<tr>", "<table>"], r: ["<tr>"] },
@@ -11012,7 +10939,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                 { q: "HTML5 tag for sidebar content?", a: ["<aside>", "<sidebar>", "<section>", "<nav>"], r: ["<aside>"] },
                 { q: "Attribute to open link in new tab?", a: ["target='_blank'", "new='tab'", "target='new'", "open='window'"], r: ["target='_blank'"] },
                 { q: "Which tag defines a form?", a: ["<form>", "<input>", "<submit>", "<field>"], r: ["<form>"] },
-                { q: "Valid attribute for <script> src?", a: ["src", "href", "link", "url"], r: ["src"] }
+                { q: "Valid attribute for  src?", a: ["src", "href", "link", "url"], r: ["src"] }
             ],
             hard: [
                 { q: "Which input type defines a slider control?", a: ["slider", "range", "controls", "search"], r: ["range"] },
@@ -11269,16 +11196,19 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                             // Delay slightly for feedback to be seen, then show Finalize screen
                             setTimeout(() => {
                                 container.html(`
-                                    <div class="text-center animate-in zoom-in max-w-md mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl">
-                                        ${leveledUp ? `<div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-400 rounded-xl text-yellow-600 font-black uppercase animate-pulse">?? LEVEL UP TO ${getLevel('drag').toUpperCase()}!</div>` : ''}
-                                        <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="check" class="w-10 h-10"></i></div>
-                                        <h2 class="text-3xl font-black text-slate-900 dark:text-slate-200 uppercase">All Matched!</h2>
-                                        <div class="flex gap-3 justify-center mt-8">
-                                            <button onclick="startArcadeGame('drag_master')" class="px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 rounded-xl font-bold transition-colors flex items-center gap-2">
-                                                <i data-lucide="play" class="w-4 h-4"></i> Play Next
+                                    <div class="text-center animate-in zoom-in max-w-md mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 relative z-10">
+                                        ${leveledUp ? `<div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-400 rounded-xl text-yellow-600 font-black uppercase animate-pulse w-full text-center">🎉 LEVEL UP TO ${getLevel('drag').toUpperCase()}!</div>` : ''}
+                                        <div class="w-24 h-24 bg-gradient-to-br from-emerald-100 to-emerald-50 dark:from-emerald-900/40 dark:to-emerald-800/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border border-emerald-200 dark:border-emerald-700/50">
+                                            <span class="text-5xl">✅</span>
+                                        </div>
+                                        <h2 class="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-2">All Matched!</h2>
+                                        <p class="text-slate-500 dark:text-slate-400 mb-8 font-medium">Excellent work organizing the elements.</p>
+                                        <div class="flex gap-4 justify-center mt-8">
+                                            <button onclick="startArcadeGame('drag_master')" class="px-8 py-3.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl font-bold transition-colors flex items-center gap-2">
+                                                <span>▶</span> Play Next
                                             </button>
-                                            <button onclick="exitArcadeGame()" class="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/30">
-                                                Back to Menu
+                                            <button onclick="exitArcadeGame()" class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold uppercase tracking-wider transition-all shadow-lg shadow-indigo-500/30">
+                                                Menu
                                             </button>
                                         </div>
                                     </div>
@@ -11336,30 +11266,31 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                         const nextLevelMsg = leveledUp ? `<div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-400 rounded-xl text-yellow-600 font-black uppercase animate-pulse">?? LEVEL UP TO ${getLevel('html').toUpperCase()}!</div>` : '';
 
                         container.html(`
-                            <div class="max-w-md mx-auto bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl border border-slate-100 dark:border-slate-700 text-center animate-in zoom-in duration-300">
-                                 ${nextLevelMsg}
-                                <div class="w-24 h-24 mx-auto bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6">
-                                    <i data-lucide="trophy" class="w-12 h-12 text-indigo-500"></i>
+                            <div class="max-w-md mx-auto bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl border border-slate-200 dark:border-slate-700 text-center animate-in zoom-in duration-300 relative z-10">
+                                 ${leveledUp ? `<div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-400 rounded-xl text-yellow-600 font-black uppercase animate-pulse w-full text-center">🎉 LEVEL UP TO ${getLevel('html').toUpperCase()}!</div>` : ''}
+                                <div class="w-28 h-28 mx-auto bg-gradient-to-br from-indigo-50 to-indigo-100/50 dark:from-indigo-900/40 dark:to-indigo-800/20 rounded-full flex items-center justify-center mb-6 shadow-inner border border-indigo-100 dark:border-indigo-700/50">
+                                    <span class="text-6xl drop-shadow-md">🏆</span>
                                 </div>
-                                <h3 class="text-3xl font-black text-slate-900 dark:text-slate-200 mb-2 uppercase tracking-tighter">Mission Complete</h3>
-                                <div class="flex justify-center gap-8 my-4">
-                                    <div>
-                                        <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Score</p>
-                                        <p class="text-4xl font-black text-indigo-500">${score}</p>
+                                <h3 class="text-4xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">Mission Complete</h3>
+                                
+                                <div class="flex justify-center gap-10 my-8">
+                                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl w-32 border border-slate-100 dark:border-slate-700">
+                                        <p class="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-1">Score</p>
+                                        <p class="text-4xl font-black text-indigo-600 dark:text-indigo-400">${score}</p>
                                     </div>
-                                    <div>
-                                        <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Accuracy</p>
-                                        <p class="text-4xl font-black text-emerald-500">${accuracy}%</p>
+                                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl w-32 border border-slate-100 dark:border-slate-700">
+                                        <p class="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-1">Accuracy</p>
+                                        <p class="text-4xl font-black text-emerald-500 dark:text-emerald-400 drop-shadow-sm">${accuracy}%</p>
                                     </div>
                                 </div>
                                 
-                                <div id="save-status" class="mb-6 text-xs font-bold text-slate-400 italic">Saving Result...</div>
+                                <div id="save-status" class="mb-8 text-xs font-bold text-slate-400 italic">Saving Result...</div>
                                 
-                                <div class="flex gap-3 justify-center">
-                                    <button onclick="startArcadeGame('html_master')" class="px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 rounded-xl font-bold transition-colors flex items-center gap-2">
-                                        <i data-lucide="play" class="w-4 h-4"></i> Next Level
+                                <div class="flex gap-4 justify-center">
+                                    <button onclick="startArcadeGame('html_master')" class="flex-1 py-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
+                                        <span>▶</span> Next Level
                                     </button>
-                                    <button onclick="exitArcadeGame()" class="px-6 py-3 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all">Back to Menu</button>
+                                    <button onclick="exitArcadeGame()" class="flex-1 py-4 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all uppercase tracking-wider">Menu</button>
                                 </div>
                             </div>
                         `);
@@ -11409,7 +11340,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                     ];
                     const t = themes[i % themes.length];
                     return `
-                                <button id="opt-${i}" class="group relative p-6 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl ${t.border} hover:shadow-xl transition-all duration-300 text-left flex items-start gap-4" onclick="checkProAns(this, '${opt.replace(new RegExp("'", 'g'), "\\'").replace(/\n/g, " ")}')">
+                                <button id="opt-${i}" class="group relative p-6 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl ${t.border} hover:shadow-xl transition-all duration-300 text-left flex items-start gap-4" onclick="checkProAns(this, '${opt.replace(new RegExp("'", 'g'), "\'").replace(/\n/g, " ")}')">
                                     <div class="w-10 h-10 rounded-xl ${t.bg} dark:${t.bg}/10 ${t.color} flex items-center justify-center shrink-0 font-black text-sm group-hover:scale-110 transition-transform">
                                         <i data-lucide="${t.icon}" class="w-5 h-5"></i>
                                     </div>
@@ -11495,6 +11426,403 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             clearGameFeedback();
             renderQ();
         }
+
+        function runJsLogic(container) {
+            let score = 0;
+            const timeLeftInit = 15;
+            const currentLevel = getLevel('js');
+            let pool = jsQB[currentLevel] || jsQB['easy'];
+            const questions = pool.sort(() => 0.5 - Math.random()).slice(0, 6);
+
+            showToast(`Adaptivity Active: ${currentLevel.toUpperCase()}`);
+            let qIdx = 0;
+
+            function renderQ() {
+                clearInterval(window.activeGameTimer);
+
+                if (qIdx >= questions.length) {
+                    const accuracy = Math.round((score / questions.length) * 100);
+                    saveLevel('js', score, questions.length).then(leveledUp => {
+                        container.html(`
+                    <div class="max-w-md mx-auto bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl border border-slate-200 dark:border-slate-700 text-center animate-in zoom-in duration-300 relative z-10">
+                         ${leveledUp ? `<div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-400 rounded-xl text-yellow-600 font-black uppercase animate-pulse w-full text-center">🎉 LEVEL UP TO ${getLevel('js').toUpperCase()}!</div>` : ''}
+                        <div class="w-28 h-28 mx-auto bg-gradient-to-br from-yellow-50 to-yellow-100/50 dark:from-yellow-900/40 dark:to-yellow-800/20 rounded-full flex items-center justify-center mb-6 shadow-inner border border-yellow-100 dark:border-yellow-700/50">
+                            <span class="text-6xl drop-shadow-md">🏆</span>
+                        </div>
+                        <h3 class="text-4xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">Mission Complete</h3>
+                        
+                        <div class="flex justify-center gap-10 my-8">
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl w-32 border border-slate-100 dark:border-slate-700">
+                                <p class="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-1">Score</p>
+                                <p class="text-4xl font-black text-yellow-600 dark:text-yellow-400">${score}</p>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl w-32 border border-slate-100 dark:border-slate-700">
+                                <p class="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-1">Accuracy</p>
+                                <p class="text-4xl font-black text-emerald-500 dark:text-emerald-400 drop-shadow-sm">${accuracy}%</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4 justify-center">
+                            <button onclick="startArcadeGame('js_logic')" class="flex-1 py-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
+                                <span>▶</span> Next Level
+                            </button>
+                            <button onclick="exitArcadeGame()" class="flex-1 py-4 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all uppercase tracking-wider">Menu</button>
+                        </div>
+                    </div>
+                `);
+                        lucide.createIcons();
+                        saveGameScore('js_logic', score, questions.length);
+                    });
+                    return;
+                }
+
+                const curr = questions[qIdx];
+                let timeLeft = timeLeftInit;
+
+                container.html(`
+            <div class="max-w-2xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-lg text-xs font-black uppercase tracking-wider">Q${qIdx + 1} / ${questions.length}</span>
+                        <span class="text-slate-400 text-xs font-bold">Score: ${score}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-rose-500 font-mono font-black text-xl">
+                        <i data-lucide="timer" class="w-5 h-5"></i> <span id="game-timer">${timeLeft}s</span>
+                    </div>
+                </div>
+
+                <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mb-8 overflow-hidden">
+                    <div class="h-full bg-yellow-500 transition-all duration-1000 ease-linear" style="width: 100%" id="timer-bar"></div>
+                </div>
+
+                <div class="mb-10 text-center">
+                    <h2 class="text-3xl font-black text-slate-900 dark:text-slate-200 mb-6 leading-tight">${curr.q}</h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                    ${curr.a.map((opt, i) => {
+                    return `
+                        <button id="opt-${i}" class="group relative p-6 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl hover:border-yellow-500 hover:shadow-xl transition-all duration-300 text-left flex items-start gap-4" onclick="checkProAns(this, '${opt.replace(new RegExp("'", 'g'), "\\\\\'").replace(/\\n/g, " ")}')">
+                            <div class="w-10 h-10 rounded-xl bg-yellow-50 dark:bg-yellow-50/10 text-yellow-500 flex items-center justify-center shrink-0 font-black text-sm group-hover:scale-110 transition-transform">
+                                <i data-lucide="zap" class="w-5 h-5"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Option ${String.fromCharCode(65 + i)}</span>
+                                <span class="font-mono text-lg font-bold text-slate-700 dark:text-slate-200 block truncate">${opt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+                            </div>
+                        </button>
+                    `}).join('')}
+                </div>
+            </div>
+        `);
+
+                lucide.createIcons();
+
+                window.activeGameTimer = setInterval(() => {
+                    timeLeft--;
+                    $('#game-timer').text(timeLeft + 's');
+                    $('#timer-bar').css('width', `${(timeLeft / timeLeftInit) * 100}%`);
+
+                    if (timeLeft <= 0) {
+                        clearInterval(window.activeGameTimer);
+                        handleTimeout();
+                    }
+                }, 1000);
+
+                window.checkProAns = (btn, ans) => {
+                    clearInterval(window.activeGameTimer);
+                    const isCorrect = curr.r === ans;
+                    const $btn = $(btn);
+
+                    $('button[id^="opt-"]').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+                    $btn.removeClass('opacity-50 cursor-not-allowed');
+
+                    if (isCorrect) {
+                        score++;
+                        $btn.removeClass('border-slate-100 dark:border-slate-700 hover:border-yellow-500').addClass('bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500 ring-4 ring-emerald-500/20');
+                        $btn.find('span:first-child').addClass('bg-emerald-100 text-emerald-600');
+                        confetti({ particleCount: 30, spread: 40, origin: { y: 0.6 } });
+                        showGameFeedback("CORRECT!", true);
+                    } else {
+                        $btn.removeClass('border-slate-100 dark:border-slate-700 hover:border-yellow-500').addClass('bg-rose-50 dark:bg-rose-900/20 border-rose-500 ring-4 ring-rose-500/20');
+                        $btn.find('span:first-child').addClass('bg-rose-100 text-rose-600');
+                        showGameFeedback("WRONG!", false, curr.r);
+
+                        curr.a.forEach((opt, i) => {
+                            if (curr.r === opt) {
+                                $(`#opt-${i}`).removeClass('opacity-50').addClass('border-emerald-500 border-dashed');
+                            }
+                        });
+                    }
+
+                    setTimeout(() => {
+                        qIdx++;
+                        renderQ();
+                    }, 1500);
+                };
+
+                function handleTimeout() {
+                    $('button[id^="opt-"]').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+                    showGameFeedback("TIME'S UP!", false, curr.r);
+
+                    curr.a.forEach((opt, i) => {
+                        if (curr.r === opt) {
+                            $(`#opt-${i}`).removeClass('opacity-50').addClass('border-emerald-500 border-dashed');
+                        }
+                    });
+
+                    setTimeout(() => {
+                        qIdx++;
+                        renderQ();
+                    }, 2000);
+                }
+            }
+            clearGameFeedback();
+            renderQ();
+        }
+
+        function runCssSpeed(container) {
+            let score = 0;
+            const timeLeftInit = 15;
+            const currentLevel = getLevel('css');
+            let pool = cssQB[currentLevel] || cssQB['easy'];
+            const questions = pool.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+            showToast(`Adaptivity Active: ${currentLevel.toUpperCase()}`);
+            let qIdx = 0;
+
+            function renderQ() {
+                clearInterval(window.activeGameTimer);
+
+                if (qIdx >= questions.length) {
+                    const accuracy = Math.round((score / questions.length) * 100);
+                    saveLevel('css', score, questions.length).then(leveledUp => {
+                        container.html(`
+            < div class= "max-w-md mx-auto bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl border border-slate-200 dark:border-slate-700 text-center animate-in zoom-in duration-300 relative z-10" >
+            ${leveledUp ? `<div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-400 rounded-xl text-yellow-600 font-black uppercase animate-pulse w-full text-center">🎉 LEVEL UP TO ${getLevel('css').toUpperCase()}!</div>` : ''}
+                        <div class="w-28 h-28 mx-auto bg-gradient-to-br from-indigo-50 to-indigo-100/50 dark:from-indigo-900/40 dark:to-indigo-800/20 rounded-full flex items-center justify-center mb-6 shadow-inner border border-indigo-100 dark:border-indigo-700/50">
+                            <span class="text-6xl drop-shadow-md">🏆</span>
+                        </div>
+                        <h3 class="text-4xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">Mission Complete</h3>
+                        
+                        <div class="flex justify-center gap-10 my-8">
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl w-32 border border-slate-100 dark:border-slate-700">
+                                <p class="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-1">Score</p>
+                                <p class="text-4xl font-black text-indigo-600 dark:text-indigo-400">${score}</p>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl w-32 border border-slate-100 dark:border-slate-700">
+                                <p class="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-1">Accuracy</p>
+                                <p class="text-4xl font-black text-emerald-500 dark:text-emerald-400 drop-shadow-sm">${accuracy}%</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4 justify-center">
+                            <button onclick="startArcadeGame('css_speed')" class="flex-1 py-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
+                                <span>▶</span> Next Level
+                            </button>
+                            <button onclick="exitArcadeGame()" class="flex-1 py-4 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all uppercase tracking-wider">Menu</button>
+                        </div>
+                    </div>
+                `);
+                        lucide.createIcons();
+                        saveGameScore('css_speed', score, questions.length);
+                    });
+                    return;
+                }
+
+                const curr = questions[qIdx];
+                let timeLeft = timeLeftInit;
+                let allOptions = [curr.correct, ...curr.wrong].sort(() => 0.5 - Math.random());
+
+                container.html(`
+            <div class="max-w-2xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs font-black uppercase tracking-wider">Q${qIdx + 1} / ${questions.length}</span>
+                        <span class="text-slate-400 text-xs font-bold">Score: ${score}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-rose-500 font-mono font-black text-xl">
+                        <i data-lucide="timer" class="w-5 h-5"></i> <span id="game-timer">${timeLeft}s</span>
+                    </div>
+                </div>
+
+                <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mb-8 overflow-hidden">
+                    <div class="h-full bg-indigo-500 transition-all duration-1000 ease-linear" style="width: 100%" id="timer-bar"></div>
+                </div>
+
+                <div class="mb-10 text-center">
+                    <h2 class="text-3xl font-black text-slate-900 dark:text-slate-200 mb-6 leading-tight">${curr.task}</h2>
+                    <p class="text-sm font-medium text-slate-500">${curr.desc}</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                    ${allOptions.map((opt, i) => {
+                    return `
+                        <button id="opt-${i}" class="group relative p-6 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl hover:border-indigo-500 hover:shadow-xl transition-all duration-300 text-left flex items-start gap-4" onclick="checkProAns(this, '${opt.replace(new RegExp("'", 'g'), "\\\\\'").replace(/\\n/g, " ")}')">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-50/10 text-indigo-500 flex items-center justify-center shrink-0 font-black text-sm group-hover:scale-110 transition-transform">
+                                <i data-lucide="code" class="w-5 h-5"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Option ${String.fromCharCode(65 + i)}</span>
+                                <span class="font-mono text-lg font-bold text-slate-700 dark:text-slate-200 block truncate">${opt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>
+                            </div>
+                        </button>
+                    `}).join('')}
+                </div>
+            </div>
+        `);
+
+                lucide.createIcons();
+
+                window.activeGameTimer = setInterval(() => {
+                    timeLeft--;
+                    $('#game-timer').text(timeLeft + 's');
+                    $('#timer-bar').css('width', `${(timeLeft / timeLeftInit) * 100}%`);
+
+                    if (timeLeft <= 0) {
+                        clearInterval(window.activeGameTimer);
+                        handleTimeout();
+                    }
+                }, 1000);
+
+                window.checkProAns = (btn, ans) => {
+                    clearInterval(window.activeGameTimer);
+                    const isCorrect = curr.correct === ans;
+                    const $btn = $(btn);
+
+                    $('button[id^="opt-"]').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+                    $btn.removeClass('opacity-50 cursor-not-allowed');
+
+                    if (isCorrect) {
+                        score++;
+                        $btn.removeClass('border-slate-100 dark:border-slate-700 hover:border-indigo-500').addClass('bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500 ring-4 ring-emerald-500/20');
+                        $btn.find('span:first-child').addClass('bg-emerald-100 text-emerald-600');
+                        confetti({ particleCount: 30, spread: 40, origin: { y: 0.6 } });
+                        showGameFeedback("CORRECT!", true);
+                    } else {
+                        $btn.removeClass('border-slate-100 dark:border-slate-700 hover:border-indigo-500').addClass('bg-rose-50 dark:bg-rose-900/20 border-rose-500 ring-4 ring-rose-500/20');
+                        $btn.find('span:first-child').addClass('bg-rose-100 text-rose-600');
+                        showGameFeedback("WRONG!", false, curr.correct);
+
+                        allOptions.forEach((opt, i) => {
+                            if (curr.correct === opt) {
+                                $(`#opt-${i}`).removeClass('opacity-50').addClass('border-emerald-500 border-dashed');
+                            }
+                        });
+                    }
+
+                    setTimeout(() => {
+                        qIdx++;
+                        renderQ();
+                    }, 1500);
+                };
+
+                function handleTimeout() {
+                    $('button[id^="opt-"]').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+                    showGameFeedback("TIME'S UP!", false, curr.correct);
+
+                    allOptions.forEach((opt, i) => {
+                        if (curr.correct === opt) {
+                            $(`#opt-${i}`).removeClass('opacity-50').addClass('border-emerald-500 border-dashed');
+                        }
+                    });
+
+                    setTimeout(() => {
+                        qIdx++;
+                        renderQ();
+                    }, 2000);
+                }
+            }
+            clearGameFeedback();
+            renderQ();
+        }
+
+        function runSyntaxBalloons(container) {
+            container.html(`
+            < div class= "flex-1 flex flex-col items-center justify-center text-center" >
+            <div class="w-24 h-24 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="wrench" class="w-12 h-12"></i>
+            </div>
+            <h2 class="text-3xl font-black text-slate-800 dark:text-slate-200 tracking-tight uppercase mb-4">Under Construction</h2>
+            <p class="text-slate-500 max-w-md mx-auto mb-8 font-medium">Syntax Balloons is currently being refactored for the Ultra-Density UI. Check back soon for this minigame!</p>
+            <button onclick="exitArcadeGame()" class="px-8 py-3 bg-slate-900 text-white hover:bg-slate-800 rounded-xl font-bold uppercase tracking-wider transition-all shadow-lg hover:-translate-y-1">Return to Menu</button>
+        </div >
+            `);
+            lucide.createIcons();
+        }
+
+
+
+
+        // --- ARCADE DATA & RENDERING ---
+        const gamesData = [
+            {
+                id: 'html_master',
+                title: 'HTML Master',
+                desc: 'Defeat bugs by answering HTML element questions correctly.',
+                icon: 'code-2',
+                color: 'blue',
+                levelKey: 'html_master_level'
+            },
+            {
+                id: 'drag_master',
+                title: 'Element Architect',
+                desc: 'Drag and drop code blocks the correct order to solve missions.',
+                icon: 'blocks',
+                color: 'emerald',
+                levelKey: 'drag_master_level'
+            },
+            {
+                id: 'js_logic',
+                title: 'JS Logic',
+                desc: 'Solve algorithmic challenges to power up your ship.',
+                icon: 'terminal',
+                color: 'amber',
+                levelKey: 'js_logic_level'
+            }
+        ];
+
+        window.renderGames = () => {
+            const grid = $('#arcade-grid');
+            grid.empty();
+
+            gamesData.forEach(game => {
+                const currentLevel = parseInt(localStorage.getItem(game.levelKey)) || 1;
+                const isLocked = currentLevel < 1; // You can add actual unlock logic here if needed
+
+                const cardHtml = `
+                    <div class="glass dark:glass-dark rounded-2xl p-6 border border-slate-200/50 dark:border-white/5 hover:border-${game.color}-500 transition-all cursor-pointer group relative overflow-hidden flex flex-col h-full ${isLocked ? 'opacity-50 grayscale' : ''}" onclick="${isLocked ? '' : `if(window.startArcadeGame) window.startArcadeGame('${game.id}')`}">
+                        <div class="absolute -right-6 -top-6 w-32 h-32 bg-${game.color}-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="w-14 h-14 rounded-2xl bg-${game.color}-50 dark:bg-${game.color}-500/10 flex items-center justify-center mb-6 border border-${game.color}-100 dark:border-${game.color}-500/20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="${game.icon}" class="w-7 h-7 text-${game.color}-600 dark:text-${game.color}-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${game.title}</h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 flex-1">${game.desc}</p>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-white/5">
+                            <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                                ${isLocked ? 'Locked' : `Level ${currentLevel}`}
+                            </div>
+                            <button class="w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-${game.color}-500 group-hover:text-white transition-colors">
+                                <i data-lucide="${isLocked ? 'lock' : 'play'}" class="w-4 h-4 ml-0.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.append(cardHtml);
+            });
+            window.safeCreateIcons();
+        };
+
+        // Hook renderGames into the tab switcher if it exists, or run it on load
+        $(document).ready(() => {
+            // Render once initially
+            if ($('#arcade-grid').length > 0) {
+                window.renderGames();
+            }
+        });
+
+        // ADAPTIVE DIFFICULTY CONTENT BANKS and GAME LOGIC MOVED TO script_18.js
+
 
 
         // --- NAVIGATION & LAYOUT LOGIC ---
@@ -11835,7 +12163,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             setTimeout(function () {
                 var loader = document.getElementById('global-loader');
                 if (loader && getComputedStyle(loader).display !== 'none') {
-                    console.error('⚠️ CRITICAL: Global loader stuck. Force removing via Failsafe.');
+                    console.error('?? CRITICAL: Global loader stuck. Force removing via Failsafe.');
                     loader.style.display = 'none'; // Force hide
 
                     // Attempt to recover UI
@@ -11846,7 +12174,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                         dashboard.classList.contains('hidden') &&
                         auth.classList.contains('hidden')) {
                         // If both hidden, show Auth by default to be safe
-                        console.warn('⚠️ UI State lost. Defaulting to Auth Screen.');
+                        console.warn('?? UI State lost. Defaulting to Auth Screen.');
                         auth.classList.remove('hidden');
                     }
                 }
