@@ -2753,9 +2753,9 @@
                                     id="dynamic-greeting-text">
                                     Welcome Back
                                 </h2>
-                                <p class="text-indigo-100 text-sm md:text-base font-medium max-w-lg opacity-90">
+                                <p class="text-indigo-100 text-sm md:text-base font-medium max-w-lg opacity-90"
+                                    id="greeting-subtitle">
                                     Explore your personalized learning path and track your progress in real-time.
-                                    Ready to master new skills today?
                                 </p>
                             </div>
                             <div
@@ -2810,7 +2810,8 @@
                             <div>
                                 <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-1.5 leading-none"
                                     id="stat-active">0</h3>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none"
+                                    id="stat-label-1">
                                     Active Tasks</p>
                             </div>
                         </div>
@@ -2828,7 +2829,8 @@
                             <div>
                                 <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-1.5 leading-none"
                                     id="stat-completed">0</h3>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none"
+                                    id="stat-label-2">
                                     Tasks Finished</p>
                             </div>
                         </div>
@@ -2846,7 +2848,8 @@
                             <div>
                                 <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-1.5 leading-none"
                                     id="stat-score">0%</h3>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none"
+                                    id="stat-label-3">
                                     Performance Score</p>
                             </div>
                         </div>
@@ -2994,10 +2997,10 @@
                     <div
                         class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
                         <div class="flex-shrink-0">
-                            <h3
+                            <h3 id="tasks-page-title"
                                 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">
                                 My Tasks</h3>
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Track your
+                            <p id="tasks-page-subtitle" class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Track your
                                 learning assignments</p>
                         </div>
                         <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
@@ -3009,7 +3012,7 @@
                                     placeholder="Search tasks..."
                                     class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-slate-900 dark:text-slate-200 shadow-sm">
                             </div>
-                            <div
+                            <div id="task-filter-container"
                                 class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                                 <input type="radio" id="radio-1" name="tabs" checked onchange="filterTasks('all')">
                                 <label
@@ -3173,7 +3176,7 @@
                 <!-- 6. Admin Student Directory -->
                 <div id="view-users" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
                     <div
-                        class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
+                        class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
                         <div class="flex-shrink-0">
                             <h3
                                 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">
@@ -3181,26 +3184,26 @@
                             <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Manage all
                                 enrolled students</p>
                         </div>
-                        <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                        <div class="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
                             <div class="relative w-full sm:w-64">
                                 <i data-lucide="search"
                                     class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
                                 <input type="text" id="user-search" placeholder="Search students..."
                                     class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-900 dark:text-slate-100 shadow-sm">
                             </div>
-                            <div class="flex items-center gap-3">
+                            <div class="flex flex-wrap items-center justify-center sm:justify-end gap-3 w-full sm:w-auto">
                                 <span id="online-student-count"
-                                    class="text-[10px] font-black uppercase tracking-widest text-emerald-500 hidden sm:block cursor-pointer hover:underline"
+                                    class="text-[10px] font-black uppercase tracking-widest text-emerald-500 hidden md:block cursor-pointer hover:underline"
                                     onclick="showOnlineStudentsModal()">0 Online</span>
                                 <span id="total-student-count"
-                                    class="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:block">0
+                                    class="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:block">0
                                     Records</span>
                                 <button onclick="window.approveAllUsers()"
-                                    class="px-4 py-2.5 rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                                    class="px-4 py-2.5 rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
                                     <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Approve All
                                 </button>
                                 <button onclick="downloadAllReports()"
-                                    class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                                    class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
                                     <i data-lucide="download" class="w-3.5 h-3.5"></i> Export
                                 </button>
                             </div>
@@ -3237,7 +3240,7 @@
                 <!-- 7. Admin Feedback View -->
                 <div id="view-feedback" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
                     <div
-                        class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
+                        class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
                         <div class="flex-shrink-0">
                             <h3
                                 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">
@@ -3245,12 +3248,12 @@
                             <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Review student
                                 opinions</p>
                         </div>
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-wrap items-center justify-center sm:justify-end gap-4 w-full xl:w-auto">
                             <span id="total-feedback-count"
-                                class="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:block">0
+                                class="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:block">0
                                 Records</span>
                             <button onclick="renderFeedback()"
-                                class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                                class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
                                 <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
                             </button>
                         </div>
@@ -3925,6 +3928,7 @@
     <!-- Mobile Bottom Navigation -->
     <div
         class="fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-around z-[50] lg:hidden">
+        <!-- Student Buttons -->
         <button onclick="switchTab('dashboard')" id="mob-nav-dashboard" class="mobile-nav-btn active">
             <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
             <span class="text-[8px] font-black uppercase mt-1">Home</span>
@@ -3945,6 +3949,22 @@
             <i data-lucide="trophy" class="w-5 h-5"></i>
             <span class="text-[8px] font-black uppercase mt-1">Board</span>
         </button>
+
+        <!-- Admin Buttons (Hidden by default) -->
+        <button onclick="switchTab('grading')" id="mob-nav-grading" class="mobile-nav-btn hidden">
+            <i data-lucide="check-square" class="w-5 h-5"></i>
+            <span class="text-[8px] font-black uppercase mt-1">Grade</span>
+        </button>
+        <button onclick="switchTab('users')" id="mob-nav-users" class="mobile-nav-btn hidden">
+            <i data-lucide="users-2" class="w-5 h-5"></i>
+            <span class="text-[8px] font-black uppercase mt-1">Students</span>
+        </button>
+        <button onclick="switchTab('feedback')" id="mob-nav-feedback" class="mobile-nav-btn hidden">
+            <i data-lucide="message-circle" class="w-5 h-5"></i>
+            <span class="text-[8px] font-black uppercase mt-1">Feedback</span>
+        </button>
+
+        <!-- Profile (Common) -->
         <button onclick="switchTab('profile')" id="mob-nav-profile" class="mobile-nav-btn">
             <i data-lucide="user" class="w-5 h-5"></i>
             <span class="text-[8px] font-black uppercase mt-1">Profile</span>
@@ -5702,15 +5722,34 @@
                 $('#nav-dashboard, #nav-grading, #nav-users, #nav-leaderboard').removeClass('hidden');
                 $('#admin-nav').removeClass('hidden');
                 $('#nav-tasks').removeClass('hidden').html('<i data-lucide="clipboard-list" class="w-5 h-5"></i> <span class="hide-on-collapse">Manage Tasks</span>');
+                
+                // --- ADMIN TASKS HEADER FIX ---
+                $('#tasks-page-title').text("Student Tasks");
+                $('#tasks-page-subtitle').text("Manage and monitor all student assignments");
+
                 // Admin Storage View
                 $('#nav-storage').html('<i data-lucide="database" class="w-5 h-5"></i> <span class="hide-on-collapse">Student\'s Storage</span>').attr('data-tooltip', 'Student Files');
                 $('#nav-arcade, #nav-playground, #nav-verify, #nav-resources').addClass('hidden');
+
+                // --- MOBILE NAVIGATION ROLE-BASED FIX (ADMIN) ---
+                $('#mob-nav-dashboard, #mob-nav-grading, #mob-nav-users, #mob-nav-feedback, #mob-nav-profile').removeClass('hidden');
+                $('#mob-nav-tasks, #mob-nav-playground, #mob-nav-arcade, #mob-nav-leaderboard').addClass('hidden');
+
             } else {
                 $('#nav-dashboard, #nav-tasks, #nav-leaderboard, #nav-resources, #profile-tab, #nav-arcade, #nav-playground, #nav-verify').removeClass('hidden');
                 $('#nav-tasks').html('<i data-lucide="clipboard-list" class="w-5 h-5"></i> <span class="hide-on-collapse">My Tasks</span>');
+
+                // --- STUDENT TASKS HEADER RESET ---
+                $('#tasks-page-title').text("My Tasks");
+                $('#tasks-page-subtitle').text("Track your learning assignments");
+
                 // Student Storage View
                 $('#nav-storage').html('<i data-lucide="hard-drive" class="w-5 h-5"></i> <span class="hide-on-collapse">My Storage</span>').attr('data-tooltip', 'My Storage');
                 $('#admin-nav').addClass('hidden');
+
+                // --- MOBILE NAVIGATION ROLE-BASED FIX (STUDENT) ---
+                $('#mob-nav-dashboard, #mob-nav-tasks, #mob-nav-playground, #mob-nav-arcade, #mob-nav-leaderboard, #mob-nav-profile').removeClass('hidden');
+                $('#mob-nav-grading, #mob-nav-users, #mob-nav-feedback').addClass('hidden');
             }
 
             // 4. Load Cached Data & Render Charts (CRITICAL FOR INSTANT FEEL)
@@ -5773,6 +5812,13 @@
 
                 const fullName = userProfile.full_name || 'User';
                 $('#dynamic-greeting-text').text(`${greeting}, ${fullName.split(' ')[0]}`);
+
+                // Role-based Greeting Subtitle
+                if (userProfile.role === 'admin') {
+                    $('#greeting-subtitle').text("Manage your students, tasks, and system settings from your central control hub.");
+                } else {
+                    $('#greeting-subtitle').text("Explore your personalized learning path and track your progress in real-time.");
+                }
 
                 // SYNC MOBILE SIDEBAR PROFILE
                 $('.mobile-user-name').text(fullName);
@@ -6223,10 +6269,10 @@
         function renderTasks(tasks, subs, filter = 'all') {
             // ADMIN: Hide filters, show all
             if (userProfile.role === 'admin') {
-                $('.task-tabs-container').parent().addClass('hidden');
+                $('#task-filter-container').addClass('hidden');
                 filter = 'all';
             } else {
-                $('.task-tabs-container').parent().removeClass('hidden');
+                $('#task-filter-container').removeClass('hidden');
             }
 
             const container = $('#task-grid').empty();
@@ -7066,15 +7112,24 @@
         const fetchImage = async (url) => {
             if (!url) return null;
             try {
-                // If it's already base64, return it
                 if (url.startsWith('data:')) return url;
 
-                const response = await fetch(url);
-                const blob = await response.blob();
                 return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.readAsDataURL(blob);
+                    const img = new Image();
+                    img.crossOrigin = 'Anonymous';
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        resolve(canvas.toDataURL('image/png'));
+                    };
+                    img.onerror = () => {
+                        console.warn("Image load failed via Image object:", url);
+                        resolve(null);
+                    };
+                    img.src = url;
                 });
             } catch (e) {
                 console.warn("Image fetch failed", e);
@@ -7095,6 +7150,13 @@
                     profileImgData = await fetchImage(profileUrl);
                 } catch (e) { console.warn("Profile image fetch failed", e); }
             }
+
+            // Fetch NAVTTC Logo from assets
+            let navttcLogoData = window.bbsydpLogo;
+            try {
+                const fetchedLogo = await fetchImage('assets/logo.png');
+                if (fetchedLogo) navttcLogoData = fetchedLogo;
+            } catch (e) { console.warn("NAVTTC logo fetch failed", e); }
 
             // Deduplicate submissions (keep highest grade) and filter valid grades
             const rawSubmissions = window.allSubmissions.filter(s => s.student_id === userId && s.status === 'graded' && s.grade != null && s.grade !== '');
@@ -7134,55 +7196,51 @@
             const pageHeight = doc.internal.pageSize.getHeight();
 
             // --- 1. HEADER & BRANDING ---
-            // Header Background Strip (Light Blue-Gray) - Increased height for better layout
+            // Header Background Strip (Light Blue-Gray)
             doc.setFillColor(241, 245, 249); // Slate 100
-            doc.rect(0, 0, pageWidth, 50, 'F');
+            doc.rect(0, 0, pageWidth, 60, 'F');
 
-            // Logo (Left) - Professional Small Size
-            if (window.bbsydpLogo) {
+            // Logo (Left) - Enlarge for better visibility
+            if (navttcLogoData) {
                 try {
-                    // Reduced to 18mm height for subtle professional look
-                    // Auto-width (0) preserves aspect ratio
-                    const logoH = 18;
-
-                    // Vertically centered in 50px header: (50 - 18) / 2 = 16
-                    doc.addImage(window.bbsydpLogo, 'PNG', 14, 16, 0, logoH);
+                    const logoH = 38;
+                    // Vertically center in 60mm strip: (60 - 38) / 2 = 11
+                    doc.addImage(navttcLogoData, 'PNG', 12, 11, 0, logoH);
                 } catch (e) {
                     console.warn("Logo error", e);
-                    doc.addImage(window.bbsydpLogo, 'PNG', 14, 16, 18, 18);
                 }
             }
 
             // Organization Text (Right of logo)
-            const textX = 55; // Moved right to prevent overlap with wide logo
+            const textX = 54;
 
-            // Line 1: Organization Prefix
+            // Line 1: Organization Name (Secondary title)
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(10);
+            doc.setFontSize(11);
             doc.setTextColor(71, 85, 105); // Slate 600
-            doc.text("BENAZIR BHUTTO SHAHEED", textX, 19); // Shifted down for centering
+            doc.text("NATIONAL VOCATIONAL AND TECHNICAL TRAINING COMMISSION", textX, 22);
 
-            // Line 2: Main Board Name
-            doc.setFontSize(14);
+            // Line 2: Government Affiliation (Main prominent title)
+            doc.setFontSize(15);
             doc.setTextColor(15, 23, 42); // Slate 900
-            doc.text("Human Resource Research & Development Board", textX, 27);
+            doc.text("Government of Pakistan", textX, 32);
 
-            // Line 3: Government Affiliation
-            doc.setFontSize(9);
-            doc.setTextColor(100, 116, 139); // Slate 500
-            doc.setFont("helvetica", "normal");
-            doc.text("Government of Sindh", textX, 34);
+            // Line 3: Program Name (Tertiary title)
+            doc.setFontSize(11);
+            doc.setTextColor(79, 70, 229); // Indigo 600
+            doc.setFont("helvetica", "bold");
+            doc.text("Prime Minister’s Hunarmand Pakistan Program", textX, 42);
 
             // Title Strip (Indigo Gradient Effect)
             doc.setFillColor(79, 70, 229); // Indigo 600
-            doc.rect(0, 50, pageWidth, 14, 'F'); // Adjusted Y position
+            doc.rect(0, 60, pageWidth, 14, 'F'); 
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(16);
             doc.setFont("helvetica", "bold");
-            doc.text("STUDENT PERFORMANCE REPORT", pageWidth / 2, 59, { align: "center" }); // Adjusted Y position
+            doc.text("STUDENT PERFORMANCE REPORT", pageWidth / 2, 69, { align: "center" }); 
 
             // --- 2. STUDENT BIO-DATA SECTION ---
-            let yPos = 75; // Adjusted starting Y for content
+            let yPos = 85; // Starting Y for section
             doc.setFont("helvetica", "bold");
             doc.setFontSize(11);
             doc.setTextColor(70);
@@ -7191,71 +7249,72 @@
             doc.setDrawColor(200);
             doc.line(14, yPos + 2, 196, yPos + 2);
 
-            yPos += 10;
-            const avatarSize = 24;
+            yPos += 10; // Move yPos down AFTER the header and line
 
-            // Avatar - Show student's profile image or initial
+            // Avatar
+            const avatarSize = 28;
             if (profileImgData) {
                 try {
-                    doc.addImage(profileImgData, 'PNG', 14, yPos, avatarSize, avatarSize);
-                    // Border for avatar
+                    // Rounded avatar border
                     doc.setDrawColor(226, 232, 240);
                     doc.setLineWidth(0.5);
-                    doc.rect(14, yPos, avatarSize, avatarSize);
+                    doc.roundedRect(14, yPos, avatarSize, avatarSize, 4, 4, 'S');
+                    
+                    // Add image clipped to rounded rect or just a simple addImage
+                    // For simplicity, we just add the image inside the border
+                    doc.addImage(profileImgData, 'PNG', 14.5, yPos + 0.5, avatarSize - 1, avatarSize - 1);
                 } catch (e) {
-                    // Fallback to initial if image fails
-                    doc.setDrawColor(220);
-                    doc.setFillColor(245);
-                    doc.roundedRect(14, yPos, avatarSize, avatarSize, 3, 3, 'FD');
-                    doc.setFontSize(20);
-                    doc.setTextColor(150);
-                    doc.text(user.name.charAt(0).toUpperCase(), 14 + (avatarSize / 2), yPos + 16, { align: "center" });
+                    console.warn("Avatar embed failed", e);
                 }
             } else {
                 // Avatar Placeholder with initial
-                doc.setDrawColor(220);
-                doc.setFillColor(245);
-                doc.roundedRect(14, yPos, avatarSize, avatarSize, 3, 3, 'FD');
-                doc.setFontSize(20);
-                doc.setTextColor(150);
-                doc.text(user.name.charAt(0).toUpperCase(), 14 + (avatarSize / 2), yPos + 16, { align: "center" });
+                doc.setDrawColor(226, 232, 240);
+                doc.setFillColor(248, 250, 252);
+                doc.roundedRect(14, yPos, avatarSize, avatarSize, 4, 4, 'FD');
+                doc.setFontSize(22);
+                doc.setTextColor(148, 163, 184);
+                // Vertically center initial: (28 / 2) + offset?
+                // For 22pt font, about 8mm high. (28 - 8) / 2 = 10mm offset from yPos.
+                // But text() uses baseline. So yPos + 10 + 8 = yPos + 18?
+                doc.text(user.name.charAt(0).toUpperCase(), 14 + (avatarSize / 2), yPos + 19, { align: "center" });
             }
 
             // Info Grid
-            doc.setFontSize(10);
-            const leftColX = 45;
-            const rightColX = 135; // Moved right to prevent overlap with long emails
-            const rowHeight = 7;
+            doc.setFontSize(9);
+            const leftColX = 52; // Further gap from avatar
+            const rowHeight = 6; // Balanced row height
 
-            // Row 1
-            doc.setTextColor(100); doc.setFont("helvetica", "normal");
-            doc.text("Full Name:", leftColX, yPos + 6);
-            doc.setTextColor(0); doc.setFont("helvetica", "bold");
-            doc.text(user.name, leftColX + 25, yPos + 6);
+            // Row 1: Full Name
+            doc.setTextColor(100, 116, 139); doc.setFont("helvetica", "normal");
+            doc.text("Full Name:", leftColX, yPos + 5);
+            doc.setTextColor(15, 23, 42); doc.setFont("helvetica", "bold");
+            doc.text(user.name, leftColX + 22, yPos + 5);
 
-            doc.setTextColor(100); doc.setFont("helvetica", "normal");
-            doc.text("Student ID:", rightColX, yPos + 6);
-            doc.setTextColor(0); doc.setFont("helvetica", "bold");
-            doc.text((user.uid || user.id).substring(0, 8).toUpperCase(), rightColX + 25, yPos + 6);
+            // Row 2: Student ID
+            doc.setTextColor(100, 116, 139); doc.setFont("helvetica", "normal");
+            doc.text("Student ID:", leftColX, yPos + 5 + rowHeight);
+            doc.setTextColor(15, 23, 42); doc.setFont("helvetica", "bold");
+            doc.text((user.uid || user.id).substring(0, 8).toUpperCase(), leftColX + 22, yPos + 5 + rowHeight);
 
-            // Row 2
-            doc.setTextColor(100); doc.setFont("helvetica", "normal");
-            doc.text("Email:", leftColX, yPos + 6 + rowHeight);
-            doc.setTextColor(0); doc.setFont("helvetica", "bold");
-            doc.text(user.email || "N/A", leftColX + 25, yPos + 6 + rowHeight);
+            // Row 3: Email
+            doc.setTextColor(100, 116, 139); doc.setFont("helvetica", "normal");
+            doc.text("Email:", leftColX, yPos + 5 + (rowHeight * 2));
+            doc.setTextColor(15, 23, 42); doc.setFont("helvetica", "bold");
+            doc.text(user.email || "N/A", leftColX + 22, yPos + 5 + (rowHeight * 2));
 
-            doc.setTextColor(100); doc.setFont("helvetica", "normal");
-            doc.text("Report Date:", rightColX, yPos + 6 + rowHeight);
-            doc.setTextColor(0); doc.setFont("helvetica", "bold");
-            doc.text(new Date().toLocaleDateString(), rightColX + 25, yPos + 6 + rowHeight);
+            // Row 4: Program
+            doc.setTextColor(100, 116, 139); doc.setFont("helvetica", "normal");
+            doc.text("Program:", leftColX, yPos + 5 + (rowHeight * 3));
+            doc.setTextColor(15, 23, 42); doc.setFont("helvetica", "bold");
+            doc.text("CIT ( Web Development )", leftColX + 22, yPos + 5 + (rowHeight * 3));
 
-            // Row 3 (Role)
-            doc.setTextColor(100); doc.setFont("helvetica", "normal");
-            doc.text("Program:", leftColX, yPos + 6 + (rowHeight * 2));
-            doc.setTextColor(0); doc.setFont("helvetica", "bold");
-            doc.text("Web Development With Python", leftColX + 25, yPos + 6 + (rowHeight * 2));
+            // Row 5: Report Date
+            doc.setTextColor(100, 116, 139); doc.setFont("helvetica", "normal");
+            doc.text("Date:", leftColX, yPos + 5 + (rowHeight * 4));
+            doc.setTextColor(15, 23, 42); doc.setFont("helvetica", "bold");
+            doc.text(new Date().toLocaleDateString(), leftColX + 22, yPos + 5 + (rowHeight * 4));
 
-            yPos += 35;
+            yPos += 48; // Space before metrics section
 
             // --- 3. PERFORMANCE SUMMARY (Visual Cards) ---
             doc.setFont("helvetica", "bold");
@@ -7441,17 +7500,17 @@
             // Generate remarks based on average grade (WITH EMOJIS)
             let instructorRemarks = "";
             if (avgGrade >= 90) {
-                instructorRemarks = "Outstanding performance! ?? The student has demonstrated exceptional understanding and mastery of the concepts. Keep up the excellent work and continue to challenge yourself with advanced topics. ??";
+                instructorRemarks = "Outstanding performance! 🌟 The student has demonstrated exceptional understanding and mastery of the concepts. Keep up the excellent work and continue to challenge yourself with advanced topics. 🚀";
             } else if (avgGrade >= 80) {
-                instructorRemarks = "Excellent work! ? The student shows strong grasp of the material and consistent effort. Continue this momentum and focus on refining advanced skills for even better results. ??";
+                instructorRemarks = "Excellent work! 👏 The student shows strong grasp of the material and consistent effort. Continue this momentum and focus on refining advanced skills for even better results. 📈";
             } else if (avgGrade >= 70) {
-                instructorRemarks = "Good progress! ?? The student is performing well and shows solid understanding. With more practice and attention to detail, performance can reach the next level. ??";
+                instructorRemarks = "Good progress! 👍 The student is performing well and shows solid understanding. With more practice and attention to detail, performance can reach the next level. ✨";
             } else if (avgGrade >= 60) {
-                instructorRemarks = "Satisfactory performance. The student demonstrates basic understanding but needs to focus more on core concepts. Additional practice and review of fundamentals is recommended. ??";
+                instructorRemarks = "Satisfactory performance. The student demonstrates basic understanding but needs to focus more on core concepts. Additional practice and review of fundamentals is recommended. 📚";
             } else if (avgGrade >= 50) {
-                instructorRemarks = "Needs improvement. ?? The student should dedicate more time to studying and seek help when needed. Regular practice and consultation with instructors will help improve performance.";
+                instructorRemarks = "Needs improvement. ⚠️ The student should dedicate more time to studying and seek help when needed. Regular practice and consultation with instructors will help improve performance.";
             } else {
-                instructorRemarks = "Requires immediate attention. ?? The student is struggling with the material and needs significant support. Please schedule one-on-one sessions and focus on building foundational skills.";
+                instructorRemarks = "Requires immediate attention. 🆘 The student is struggling with the material and needs significant support. Please schedule one-on-one sessions and focus on building foundational skills.";
             }
 
             // Render Remarks as Image (for Emoji support)
@@ -7560,7 +7619,7 @@
             // Generate filename with date
             const reportDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
             const sanitizedName = user.name.replace(/\s+/g, '_');
-            doc.save(`NAVTTC_Performance_Report_${sanitizedName}_${reportDate}.pdf`);
+            doc.save(`NAVTTC_PM_Hunarmand_Pakistan_CIT_Web_Dev_${sanitizedName}_${reportDate}.pdf`);
         };
 
         window.downloadReport = async (taskId) => {
@@ -7626,6 +7685,15 @@
             const feedbackText = sub.feedback ? window.fixEncoding(sub.feedback).replace(/\n/g, '<br>') : "No feedback provided.";
             const taskTitle = window.fixEncoding(sub.task_title || "Untitled Task");
 
+            // Fetch User Avatar for single report
+            const userAvatar = currentUser.avatar_url || currentUser.profile_pic || currentUser.profileImage;
+            let avatarHtml = '';
+            if (userAvatar) {
+                avatarHtml = `<img src="${userAvatar}" style="width: 60px; height: 60px; border-radius: 12px; object-fit: cover; border: 2px solid #e2e8f0;">`;
+            } else {
+                avatarHtml = `<div style="width: 60px; height: 60px; border-radius: 12px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 24pt; font-weight: 900; color: #94a3b8; border: 2px solid #e2e8f0;">${currentUser.name.charAt(0).toUpperCase()}</div>`;
+            }
+
             const fetchBase64 = async (url) => {
                 try {
                     const response = await fetch(url);
@@ -7645,17 +7713,18 @@
                     <!-- Header Decor -->
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #4f46e5, #06b6d4);"></div>
                     
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
-                        <div style="display: flex; align-items: center; gap: 20px;">
-                            ${logoBase64 ? `<img src="${logoBase64}" style="height: 60px;">` : ''}
-                            <div>
-                                <h2 style="margin: 0; color: #1e293b; font-size: 18pt; font-weight: 900; letter-spacing: -1px;">NAVTTC LMS</h2>
-                                <p style="margin: 0; color: #64748b; font-size: 9pt; font-weight: 700; text-transform: uppercase;">Performance Record</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                        <div style="display: flex; align-items: center; gap: 25px;">
+                            ${logoBase64 ? `<img src="${logoBase64}" style="height: 85px;">` : ''}
+                            <div style="line-height: 1.2;">
+                                <h2 style="margin: 0; color: #475569; font-size: 12pt; font-weight: 800; text-transform: uppercase;">National Vocational and Technical Training Commission</h2>
+                                <h1 style="margin: 2px 0; color: #0f172a; font-size: 20pt; font-weight: 900; letter-spacing: -0.5px;">Government of Pakistan</h1>
+                                <p style="margin: 0; color: #4f46e5; font-size: 10pt; font-weight: 800;">Prime Minister’s Hunarmand Pakistan Program</p>
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="color: #4f46e5; font-weight: 900; font-size: 10pt;">OFFICIAL REPORT</div>
-                            <div style="color: #94a3b8; font-size: 8pt; font-weight: 600;">Date: ${new Date().toLocaleDateString()}</div>
+                            <div style="color: #4f46e5; font-weight: 900; font-size: 11pt; letter-spacing: 1px;">OFFICIAL REPORT</div>
+                            <div style="color: #94a3b8; font-size: 9pt; font-weight: 600;">Date: ${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
 
@@ -7665,14 +7734,18 @@
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
-                        <div style="background: #f8fafc; padding: 25px; border-radius: 20px; border: 1px solid #e2e8f0;">
-                            <div style="color: #64748b; font-size: 9pt; font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Student Information</div>
-                            <div style="color: #1e293b; font-size: 14pt; font-weight: 800;">${currentUser.name}</div>
-                            <div style="color: #94a3b8; font-size: 9pt; font-weight: 600; margin-top: 5px;">ID: ${uid.substring(0, 8).toUpperCase()}</div>
+                        <div style="background: #f8fafc; padding: 25px; border-radius: 20px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px;">
+                            ${avatarHtml}
+                            <div style="flex: 1;">
+                                <div style="color: #64748b; font-size: 8pt; font-weight: 800; text-transform: uppercase; margin-bottom: 4px;">Student Information</div>
+                                <div style="color: #1e293b; font-size: 13pt; font-weight: 800; line-height: 1.2;">${currentUser.name}</div>
+                                <div style="color: #64748b; font-size: 9pt; font-weight: 600; margin-top: 3px;">ID: ${uid.substring(0, 8).toUpperCase()}</div>
+                                <div style="color: #1e293b; font-size: 9pt; font-weight: 800; margin-top: 3px;">CIT ( Web Development )</div>
+                            </div>
                         </div>
-                        <div style="background: #4f46e5; padding: 25px; border-radius: 20px; color: white;">
-                            <div style="opacity: 0.8; font-size: 9pt; font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Final Grade</div>
-                            <div style="font-size: 32pt; font-weight: 900;">${sub.grade}<span style="font-size: 16pt; opacity: 0.7;">/100</span></div>
+                        <div style="background: #4f46e5; padding: 25px; border-radius: 20px; color: white; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="opacity: 0.8; font-size: 9pt; font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">Final Grade</div>
+                            <div style="font-size: 32pt; font-weight: 900; line-height: 1;">${sub.grade}<span style="font-size: 16pt; opacity: 0.7;">/100</span></div>
                         </div>
                     </div>
 
