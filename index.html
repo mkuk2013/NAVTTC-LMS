@@ -3000,7 +3000,8 @@
                             <h3 id="tasks-page-title"
                                 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">
                                 My Tasks</h3>
-                            <p id="tasks-page-subtitle" class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Track your
+                            <p id="tasks-page-subtitle"
+                                class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Track your
                                 learning assignments</p>
                         </div>
                         <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
@@ -3042,7 +3043,7 @@
                 <div id="view-resources" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
                     <!-- Resource Header & Filter -->
                     <div
-                        class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
+                        class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-10 bg-white/50 dark:bg-slate-900/50 p-6 rounded-3xl border border-white/20 dark:border-slate-800/50 shadow-xl backdrop-blur-md">
                         <div class="flex-shrink-0">
                             <h3
                                 class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-200 leading-none mb-1">
@@ -3051,9 +3052,9 @@
                                 for your growth</p>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                        <div class="flex flex-wrap items-center gap-4 w-full xl:w-auto">
                             <!-- Search Bar -->
-                            <div class="relative w-full sm:w-64">
+                            <div class="relative w-full sm:w-56">
                                 <i data-lucide="search"
                                     class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
                                 <input type="text" id="resource-search" placeholder="Search resources..."
@@ -3061,7 +3062,7 @@
                             </div>
 
                             <!-- Filter Tabs -->
-                            <div class="task-tabs-container !shadow-none !bg-transparent !p-0">
+                            <div class="flex-shrink-0">
                                 <div
                                     class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                                     <input type="radio" id="res-radio-1" name="res-tabs" checked
@@ -3191,7 +3192,8 @@
                                 <input type="text" id="user-search" placeholder="Search students..."
                                     class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-900 dark:text-slate-100 shadow-sm">
                             </div>
-                            <div class="flex flex-wrap items-center justify-center sm:justify-end gap-3 w-full sm:w-auto">
+                            <div
+                                class="flex flex-wrap items-center justify-center sm:justify-end gap-3 w-full sm:w-auto">
                                 <span id="online-student-count"
                                     class="text-[10px] font-black uppercase tracking-widest text-emerald-500 hidden md:block cursor-pointer hover:underline"
                                     onclick="showOnlineStudentsModal()">0 Online</span>
@@ -3937,6 +3939,10 @@
             <i data-lucide="list-checks" class="w-5 h-5"></i>
             <span class="text-[8px] font-black uppercase mt-1">Tasks</span>
         </button>
+        <button onclick="switchTab('resources')" id="mob-nav-resources" class="mobile-nav-btn">
+            <i data-lucide="library" class="w-5 h-5"></i>
+            <span class="text-[8px] font-black uppercase mt-1">Resources</span>
+        </button>
         <button onclick="switchTab('playground')" id="mob-nav-playground" class="mobile-nav-btn">
             <i data-lucide="code-2" class="w-5 h-5"></i>
             <span class="text-[8px] font-black uppercase mt-1">Code</span>
@@ -4185,11 +4191,11 @@
                             title="Full Screen">
                             <i data-lucide="maximize" id="preview-maximize-icon" class="w-5 h-5"></i>
                         </button>
-                        <a id="preview-download-link" href="#" target="_blank"
+                        <button id="preview-download-btn"
                             class="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 hover:text-indigo-500 transition-all"
-                            title="Open Original">
-                            <i data-lucide="external-link" class="w-5 h-5"></i>
-                        </a>
+                            title="Download Original">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                        </button>
                         <button type="button"
                             class="p-2.5 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl text-slate-400 hover:text-rose-500 transition-all"
                             data-bs-dismiss="modal">
@@ -5722,17 +5728,21 @@
                 $('#nav-dashboard, #nav-grading, #nav-users, #nav-leaderboard').removeClass('hidden');
                 $('#admin-nav').removeClass('hidden');
                 $('#nav-tasks').removeClass('hidden').html('<i data-lucide="clipboard-list" class="w-5 h-5"></i> <span class="hide-on-collapse">Manage Tasks</span>');
-                
+
                 // --- ADMIN TASKS HEADER FIX ---
                 $('#tasks-page-title').text("Student Tasks");
                 $('#tasks-page-subtitle').text("Manage and monitor all student assignments");
 
                 // Admin Storage View
                 $('#nav-storage').html('<i data-lucide="database" class="w-5 h-5"></i> <span class="hide-on-collapse">Student\'s Storage</span>').attr('data-tooltip', 'Student Files');
-                $('#nav-arcade, #nav-playground, #nav-verify, #nav-resources').addClass('hidden');
+                $('#nav-arcade, #nav-playground, #nav-verify').addClass('hidden');
+                $('#nav-resources').removeClass('hidden');
+
+                // --- ADMIN RESOURCES UI ---
+                $('#add-resource-btn').removeClass('hidden');
 
                 // --- MOBILE NAVIGATION ROLE-BASED FIX (ADMIN) ---
-                $('#mob-nav-dashboard, #mob-nav-grading, #mob-nav-users, #mob-nav-feedback, #mob-nav-profile').removeClass('hidden');
+                $('#mob-nav-dashboard, #mob-nav-grading, #mob-nav-users, #mob-nav-feedback, #mob-nav-profile, #mob-nav-resources').removeClass('hidden');
                 $('#mob-nav-tasks, #mob-nav-playground, #mob-nav-arcade, #mob-nav-leaderboard').addClass('hidden');
 
             } else {
@@ -5746,9 +5756,10 @@
                 // Student Storage View
                 $('#nav-storage').html('<i data-lucide="hard-drive" class="w-5 h-5"></i> <span class="hide-on-collapse">My Storage</span>').attr('data-tooltip', 'My Storage');
                 $('#admin-nav').addClass('hidden');
+                $('#add-resource-btn').addClass('hidden');
 
                 // --- MOBILE NAVIGATION ROLE-BASED FIX (STUDENT) ---
-                $('#mob-nav-dashboard, #mob-nav-tasks, #mob-nav-playground, #mob-nav-arcade, #mob-nav-leaderboard, #mob-nav-profile').removeClass('hidden');
+                $('#mob-nav-dashboard, #mob-nav-tasks, #mob-nav-playground, #mob-nav-arcade, #mob-nav-leaderboard, #mob-nav-profile, #mob-nav-resources').removeClass('hidden');
                 $('#mob-nav-grading, #mob-nav-users, #mob-nav-feedback').addClass('hidden');
             }
 
@@ -6499,8 +6510,13 @@
         // Helper to force download for Cloudinary raw files
         function formatDownloadUrl(url) {
             if (!url) return "#";
-            if (url.includes("cloudinary.com") && url.includes("/raw/upload/")) {
-                return url.replace("/raw/upload/", "/raw/upload/fl_attachment/");
+            if (url.includes("cloudinary.com")) {
+                // --- CLOUDINARY DELIVERY FIX ---
+                // Do NOT strip the version (v123...) as it causes 401 Unauthorized 
+                // if 'Strict Transformations' are enabled on the account.
+                // ZIP files (raw resources) also do NOT support transformations like 'fl_attachment'
+                // on most accounts, so we leave the URL exactly as generated during upload.
+                return url;
             }
             return url;
         }
@@ -7233,11 +7249,11 @@
 
             // Title Strip (Indigo Gradient Effect)
             doc.setFillColor(79, 70, 229); // Indigo 600
-            doc.rect(0, 60, pageWidth, 14, 'F'); 
+            doc.rect(0, 60, pageWidth, 14, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(16);
             doc.setFont("helvetica", "bold");
-            doc.text("STUDENT PERFORMANCE REPORT", pageWidth / 2, 69, { align: "center" }); 
+            doc.text("STUDENT PERFORMANCE REPORT", pageWidth / 2, 69, { align: "center" });
 
             // --- 2. STUDENT BIO-DATA SECTION ---
             let yPos = 85; // Starting Y for section
@@ -7259,7 +7275,7 @@
                     doc.setDrawColor(226, 232, 240);
                     doc.setLineWidth(0.5);
                     doc.roundedRect(14, yPos, avatarSize, avatarSize, 4, 4, 'S');
-                    
+
                     // Add image clipped to rounded rect or just a simple addImage
                     // For simplicity, we just add the image inside the border
                     doc.addImage(profileImgData, 'PNG', 14.5, yPos + 0.5, avatarSize - 1, avatarSize - 1);
@@ -8236,6 +8252,11 @@
                 if (typeof renderFeedback === 'function') renderFeedback();
             }
 
+            // Resources
+            if (tabId === 'resources') {
+                if (typeof fetchResources === 'function') fetchResources();
+            }
+
             // Chat
             if (tabId === 'chat') {
                 if (typeof initChat === 'function') initChat();
@@ -8770,10 +8791,18 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', UPLO_PRESET);
-                formData.append('folder', `personal_storage/${uid}`);
-                formData.append('public_id', `${file.name.split('.')[0]}_${Date.now()}`);
 
-                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
+                const isZip = file.name.toLowerCase().endsWith('.zip') || file.name.toLowerCase().endsWith('.rar');
+                const resourceType = isZip ? 'raw' : 'auto';
+
+                formData.append('folder', `personal_storage/${uid}`);
+
+                // For 'raw' resources (ZIPs), public_id MUST include the extension for proper delivery
+                const baseName = file.name.split('.')[0];
+                const finalPublicId = isZip ? `${baseName}_${Date.now()}.${file.name.split('.').pop()}` : `${baseName}_${Date.now()}`;
+                formData.append('public_id', finalPublicId);
+
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
                     method: 'POST',
                     body: formData
                 });
@@ -8871,9 +8900,22 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                     const formData = new FormData();
                     formData.append('file', file);
                     formData.append('upload_preset', UPLO_PRESET);
+
+                    // --- OPTIMIZED UPLOAD FOR UNSIGNED PRESET ---
+                    // Since your preset 'navttc-lms' is Unsigned, we use the specific endpoint
+                    // based on file type to ensure correct processing.
+                    const isZip = file.name.toLowerCase().endsWith('.zip') || file.name.toLowerCase().endsWith('.rar');
+                    const resourceType = isZip ? 'raw' : 'auto';
+
+                    // We pass allowed parameters for Unsigned upload
                     formData.append('folder', `personal_storage/${uid}`);
 
-                    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
+                    // For 'raw' resources (ZIPs), public_id MUST include the extension for proper delivery
+                    const baseName = file.name.split('.')[0];
+                    const finalPublicId = isZip ? `${baseName}_${Date.now()}.${file.name.split('.').pop()}` : `${baseName}_${Date.now()}`;
+                    formData.append('public_id', finalPublicId);
+
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
                         method: 'POST',
                         body: formData
                     });
@@ -8888,8 +8930,6 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                     console.log("[Cloudinary Success]", cloudinaryData.secure_url);
 
                     // 2. Save metadata to Supabase
-                    // We omit public_id just in case the database schema is outdated 
-                    // and doesn't have it, which causes a silent failure during insert.
                     const insertPayload = {
                         user_id: uid,
                         name: file.name,
@@ -8899,14 +8939,12 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                         created_at: new Date().toISOString()
                     };
 
-                    if (cloudinaryData.public_id) {
-                        insertPayload.public_id = cloudinaryData.public_id;
-                    }
+                    // Note: We skip public_id by default as it's missing in some schemas
+                    // which causes a 400 error during insert.
 
-                    const { error: dbError, status: dbStatus, data: insertedData } = await client
+                    const { error: dbError, status: dbStatus } = await client
                         .from('personal_storage')
-                        .insert([insertPayload])
-                        .select(); // Added .select() to force data return and clean promise resolution
+                        .insert([insertPayload]);
 
                     if (dbError) {
                         console.error("[Supabase Error]", dbError);
@@ -8914,16 +8952,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                             showToast("Critical Error: Database table 'personal_storage' not found.", "error");
                             throw new Error("Table 'personal_storage' missing. Check console for SQL setup.");
                         }
-
-                        // Fallback: If error is column 'public_id' does not exist, retry without it
-                        if (dbError.message && dbError.message.includes("public_id")) {
-                            console.warn("[Upload Debug] Schema mismatch detected. Retrying without public_id.");
-                            delete insertPayload.public_id;
-                            const { error: retryError } = await client.from('personal_storage').insert([insertPayload]);
-                            if (retryError) throw new Error(`Database Retry: ${retryError.message}`);
-                        } else {
-                            throw new Error(`Database: ${dbError.message}`);
-                        }
+                        throw new Error(`Database: ${dbError.message}`);
                     }
 
                     successCount++;
@@ -8972,28 +9001,43 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
         };
 
         window.downloadFile = (url, filename) => {
-            if (!filename) {
-                window.open(url, '_blank');
+            if (!url) return;
+
+            // --- CLOUDINARY DOWNLOAD FIX (Direct High-Compatibility Download) ---
+            if (url.includes('cloudinary.com')) {
+                // We use a direct link with the 'download' attribute and a clean target.
+                // This is the most standard way to trigger a browser download for ZIPs.
+                const a = document.createElement('a');
+                a.href = url;
+                a.target = '_self'; // Using _self instead of _blank can sometimes help with session-based 401s
+                if (filename) a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => document.body.removeChild(a), 100);
                 return;
             }
 
-            // Fetch the file and trigger download with original name
+            // Fallback for other URLs
             fetch(url)
-                .then(response => response.blob())
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.blob();
+                })
                 .then(blob => {
+                    if (blob.size === 0) throw new Error('Downloaded blob is empty');
                     const blobUrl = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.style.display = 'none';
                     a.href = blobUrl;
-                    a.download = filename;
+                    a.download = filename || 'download';
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(blobUrl);
                     document.body.removeChild(a);
                 })
                 .catch(err => {
-                    console.error("Download error:", err);
-                    window.open(url, '_blank'); // Fallback
+                    console.warn("[Download] Fetch failed, falling back to direct open:", err);
+                    window.open(url, '_blank');
                 });
         };
 
@@ -9077,7 +9121,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             const iconContainer = $('#preview-icon-container');
             const contentArea = $('#preview-content-area');
             const loading = $('#preview-loading');
-            const downloadLink = $('#preview-download-link');
+            const downloadBtn = $('#preview-download-btn');
             const printBtn = $('#preview-print-btn');
             const prevBtn = $('#preview-prev-btn');
             const nextBtn = $('#preview-next-btn');
@@ -9085,16 +9129,14 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             // ??? CLOUDINARY PREVIEW FIX
             let previewUrl = url;
             if (url.includes('cloudinary.com')) {
-                previewUrl = url.replace(/\/fl_attachment\//g, '/')
-                    .replace(/,fl_attachment/g, '')
-                    .replace(/fl_attachment,/g, '');
+                previewUrl = formatDownloadUrl(url);
                 previewUrl = previewUrl.replace(/([^:])\/\//g, '$1/');
             }
 
             // Reset UI
             filenameEl.text(name);
             filesizeEl.text(size);
-            downloadLink.attr('href', url);
+            downloadBtn.off('click').on('click', () => downloadFile(url, name));
             contentArea.empty().addClass('hidden');
             loading.removeClass('hidden');
 
@@ -9196,9 +9238,9 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                                         <h4 class="text-lg font-bold text-slate-800 dark:text-white mb-2">No Preview Available</h4>
                                         <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">This file type (${ext.toUpperCase()}) cannot be previewed directly.</p>
                                     </div>
-                                    <a href="${url}" target="_blank" class="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20">
+                                    <button onclick="downloadFile('${url}', '${name.replace(/'/g, "\\'")}')" class="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20">
                                         Download to View
-                                    </a>
+                                    </button>
                                    </div>`;
                 }
 
@@ -10886,17 +10928,54 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                     finalColor = 'rose';
                 }
 
-                const { error } = await client.from('resources').insert([{
+                const payload = {
                     title,
                     subtitle,
-                    category,
                     link: resourceUrl,
                     icon: finalIcon,
                     color: finalColor,
                     created_by: currentUser.id
-                }]);
+                };
 
-                if (error) throw error;
+                // Add category only if it's not 'category' (schema mismatch check)
+                // If your table uses 'type' instead of 'category', we can handle it here.
+                // For now, let's try to send it as 'category' but catch the specific error
+                payload.category = category;
+
+                let insertResponse = await client.from('resources').insert([payload]);
+
+                // Auto-retry for any missing columns
+                let maxRetries = 5;
+                while (insertResponse.error && maxRetries > 0) {
+                    if (insertResponse.error.message.includes("Could not find the")) {
+                        const match = insertResponse.error.message.match(/Could not find the '([^']+)' column/);
+                        if (match && match[1]) {
+                            console.warn(`[Resources] '${match[1]}' column missing schema, retrying...`);
+                            delete payload[match[1]];
+                            // Special case: if 'link' is missing, it might be named 'url'
+                            if (match[1] === 'link' && resourceUrl) {
+                                payload.url = resourceUrl;
+                            }
+                            insertResponse = await client.from('resources').insert([payload]);
+                        } else if (insertResponse.error.message.includes("category")) {
+                            console.warn("[Resources] 'category' missing schema, retrying...");
+                            delete payload.category;
+                            insertResponse = await client.from('resources').insert([payload]);
+                        } else {
+                            break;
+                        }
+                    } else if (insertResponse.error.message.includes("null value in column \"url\" of relation \"resources\"")) {
+                        console.warn("[Resources] Schema expects 'url' instead of 'link', retrying...");
+                        payload.url = payload.link || resourceUrl;
+                        delete payload.link;
+                        insertResponse = await client.from('resources').insert([payload]);
+                    } else {
+                        break;
+                    }
+                    maxRetries--;
+                }
+
+                if (insertResponse.error) throw insertResponse.error;
 
                 showToast("Resource uploaded successfully!");
                 bootstrap.Modal.getInstance(document.getElementById('createResourceModal')).hide();
@@ -10937,11 +11016,20 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
             }
 
             filtered.forEach((r, index) => {
-                let iconDisplay = `<i data-lucide="${r.icon}" class="w-5 h-5"></i>`;
+                const cat = r.category || 'link';
+                const iconMap = { 'video': 'video', 'doc': 'file-text', 'link': 'link' };
+                const colorMap = { 'video': 'rose', 'doc': 'indigo', 'link': 'emerald' };
+
+                let rIcon = r.icon || iconMap[cat] || 'file';
+                let rColor = r.color || colorMap[cat] || 'slate';
+
+                let iconDisplay = `<i data-lucide="${rIcon}" class="w-5 h-5"></i>`;
+
+                const rLink = r.url || r.link || '';
 
                 // Dynamic PDF Fix for display
-                if (r.link && r.link.toLowerCase().endsWith('.pdf')) {
-                    r.color = 'rose';
+                if (rLink && rLink.toLowerCase().endsWith('.pdf')) {
+                    rColor = 'rose';
                     iconDisplay = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-pdf" viewBox="0 0 16 16">
   <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1"/>
   <path d="M4.603 12.087a.8.8 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.7 7.7 0 0 1 1.482-.645 20 20 0 0 0 1.062-2.227 7.3 7.3 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.187-.012.395-.047.614-.084.51-.27 1.134-.52 1.794a11 11 0 0 0 .98 1.686 5.8 5.8 0 0 1 1.334.05c.364.065.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.86.86 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.7 5.7 0 0 1-.911-.95 11.6 11.6 0 0 0-1.997.406 11.3 11.3 0 0 1-1.021 1.51c-.29.35-.608.655-.926.787a.8.8 0 0 1-.58.029m1.379-1.901q-.25.115-.459.238c-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361q.016.032.026.044l.035-.012c.137-.056.355-.235.635-.572a8 8 0 0 0 .45-.606m1.64-1.33a13 13 0 0 1 1.01-.193 12 12 0 0 1-.51-.858 21 21 0 0 1-.5 1.05zm2.446.45q.226.244.435.41c.24.19.407.253.498.256a.1.1 0 0 0 .07-.015.3.3 0 0 0 .094-.125.44.44 0 0 0 .059-.2.1.1 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a4 4 0 0 0-.612-.053zM8.078 5.8a7 7 0 0 0 .2-.828q.046-.282.038-.465a.6.6 0 0 0-.032-.198.5.5 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822q.036.167.09.346z"/>
@@ -10949,12 +11037,13 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                 }
 
                 grid.append(`
-                    <div class="v-card p-5 group hover:scale-[1.02] transition-transform cursor-pointer" onclick="previewFile('${r.link}', '${r.title.replace(/'/g, "\\'")}', 'Learning Material', '${r.link.split('.').pop()}', window.learningResources, ${index})">
+                    <div class="v-card p-5 group hover:scale-[1.02] transition-transform cursor-pointer" onclick="previewFile('${rLink}', '${r.title.replace(/'/g, "\\'")}', 'Learning Material', '${rLink.split('.').pop()}', window.learningResources, ${index})">
                         <div class="flex justify-between items-start mb-4">
-                            <div class="w-10 h-10 bg-${r.color}-50 dark:bg-${r.color}-900/20 text-${r.color}-600 dark:text-${r.color}-400 rounded-xl flex items-center justify-center shadow-sm">
+                            <div class="w-10 h-10 bg-${rColor}-50 dark:bg-${rColor}-900/20 text-${rColor}-600 dark:text-${rColor}-400 rounded-xl flex items-center justify-center shadow-sm">
                                 ${iconDisplay}
                             </div>
-                            <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">${r.category}</span>
+                            <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">${cat}</span>
+
                         </div>
                         <h4 class="font-extrabold text-slate-900 dark:text-slate-200 text-sm mb-1 line-clamp-1">${r.title}</h4>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-4">${r.subtitle || ''}</p>
