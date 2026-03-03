@@ -6044,9 +6044,9 @@
                 const avgScore = mySubs.filter(s => s.status === 'graded').reduce((a, b) => a + (parseInt(b.grade) || 0), 0) / (mySubs.filter(s => s.status === 'graded').length || 1);
 
                 const pendingCount = tasks.filter(t => {
-                    const isSubmitted = mySubs.some(s => s.task_id === t.id);
+                    const isSubmitted = mySubs.some(s => String(s.task_id) === String(t.id));
                     // Also check if it's graded - if so, it's definitely not pending
-                    const isGraded = mySubs.some(s => s.task_id === t.id && s.status === 'graded');
+                    const isGraded = mySubs.some(s => String(s.task_id) === String(t.id) && s.status === 'graded');
                     const isExpired = t.deadline && new Date().getTime() > new Date(t.deadline).getTime();
                     return !isGraded && !isSubmitted && !isExpired;
                 }).length;
@@ -6300,12 +6300,12 @@
             // 1. Status Filter
             if (filter === 'pending') {
                 filteredTasks = tasks.filter(t => {
-                    const isSubmitted = subs.find(s => s.student_id === currentUser?.id && s.task_id === t.id);
+                    const isSubmitted = subs.find(s => s.student_id === currentUser?.id && String(s.task_id) === String(t.id));
                     const isExpired = t.deadline && new Date().getTime() > new Date(t.deadline).getTime();
                     return !isSubmitted && !isExpired;
                 });
             } else if (filter === 'completed') {
-                filteredTasks = tasks.filter(t => subs.find(s => s.student_id === currentUser?.id && s.task_id === t.id));
+                filteredTasks = tasks.filter(t => subs.find(s => s.student_id === currentUser?.id && String(s.task_id) === String(t.id)));
             } else if (filter === 'expired') {
                 filteredTasks = tasks.filter(t => t.deadline && new Date().getTime() > new Date(t.deadline).getTime());
             }
@@ -6340,7 +6340,7 @@
                     // --- ADMIN VIEW (Simplified) ---
                     // Calculate stats for this task (DEDUPLICATED)
                     const uniqueTaskSubsMap = new Map();
-                    subs.filter(s => s.task_id === t.id).forEach(s => {
+                    subs.filter(s => String(s.task_id) === String(t.id)).forEach(s => {
                         const existing = uniqueTaskSubsMap.get(s.student_id);
                         if (!existing || new Date(s.submitted_at) > new Date(existing.submitted_at)) {
                             uniqueTaskSubsMap.set(s.student_id, s);
@@ -6398,7 +6398,7 @@
                         </div>`;
                 } else {
                     // --- STUDENT VIEW (Simplified for "Details Kam Dikhao") ---
-                    const sub = subs.find(s => s.student_id === currentUser?.id && s.task_id === t.id);
+                    const sub = subs.find(s => s.student_id === currentUser?.id && String(s.task_id) === String(t.id));
                     let badgeClass = sub ? (sub.status === 'graded' ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-cyan-500 text-white shadow-cyan-500/20') : (isExpired ? 'bg-rose-500 text-white shadow-rose-500/20' : 'bg-indigo-600 text-white shadow-indigo-500/20');
                     let badgeText = sub ? (sub.status === 'graded' ? `SCORE: ${sub.grade}%` : 'SUBMITTED') : (isExpired ? 'EXPIRED' : 'ACTIVE');
 
@@ -7724,62 +7724,104 @@
 
             const logoBase64 = await fetchBase64('assets/logo.png');
 
+            const adminSignatureBase64 = window.adminSignature || localStorage.getItem('navttc_admin_signature');
+            let signatureHtml = '';
+            if (adminSignatureBase64) {
+                signatureHtml = `
+                    <div style="text-align: center; width: 260px;">
+                        <img src="${adminSignatureBase64}" style="max-height: 80px; max-width: 100%; object-fit: contain; margin: 0 auto 5px auto; display: block; mix-blend-mode: multiply;">
+                        <div style="border-top: 2px solid #1e293b; margin: 0 auto; width: 100%; padding-top: 10px;">
+                            <div style="color: #0f172a; font-size: 11pt; font-weight: 900; text-transform: uppercase;">Authorized Signature</div>
+                            <div style="color: #475569; font-size: 9pt; font-weight: 600; letter-spacing: 0.5px;">NAVTTC Administration</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                signatureHtml = `
+                    <div style="text-align: center; width: 220px;">
+                        <div style="height: 70px; margin-bottom: 8px;"></div>
+                        <div style="border-top: 1px solid #1e293b; margin: 0 auto; width: 100%; padding-top: 8px;">
+                            <div style="color: #0f172a; font-size: 11pt; font-weight: 800;">Authorized Signature</div>
+                            <div style="color: #475569; font-size: 9pt; font-weight: 600;">NAVTTC Administration</div>
+                        </div>
+                    </div>
+                `;
+            }
+
             reportContainer.innerHTML = `
-                <div style="border: 2px solid #f1f5f9; padding: 40px; border-radius: 15px; position: relative; overflow: hidden;">
-                    <!-- Header Decor -->
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #4f46e5, #06b6d4);"></div>
+                <div style="background: #ffffff; width: 100%; min-height: 1060px; padding: 50px; box-sizing: border-box; position: relative; display: flex; flex-direction: column;">
+                    <!-- Border decorations -->
+                    <div style="position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px; border: 2px solid #e2e8f0; pointer-events: none;"></div>
+                    <div style="position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; border: 1px solid #cbd5e1; pointer-events: none;"></div>
                     
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <!-- Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #f1f5f9; padding-bottom: 25px;">
                         <div style="display: flex; align-items: center; gap: 25px;">
-                            ${logoBase64 ? `<img src="${logoBase64}" style="height: 85px;">` : ''}
-                            <div style="line-height: 1.2;">
-                                <h2 style="margin: 0; color: #475569; font-size: 12pt; font-weight: 800; text-transform: uppercase;">National Vocational and Technical Training Commission</h2>
-                                <h1 style="margin: 2px 0; color: #0f172a; font-size: 20pt; font-weight: 900; letter-spacing: -0.5px;">Government of Pakistan</h1>
-                                <p style="margin: 0; color: #4f46e5; font-size: 10pt; font-weight: 800;">Prime Minister’s Hunarmand Pakistan Program</p>
+                            ${logoBase64 ? '<img src="' + logoBase64 + '" style="height: 110px; object-fit: contain;">' : '<div style="width:110px;height:110px;background:#f1f5f9;border-radius:50%;"></div>'}
+                            <div style="line-height: 1.3;">
+                                <h1 style="margin: 0; color: #0f172a; font-size: 20pt; font-weight: 900; letter-spacing: -0.5px;">National Vocational and Technical Training Commission</h1>
+                                <h2 style="margin: 4px 0 5px 0; color: #64748b; font-size: 14pt; font-weight: 800; text-transform: uppercase;">Government of Pakistan</h2>
+                                <p style="margin: 0; color: #4f46e5; font-size: 11pt; font-weight: 800; text-transform: uppercase;">Prime Minister’s Hunarmand Pakistan Program</p>
                             </div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="color: #4f46e5; font-weight: 900; font-size: 11pt; letter-spacing: 1px;">OFFICIAL REPORT</div>
-                            <div style="color: #94a3b8; font-size: 9pt; font-weight: 600;">Date: ${new Date().toLocaleDateString()}</div>
+                        <div style="text-align: right; margin-top: 5px;">
+                            <div style="background: #f8fafc; padding: 10px 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="color: #4f46e5; font-weight: 900; font-size: 12pt; letter-spacing: 1px; margin-bottom: 5px;">TASK REPORT</div>
+                                <div style="color: #64748b; font-size: 9pt; font-weight: 600;">Date: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="margin-bottom: 40px;">
-                        <div style="color: #64748b; font-size: 10pt; font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">Task Title</div>
-                        <h1 style="margin: 0; color: #1e293b; font-size: 26pt; font-weight: 900; line-height: 1.1;">${taskTitle}</h1>
+                    <!-- Task Information -->
+                    <div style="text-align: center; margin-bottom: 40px;">
+                        <h3 style="margin: 0 0 10px 0; color: #64748b; font-size: 11pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">Official Task Assessment</h3>
+                        <h2 style="margin: 0; color: #0f172a; font-size: 24pt; font-weight: 900; line-height: 1.2;">${taskTitle}</h2>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
-                        <div style="background: #f8fafc; padding: 25px; border-radius: 20px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px;">
+                    <!-- Student & Grade Flexbox -->
+                    <div style="display: flex; justify-content: space-between; align-items: stretch; gap: 30px; margin-bottom: 40px;">
+                        <!-- Student details -->
+                        <div style="flex: 1; background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 20px;">
                             ${avatarHtml}
-                            <div style="flex: 1;">
-                                <div style="color: #64748b; font-size: 8pt; font-weight: 800; text-transform: uppercase; margin-bottom: 4px;">Student Information</div>
-                                <div style="color: #1e293b; font-size: 13pt; font-weight: 800; line-height: 1.2;">${currentUser.name}</div>
-                                <div style="color: #64748b; font-size: 9pt; font-weight: 600; margin-top: 3px;">ID: ${uid.substring(0, 8).toUpperCase()}</div>
-                                <div style="color: #1e293b; font-size: 9pt; font-weight: 800; margin-top: 3px;">CIT ( Web Development )</div>
+                            <div>
+                                <div style="color: #64748b; font-size: 9pt; font-weight: 700; text-transform: uppercase; margin-bottom: 5px;">Student Details</div>
+                                <div style="color: #0f172a; font-size: 16pt; font-weight: 800; line-height: 1.1; margin-bottom: 5px;">${currentUser.name}</div>
+                                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                                    <div style="color: #475569; font-size: 10pt; font-weight: 600;">ID: <span style="color: #0f172a;">${uid.substring(0, 8).toUpperCase()}</span></div>
+                                    <div style="color: #475569; font-size: 10pt; font-weight: 600;">Course: <span style="color: #0f172a;">CIT (Web Development)</span></div>
+                                </div>
                             </div>
                         </div>
-                        <div style="background: #4f46e5; padding: 25px; border-radius: 20px; color: white; display: flex; flex-direction: column; justify-content: center;">
-                            <div style="opacity: 0.8; font-size: 9pt; font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">Final Grade</div>
-                            <div style="font-size: 32pt; font-weight: 900; line-height: 1;">${sub.grade}<span style="font-size: 16pt; opacity: 0.7;">/100</span></div>
+                        
+                        <!-- Grade Box -->
+                        <div style="width: 200px; background: #4f46e5; padding: 25px; border-radius: 12px; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);">
+                            <div style="opacity: 0.9; font-size: 10pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Final Score</div>
+                            <div style="font-size: 38pt; font-weight: 900; line-height: 1;">${sub.grade}<span style="font-size: 18pt; opacity: 0.8;">/100</span></div>
                         </div>
                     </div>
 
-                    <div style="background: #ffffff; padding: 30px; border-radius: 20px; border: 2px solid #f1f5f9; margin-bottom: 40px;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                            <div style="width: 30px; height: 30px; background: #e0e7ff; color: #4f46e5; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900;">i</div>
-                            <h3 style="margin: 0; color: #1e293b; font-size: 11pt; font-weight: 800; text-transform: uppercase;">Instructor Feedback</h3>
-                        </div>
-                        <div style="color: #475569; font-size: 12pt; line-height: 1.6; font-style: italic;">"${feedbackText}"</div>
+                    <!-- Instructor Feedback Block -->
+                    <div style="background: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #cbd5e1; margin-bottom: 60px; position: relative;">
+                        <!-- Quote Icon Background -->
+                        <div style="position: absolute; top: -15px; left: 25px; background: #ffffff; padding: 0 10px; color: #4f46e5; font-size: 24pt; font-family: serif; font-weight: 900; line-height: 1;">"</div>
+                        
+                        <div style="color: #0f172a; font-size: 11pt; font-weight: 700; text-transform: uppercase; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: inline-block;">Instructor Feedback & Remarks</div>
+                        
+                        <div style="color: #334155; font-size: 12pt; line-height: 1.6; font-style: italic; white-space: pre-wrap;">${feedbackText}</div>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 60px;">
+                    <!-- Footer Section -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto;">
+                        <!-- Verification Block -->
                         <div>
-                            <div style="color: #94a3b8; font-size: 8pt; font-weight: 600; margin-bottom: 4px;">VERIFICATION CODE</div>
-                            <div style="font-family: monospace; color: #1e293b; font-size: 9pt; font-weight: 800; background: #f1f5f9; padding: 4px 10px; border-radius: 5px;">${sub.id}</div>
+                            <div style="color: #64748b; font-size: 9pt; font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Electronic Verification</div>
+                            <div style="font-family: monospace; color: #0f172a; font-size: 10pt; font-weight: 800; background: #f1f5f9; padding: 8px 12px; border-radius: 6px; border: 1px dashed #cbd5e1;">REF: ${sub.id.substring(0, 18).toUpperCase()}...</div>
+                            <div style="color: #94a3b8; font-size: 8pt; margin-top: 5px;">*This is a computer-generated document.</div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="color: #cbd5e1; font-size: 8pt; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;">NAVTTC LMS V2.0</div>
+                        
+                        <!-- Signature Block -->
+                        <div style="margin-right: 20px;">
+                            ${signatureHtml}
                         </div>
                     </div>
                 </div>
@@ -9707,7 +9749,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
 
                     // Show SweetAlert
                     Swal.fire({
-                        title: '?? Admin Nudge!',
+                        title: '👋 Admin Nudge!',
                         text: 'Admin is requesting your attention. Please check your pending tasks.',
                         icon: 'info',
                         confirmButtonText: 'Okay, I am here!',
@@ -9741,7 +9783,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                     audio.volume = 0.5;
                     audio.play().catch(e => { });
 
-                    showToast(`? ${payload.user_name} acknowledged your nudge!`, 'success');
+                    showToast(`✅ ${payload.user_name} acknowledged your nudge!`, 'success');
                 }
             });
 
@@ -10738,7 +10780,7 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
 
                 const completed = mySubs.filter(s => s.status === 'graded').length;
                 const submitted = mySubs.filter(s => s.status === 'submitted').length;
-                const remaining = window.allTasks.filter(t => !mySubs.some(s => s.task_id === t.id) && (!t.deadline || new Date().getTime() <= new Date(t.deadline).getTime())).length;
+                const remaining = window.allTasks.filter(t => !mySubs.some(s => String(s.task_id) === String(t.id)) && (!t.deadline || new Date().getTime() <= new Date(t.deadline).getTime())).length;
 
                 if (performanceChart) {
                     performanceChart.data.labels = ['Completed', 'Pending Review', 'To Do'];
