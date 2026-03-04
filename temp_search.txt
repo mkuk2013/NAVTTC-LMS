@@ -1,0 +1,178 @@
+335: 0%,
+336: 100% {
+340: 50% {
+455: max-width: 100%;
+574: width: calc(100% - var(--sidebar-width));
+579: width: calc(100% - var(--sidebar-collapsed-width));
+584: transform: translateX(-100%);
+619: border-radius: 50%;
+630: width: 100%;
+631: height: 100%;
+649: right: 0%;
+650: width: 0%;
+672: border-radius: 50% !important;
+676: width: 30%;
+683: width: 100% !important;
+690: width: 70%;
+718: left: 50% !important;
+719: transform: translateX(-50%) translateY(150%) !important;
+738: transform: translateX(-50%) translateY(0) !important;
+796: transform: translateX(-100%);
+865: width: 100% !important;
+903: width: 100% !important;
+925: width: 100%;
+971: top: 50%;
+972: transform: translateY(-50%);
+1020: width: 100%;
+1081: width: 100%;
+1111: background: linear-gradient(135deg, var(--plus-indigo) 0%, #4f46e5 100%);
+1118: background: linear-gradient(135deg, var(--plus-indigo) 0%, #4338ca 100%);
+1161: transform: translateX(-100%);
+1195: border-radius: 50%;
+1296: border-radius: 50%;
+1358: transform: translateX(100%);
+1466: top: 80%;
+1481: width: 100%;
+1482: height: 100%;
+1505: transform-origin: 100% 50%;
+1556: top: 100%;
+1567: 0% {
+1572: 20% {
+1576: 35%,
+1577: 100% {
+1581: 50%,
+1582: 100% {
+1588: 15% {
+1593: 35% {
+1597: 50%,
+1598: 100% {
+1602: 65%,
+1603: 100% {
+1609: 30% {
+1614: 50% {
+1618: 65%,
+1619: 100% {
+1623: 80%,
+1624: 100% {
+1630: 45% {
+1635: 65% {
+1639: 80%,
+1640: 100% {
+1644: 95%,
+1645: 100% {
+1701: width: 100%;
+1749: min-height: calc(100% - 2rem);
+1863: 0% {
+1867: 50% {
+1871: 100% {
+1882: 0% {
+1887: 100% {
+1898: 0% {
+1903: 100% {
+1922: width: 100% !important;
+1935: width: 100% !important;
+1944: width: 100%;
+1953: transform: translateX(-100%);
+2007: width: 100% !important;
+2025: width: 100% !important;
+2149: width: 100% !important;
+2167: max-width: 100%;
+2184: max-width: 100%;
+2201: width: 100% !important;
+2735: style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+2737: style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 
+2850: id="stat-score">0%</h3>
+3687: <span id="storage-upload-percent">0%</span>
+3693: style="width: 0%;"></div>
+3725: id="storage-usage-percent">0%</span> used</span>
+3728: <!-- Fixed 12% width for visual appeal since we don't have real quota data -->
+3730: class="h-full bg-slate-300 dark:bg-slate-700 rounded-full w-[0%] transition-all duration-500">
+5271: // 2. Identify Top Performers (> 85% Average)
+5274: const avg = stats[uid].total / stats[uid].count;
+5275: if (avg >= 85 && stats[uid].count >= 2) { // Minimum 2 tasks
+5276: topPerformers.push({ id: uid, name: stats[uid].name, avg: Math.round(avg) });
+5296: .ilike('title', `@${student.name}%`)
+5303: content: `Congratulations! Your performance is exceptional with an average score of ${student.avg}%.
+5637: const avgScore = gradedSubs.length ? gradedSubs.reduce((a, b) => a + (parseInt(b.grade) || 0), 0) / 
+5647: msg = `Outstanding! You've completed ${progressPct}% of the course. You are unstoppable!`;
+5649: msg = `Halfway There! You've completed ${progressPct}% of your tasks. Great momentum!`;
+5650: } else if (avgScore >= 90) {
+5651: msg = `High Performer Alert! Your average score is ${Math.round(avgScore)}%. Excellent work!`;
+5667: if ((progressPct >= 80 || avgScore >= 90) && typeof confetti === 'function') {
+6044: const avgScore = mySubs.filter(s => s.status === 'graded').reduce((a, b) => a + (parseInt(b.grade) |
+6055: $('#stat-label-3').text("Avg. Grade"); $('#stat-score').text(Math.round(avgScore) + '%');
+6088: <span class="text-[10px] font-bold text-slate-700 dark:text-slate-300">${progressPct}% Complete</spa
+6091: <div class="h-full bg-indigo-500 rounded-full" style="width: ${progressPct}%"></div>
+6135: const xpProgress = totalXP % 100;
+6145: $('#xp-bar').css('width', `${xpProgress}%`);
+6172: ${isGraded ? `<div class="font-black text-base text-indigo-500 tracking-tighter">${s.grade}%</div>` 
+6353: const avgScore = gradedCount ? Math.round(uniqueTaskSubs.filter(s => s.status === 'graded').reduce((
+6382: <div class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Avg %</div>
+6383: <div class="text-sm font-black text-emerald-500">${avgScore}%</div>
+6403: let badgeText = sub ? (sub.status === 'graded' ? `SCORE: ${sub.grade}%` : 'SUBMITTED') : (isExpired 
+6419: <div class="h-1 bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full transition-all duration-[1
+6462: const avg = count > 0 ? Math.round(uniqueGradedSubs.reduce((a, b) => a + b.grade, 0) / count) : 0;
+6471: avg: avg
+6475: .sort((a, b) => b.avg - a.avg || b.count - a.count); // Rank by Marks (Avg) FIRST, then Quantity
+6495: <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/40 text-ind
+6499: <div class="h-full bg-cyan-500 rounded-full" style="width: ${progress}%"></div>
+6501: <span class="text-[8px] font-black text-cyan-500">${progress}% Complete</span>
+6679: const hours = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+6680: const mins = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+6943: const avg = gradedSubs.length ? Math.round(gradedSubs.reduce((a, b) => a + b.grade, 0) / gradedSubs.
+7000: <div class="font-black text-slate-900 dark:text-slate-200 text-xs">${avg}%</div>
+7196: const avgGrade = totalGraded > 0
+7384: drawStatCard("Average Grade", avgGrade + "%", "Overall Score", [16, 185, 129]); // Emerald
+7412: s.grade + "%",
+7524: if (avgGrade >= 90) {
+7526: } else if (avgGrade >= 80) {
+7528: } else if (avgGrade >= 70) {
+7530: } else if (avgGrade >= 60) {
+7532: } else if (avgGrade >= 50) {
+7738: <img src="${adminSignatureBase64}" style="max-height: 80px; max-width: 100%; object-fit: contain; ma
+7739: <div style="border-top: 2px solid #1e293b; margin: 0 auto; width: 100%; padding-top: 10px;">
+7749: <div style="border-top: 1px solid #1e293b; margin: 0 auto; width: 100%; padding-top: 8px;">
+7758: <div style="background: #ffffff; width: 100%; min-height: 1020px; padding: 40px; box-sizing: border-
+7763: ${logoBase64 ? '<img src="' + logoBase64 + '" style="height: 100px; object-fit: contain;">' : '<div 
+7792: <table style="width: 100%; border-collapse: collapse; font-size: 11pt;">
+7828: <div style="max-width: 50%;">
+8506: console.log("%c ACTION REQUIRED: Run this SQL in Supabase SQL Editor:", "background: #ef4444; color:
+8841: $('#storage-upload-percent').text(`0%`);
+8842: $('#storage-progress-bar').css('width', `0%`);
+8948: $('#storage-upload-percent').text(`${percent}%`);
+8949: $('#storage-progress-bar').css('width', `${percent}%`);
+9021: $('#storage-upload-percent').text(`100%`);
+9022: $('#storage-progress-bar').css('width', `100%`);
+9030: $('#storage-progress-bar').css('width', '0%');
+9208: const prevIdx = (currentIndex - 1 + fileList.length) % fileList.length;
+9213: const nextIdx = (currentIndex + 1) % fileList.length;
+9326: usageBar.css('width', `${usagePercent}%`);
+9327: usagePercentText.text(`${usagePercent}%`);
+10180: <div class="max-w-[85%] p-3 rounded-2xl text-[10px] font-medium shadow-sm border border-slate-100 da
+10752: cutout: '80%',
+10830: const avgGrade = gradedSubmissions.length > 0
+10837: avgGrade: Math.round(avgGrade * 10) / 10,
+10848: if (avgGrade >= 85 && completionRate >= 80) {
+10849: message = `🏆 Excellent Progress! You're crushing it! Average Grade: ${avgGrade.toFixed(1)}% | Compl
+10851: } else if (avgGrade >= 75 && completionRate >= 60) {
+10852: message = `🌟 Great Work! You're doing amazing! Keep it up! Average Grade: ${avgGrade.toFixed(1)}% |
+10854: } else if (avgGrade >= 60 || completionRate >= 40) {
+10855: message = `📈 Good Progress! You're on the right track. Keep pushing! ${Math.round(completionRate)}%
+11530: { task: "Circle shape", correct: "border-radius: 50%;", wrong: ["border: circle;", "shape: circle;",
+11537: { task: "Max Width", correct: "max-width: 100%;", wrong: ["width: max;", "limit: 100%;", "bound: 100
+11552: { task: "Grid Columns", correct: "grid-template-columns: 1fr 1fr;", wrong: ["grid-cols: 2;", "column
+11554: { task: "Calculate width", correct: "width: calc(100% - 20px);", wrong: ["width: 100% - 20px;", "cal
+11586: { code: "width:100%;", desc: "Full Width" },
+11632: { q: "Result of 10 % 3?", a: ["1", "3", "0", "10"], r: "1" },
+11691: <div id="drop-${i}" class="p-4 border-2 border-dashed ${colors[i % colors.length]} rounded-xl flex i
+11832: <p class="text-4xl font-black text-emerald-500 dark:text-emerald-400 drop-shadow-sm">${accuracy}%</p
+11873: <div class="h-full bg-indigo-500 transition-all duration-1000 ease-linear" style="width: 100%" id="t
+11890: const t = themes[i % themes.length];
+11912: $('#timer-bar').css('width', `${(timeLeft / timeLeftInit) * 100}%`);
+12010: <p class="text-4xl font-black text-emerald-500 dark:text-emerald-400 drop-shadow-sm">${accuracy}%</p
+12044: <div class="h-full bg-yellow-500 transition-all duration-1000 ease-linear" style="width: 100%" id="t
+12073: $('#timer-bar').css('width', `${(timeLeft / timeLeftInit) * 100}%`);
+12164: <p class="text-4xl font-black text-emerald-500 dark:text-emerald-400 drop-shadow-sm">${accuracy}%</p
+12199: <div class="h-full bg-indigo-500 transition-all duration-1000 ease-linear" style="width: 100%" id="t
+12229: $('#timer-bar').css('width', `${(timeLeft / timeLeftInit) * 100}%`);
+12683: editorContainer.style.height = `${newHeightPercent}%`;
