@@ -5504,18 +5504,28 @@
             e.preventDefault();
             const btn = $('#forgot-btn');
             const msgEl = $('#forgot-msg');
-            const email = $('#forgot-email').val();
+            const email = $('#forgot-email').val().trim();
 
-            msgEl.addClass('hidden').removeClass('text-rose-500');
+            msgEl.addClass('hidden').removeClass('text-rose-500 text-emerald-600');
 
-            if (!email) return;
+            if (!email) {
+                msgEl.text("Please enter your email address.").addClass('text-rose-500').removeClass('hidden');
+                return;
+            }
 
-            btn.prop('disabled', true).text('Sending Link...');
+            btn.prop('disabled', true).html('<span class="animate-spin inline-block mr-1">⏳</span> Sending...');
+
             try {
-                console.log("Sending reset to:", email);
-                const { error } = await client.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin
+                // Race against a 15-second timeout
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request timed out. Please check your internet connection and try again.')), 15000)
+                );
+
+                const resetPromise = client.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/index.html`
                 });
+
+                const { error } = await Promise.race([resetPromise, timeoutPromise]);
                 if (error) throw error;
 
                 // Switch to Success UI
@@ -5524,7 +5534,13 @@
                 lucide.createIcons();
 
             } catch (err) {
-                msgEl.text("Error: " + err.message).addClass('text-rose-500').removeClass('hidden');
+                let msg = err.message || 'Something went wrong. Please try again.';
+                if (msg.includes('500') || msg.includes('Internal Server Error')) {
+                    msg = 'Email service error (500). Please check SMTP settings in Supabase or try again later.';
+                } else if (msg.includes('timed out')) {
+                    msg = err.message;
+                }
+                msgEl.text(msg).addClass('text-rose-500').removeClass('hidden');
             } finally {
                 btn.prop('disabled', false).text('Send Recovery Link');
             }
