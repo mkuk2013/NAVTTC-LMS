@@ -3191,7 +3191,6 @@
                                     <tr>
                                         <th class="px-5 py-3">Rank</th>
                                         <th class="px-5 py-3">Student</th>
-                                        <th class="px-5 py-3 text-center hidden sm:table-cell">Tasks</th>
                                         <th class="px-5 py-3 text-center">Grade</th>
                                         <th class="px-5 py-3 text-right">Progress</th>
                                     </tr>
@@ -6095,7 +6094,8 @@
                 console.log("? Instant Load from Cache triggered");
                 renderStats(tasks, subs);
                 if (activeTab === 'tasks') renderTasks(tasks, subs);
-                if (activeTab === 'leaderboard') renderLeaderboard(subs);
+                // We shouldn't solely rely on cache for the leaderboard, but if it exists, use it temporarily
+                if (activeTab === 'leaderboard') renderLeaderboard(userProfile.role === 'admin' ? subs : (window.leaderboardData || []));
                 if (userProfile.role === 'admin' && activeTab === 'grading') renderGrading(subs);
             }
         }
@@ -6114,19 +6114,23 @@
             if (!session) return;
 
             try {
-                const [tasksRes, subsRes] = await Promise.all([
+                const [tasksRes, subsRes, leaderboardRes] = await Promise.all([
                     client.from('tasks').select('*').order('deadline', { ascending: true }),
-                    client.from('submissions').select('*')
+                    client.from('submissions').select('*'),
+                    client.from('leaderboard_view').select('student_id, student_name, task_id, grade, status').order('grade', { ascending: false })
                 ]);
 
                 if (tasksRes.error) throw tasksRes.error;
                 if (subsRes.error) throw subsRes.error;
+                // Don't strongly error out on leaderboard, to tolerate legacy deployment delay
+                const leaderboardData = leaderboardRes.data || [];
 
                 const tasks = tasksRes.data;
                 const subs = subsRes.data;
 
                 window.allTasks = tasks;
                 window.allSubmissions = subs;
+                window.leaderboardData = leaderboardData;
 
                 // SAVE TO CACHE FOR NEXT LOAD
                 localStorage.setItem('cached_tasks', JSON.stringify(tasks));
@@ -6134,7 +6138,8 @@
 
                 renderStats(tasks, subs);
                 if (activeTab === 'tasks') renderTasks(tasks, subs);
-                if (activeTab === 'leaderboard') renderLeaderboard(subs);
+                // Use new unified anonymous view for the leaderboard instead of personal subs (fallback to subs for admin if view is missing)
+                if (activeTab === 'leaderboard') renderLeaderboard(userProfile.role === 'admin' ? subs : leaderboardData);
                 if (userProfile.role === 'admin') {
                     if (activeTab === 'grading') renderGrading(subs);
                     // fetchUsers is called separately when needed/tab switches, to save bandwidth
@@ -6608,7 +6613,6 @@
                                 ${r.name}
                             </div>
                         </td>
-                        <td class="px-6 py-4 font-black text-slate-400 text-[9px] uppercase tracking-widest text-center hidden sm:table-cell">${r.count} / ${totalTasks} Tasks</td>
                         <td class="px-6 py-4 text-center"><span class="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 rounded-lg font-black text-xs shadow-sm">${r.avg}%</span></td>
                         <td class="px-6 py-4">
                             <div class="w-24 ml-auto flex flex-col items-end gap-1">
@@ -8427,6 +8431,13 @@
             // Resources
             if (tabId === 'resources') {
                 if (typeof fetchResources === 'function') fetchResources();
+            }
+
+            // Leaderboard
+            if (tabId === 'leaderboard') {
+                if (typeof renderLeaderboard === 'function') {
+                    renderLeaderboard(userProfile.role === 'admin' ? window.allSubmissions : (window.leaderboardData || []));
+                }
             }
 
             // Chat
@@ -13298,473 +13309,844 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         })();
     </script>
 
-<!-- ===================== WHAT'S NEW MODAL (Premium Light Redesign) ===================== -->
-<div id="whatsNewOverlay"
-    style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:16px;">
-
-    <div id="whatsNewCard"
-        style="background:#ffffff;border-radius:24px;width:100%;max-width:580px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 80px -20px rgba(15,23,42,0.3),0 0 0 1px rgba(226,232,240,0.8);position:relative;">
-
-        <!-- Top animated gradient line -->
-        <div
-            style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#6366f1,#8b5cf6,#a855f7,#ec4899,#8b5cf6,#6366f1);z-index:10;background-size:200% 100%;animation:wn-shimmer 3s linear infinite;">
-        </div>
-
-        <!-- HEADER -->
-        <div style="position:relative;padding:30px 28px 24px;overflow:hidden;flex-shrink:0;">
-            <!-- Soft gradient background -->
-            <div
-                style="position:absolute;inset:0;background:linear-gradient(135deg,#f5f3ff 0%,#eff6ff 50%,#fdf4ff 100%);">
-            </div>
-            <!-- Decorative orbs -->
-            <div
-                style="position:absolute;top:-50px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(139,92,246,0.12) 0%,transparent 70%);">
-            </div>
-            <div
-                style="position:absolute;bottom:-40px;left:-20px;width:160px;height:160px;background:radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 70%);">
-            </div>
-
-            <div style="position:relative;z-index:2;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <div
-                            style="width:7px;height:7px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 10px rgba(139,92,246,0.7);animation:wn-pulse 2s infinite;">
-                        </div>
-                        <span
-                            style="font-size:9px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:#7c3aed;">Live
-                            Updates</span>
-                        <span
-                            style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#7c3aed;font-size:8px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;">v3.5
-                            &bull; March 2026</span>
-                    </div>
-                    <button onclick="closeWhatsNew()"
-                        style="background:rgba(100,116,139,0.08);border:1px solid rgba(100,116,139,0.15);color:#94a3b8;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;"
-                        onmouseover="this.style.background='rgba(100,116,139,0.15)';this.style.color='#475569'"
-                        onmouseout="this.style.background='rgba(100,116,139,0.08)';this.style.color='#94a3b8'">&#x2715;</button>
-                </div>
-
-                <h2
-                    style="color:#0f172a;font-size:28px;font-weight:900;letter-spacing:-0.045em;margin:0 0 6px;line-height:1;">
-                    What&#39;s New &#x1F389;</h2>
-                <p style="color:#64748b;font-size:11px;font-weight:500;margin:0 0 16px;line-height:1.5;">NAVTTC LMS ke
-                    naye features aur improvements — ab aap ke liye available hain.</p>
-
-                <div style="display:flex;gap:5px;flex-wrap:wrap;">
-                    <span
-                        style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:#7c3aed;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F4CB;
-                        Tasks</span>
-                    <span
-                        style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:#2563eb;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F4BB;
-                        Code Editor</span>
-                    <span
-                        style="background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);color:#db2777;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F3AE;
-                        Arcade</span>
-                    <span
-                        style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#16a34a;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F527;
-                        Bug Fixes</span>
-                </div>
-            </div>
-        </div>
-
-        <div
-            style="height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,#c7d2fe,#e2e8f0,transparent);flex-shrink:0;">
-        </div>
-
-        <!-- SCROLLABLE BODY -->
-        <div style="overflow-y:auto;flex:1;padding:20px 22px 8px;background:#fafafa;" class="custom-scrollbar">
-
-            <!-- Tasks Section -->
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                <div style="height:1px;width:12px;background:#e2e8f0;"></div>
-                <span
-                    style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">Tasks
-                    &amp; Grading</span>
-                <div style="height:1px;flex:1;background:#e2e8f0;"></div>
-            </div>
-
-            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
-
-                <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
-                    onmouseover="this.style.borderColor='rgba(139,92,246,0.4)';this.style.boxShadow='0 4px 16px rgba(139,92,246,0.08)'"
-                    onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-                    <div
-                        style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-                        &#x1F4CE;</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
-                            <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">File Upload Support</p>
-                            <span
-                                style="background:#ede9fe;border:1px solid #ddd6fe;color:#7c3aed;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">New</span>
-                        </div>
-                        <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Ab HTML, CSS,
-                            JS, Python, C++ aur C files directly task ke saath submit kar sakte ho.</p>
-                    </div>
-                </div>
-
-                <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
-                    onmouseover="this.style.borderColor='rgba(34,197,94,0.4)';this.style.boxShadow='0 4px 16px rgba(34,197,94,0.08)'"
-                    onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-                    <div
-                        style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-                        &#x1F4CA;</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
-                            <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Accurate Grade Averages
-                            </p>
-                            <span
-                                style="background:#dcfce7;border:1px solid #bbf7d0;color:#16a34a;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Fixed</span>
-                        </div>
-                        <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Task scores
-                            aur leaderboard rankings ab sahi calculate hoti hain — galat percentages ka masla hal ho
-                            gaya.</p>
-                    </div>
-                </div>
-
-                <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
-                    onmouseover="this.style.borderColor='rgba(234,179,8,0.4)';this.style.boxShadow='0 4px 16px rgba(234,179,8,0.08)'"
-                    onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-                    <div
-                        style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#fef9c3,#fde68a);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-                        &#x1F4C4;</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
-                            <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Improved PDF Reports</p>
-                            <span
-                                style="background:#fef9c3;border:1px solid #fde68a;color:#ca8a04;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Improved</span>
-                        </div>
-                        <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Performance
-                            reports mein ab cleaner layout, proper instructor remarks aur professional signature.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Code Editor Section -->
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                <div style="height:1px;width:12px;background:#e2e8f0;"></div>
-                <span
-                    style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">Developer
-                    Workbench</span>
-                <div style="height:1px;flex:1;background:#e2e8f0;"></div>
-            </div>
-
-            <div
-                style="border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:16px;background:#ffffff;">
-
-                <!-- Autocomplete -->
-                <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9;">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                        <div
-                            style="min-width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">
-                            &#x1F9E0;</div>
-                        <div style="flex:1;">
-                            <p style="font-size:11px;font-weight:800;color:#1e293b;margin:0 0 1px;">Smart
-                                Auto-Suggestions</p>
-                            <p style="font-size:9px;color:#94a3b8;margin:0;">Jaise hi type karo, editor suggest karta
-                                hai</p>
-                        </div>
-                        <span
-                            style="background:#dbeafe;border:1px solid #bfdbfe;color:#2563eb;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0;">New</span>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
-                        <div style="background:#f8fafc;border-radius:10px;padding:8px 10px;border:1px solid #e2e8f0;">
-                            <p
-                                style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#6366f1;margin:0 0 6px;">
-                                &#x1F3F7; HTML Tags</p>
-                            <div style="display:flex;flex-wrap:wrap;gap:3px;"><code
-                                    style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">div</code><code
-                                    style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">p</code><code
-                                    style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">h1-h6</code><code
-                                    style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">a</code><code
-                                    style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">img</code><code
-                                    style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">input</code><code
-                                    style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">button</code><code
-                                    style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">ul/li</code><code
-                                    style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">nav</code><code
-                                    style="background:#e0e7ff;color:#4338ca;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #c7d2fe;">+10</code>
-                            </div>
-                        </div>
-                        <div style="background:#f8fafc;border-radius:10px;padding:8px 10px;border:1px solid #e2e8f0;">
-                            <p
-                                style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#059669;margin:0 0 6px;">
-                                &#x1F3A8; CSS Properties</p>
-                            <div style="display:flex;flex-wrap:wrap;gap:3px;"><code
-                                    style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">color</code><code
-                                    style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">background</code><code
-                                    style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">margin</code><code
-                                    style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">padding</code><code
-                                    style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">font-size</code><code
-                                    style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">display</code><code
-                                    style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">flex</code><code
-                                    style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">box-shadow</code><code
-                                    style="background:#d1fae5;color:#065f46;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #6ee7b7;">+20</code>
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        style="padding:7px 10px;background:#f0f9ff;border-radius:8px;border:1px solid #bae6fd;font-size:9px;color:#0369a1;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                        <span>&#x1F4A1;</span>
-                        <span>Navigate: <kbd
-                                style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:4px;padding:0 5px;font-size:8px;color:#0c4a6e;">&#x2191;&#x2193;</kbd></span>
-                        <span>Select: <kbd
-                                style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:4px;padding:0 5px;font-size:8px;color:#0c4a6e;">Enter/Tab</kbd></span>
-                        <span>Cancel: <kbd
-                                style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:4px;padding:0 5px;font-size:8px;color:#0c4a6e;">Esc</kbd></span>
-                    </div>
-                </div>
-
-                <!-- Shortcuts -->
-                <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9;">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                        <div
-                            style="min-width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#fef3c7,#fde68a);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">
-                            &#x2328;</div>
-                        <p style="font-size:11px;font-weight:800;color:#1e293b;margin:0;flex:1;">Shortcut Keys</p>
-                        <span
-                            style="background:#fef9c3;border:1px solid #fde68a;color:#ca8a04;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0;">New</span>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-                            <kbd
-                                style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Ctrl+Z</kbd><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">Undo</span></div>
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-                            <kbd
-                                style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Ctrl+Y</kbd><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">Redo</span></div>
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-                            <kbd
-                                style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Ctrl+/</kbd><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">Comment line</span></div>
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-                            <kbd
-                                style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Shift+Enter</kbd><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">Run Code</span></div>
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-                            <kbd
-                                style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Tab</kbd><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">Indent / Snippet</span></div>
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-                            <kbd
-                                style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">(
-                                " ' {</kbd><span style="font-size:9px;color:#64748b;font-weight:600;">Auto-pair</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Snippets -->
-                <div style="padding:14px 16px;">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                        <div
-                            style="min-width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">
-                            &#x26A1;</div>
-                        <p style="font-size:11px;font-weight:800;color:#1e293b;margin:0;flex:1;">Quick Snippets <span
-                                style="color:#94a3b8;font-weight:500;font-size:9px;">— Tab se expand karo</span></p>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-                            <code
-                                style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">!</code><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">HTML Boilerplate</span></div>
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-                            <code
-                                style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">link</code><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">CSS Stylesheet</span></div>
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-                            <code
-                                style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">img</code><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">Image tag</span></div>
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-                            <code
-                                style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">btn</code><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">Button element</span></div>
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-                            <code
-                                style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">a</code><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">Anchor link</span></div>
-                        <div
-                            style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-                            <code
-                                style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">script</code><span
-                                style="font-size:9px;color:#64748b;font-weight:600;">Script tag</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Arcade & Security -->
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                <div style="height:1px;width:12px;background:#e2e8f0;"></div>
-                <span
-                    style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">Arcade
-                    &amp; Security</span>
-                <div style="height:1px;flex:1;background:#e2e8f0;"></div>
-            </div>
-
-            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
-                <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
-                    onmouseover="this.style.borderColor='rgba(236,72,153,0.4)';this.style.boxShadow='0 4px 16px rgba(236,72,153,0.08)'"
-                    onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-                    <div
-                        style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#fce7f3,#fbcfe8);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-                        &#x1F579;</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-                            <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Arcade Game Fixes</p><span
-                                style="background:#dcfce7;border:1px solid #bbf7d0;color:#16a34a;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Fixed</span>
-                        </div>
-                        <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Sare arcade
-                            games ab sahi se launch ho rahe hain. Level completion screen professionally polished ho
-                            gayi.</p>
-                    </div>
-                </div>
-                <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
-                    onmouseover="this.style.borderColor='rgba(34,197,94,0.4)';this.style.boxShadow='0 4px 16px rgba(34,197,94,0.08)'"
-                    onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-                    <div
-                        style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-                        &#x1F510;</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-                            <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Password Reset via Email
-                            </p><span
-                                style="background:#ede9fe;border:1px solid #ddd6fe;color:#7c3aed;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">New</span>
-                        </div>
-                        <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Password bhool
-                            gaye? Ab email se reset kar sakte ho. Spam/junk folder zaroor check karo.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div style="padding:14px 20px 18px;border-top:1px solid #f1f5f9;background:#ffffff;flex-shrink:0;">
-            <button onclick="closeWhatsNew()"
-                style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;font-size:11px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 25px rgba(99,102,241,0.35);transition:all 0.25s;margin-bottom:12px;"
-                onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 30px rgba(99,102,241,0.45)'"
-                onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 25px rgba(99,102,241,0.35)'">
-                Got It, Let&#39;s Go! &#x1F680;
-            </button>
-            <div style="display:flex;align-items:center;justify-content:center;">
-                <label style="display:flex;align-items:center;gap:7px;cursor:pointer;">
-                    <input type="checkbox" id="whatsNewDontShow"
-                        style="accent-color:#6366f1;width:13px;height:13px;cursor:pointer;">
-                    <span
-                        style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;">Don&#39;t
-                        show again for this version</span>
-                </label>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    @keyframes wn-pulse {
-
-        0%,
-        100% {
-            opacity: 1;
-            box-shadow: 0 0 10px rgba(139, 92, 246, 0.7)
-        }
-
-        50% {
-            opacity: 0.4;
-            box-shadow: 0 0 4px rgba(139, 92, 246, 0.2)
-        }
-    }
-
-    @keyframes wn-shimmer {
-        0% {
-            background-position: 0% 0%
-        }
-
-        100% {
-            background-position: 200% 0%
-        }
-    }
-
-    @keyframes wn-fadeIn {
-        from {
-            opacity: 0
-        }
-
-        to {
-            opacity: 1
-        }
-    }
-
-    @keyframes wn-slideUp {
-        from {
-            transform: translateY(40px) scale(0.96);
-            opacity: 0
-        }
-
-        to {
-            transform: translateY(0) scale(1);
-            opacity: 1
-        }
-    }
-
-    #whatsNewOverlay.wn-visible {
-        animation: wn-fadeIn 0.3s ease both;
-    }
-
-    #whatsNewCard.wn-visible {
-        animation: wn-slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    #whatsNewOverlay .custom-scrollbar::-webkit-scrollbar {
-        width: 3px;
-    }
-
-    #whatsNewOverlay .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    #whatsNewOverlay .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #e2e8f0;
-        border-radius: 4px;
-    }
-</style>
-
-<script>
-    const WHATS_NEW_VERSION = 'v3.5_mar2026';
-    function showWhatsNew() {
-        if (localStorage.getItem('whatsNew_perm_' + WHATS_NEW_VERSION)) return;
-        if (sessionStorage.getItem('whatsNew_shown_' + WHATS_NEW_VERSION)) return;
-        const overlay = document.getElementById('whatsNewOverlay');
-        const card = document.getElementById('whatsNewCard');
-        if (overlay) {
-            overlay.style.display = 'flex';
-            setTimeout(() => { overlay.classList.add('wn-visible'); if (card) card.classList.add('wn-visible'); }, 10);
-            sessionStorage.setItem('whatsNew_shown_' + WHATS_NEW_VERSION, '1');
-        }
-    }
-    function closeWhatsNew() {
-        const overlay = document.getElementById('whatsNewOverlay');
-        const card = document.getElementById('whatsNewCard');
-        if (!overlay) return;
-        if (card) { card.style.transition = 'transform 0.2s ease,opacity 0.2s ease'; card.style.transform = 'translateY(16px) scale(0.97)'; card.style.opacity = '0'; }
-        overlay.style.transition = 'opacity 0.2s ease'; overlay.style.opacity = '0';
-        setTimeout(() => {
-            overlay.style.display = 'none'; overlay.style.opacity = ''; overlay.style.transition = '';
-            if (card) { card.style.transform = ''; card.style.opacity = ''; card.style.transition = ''; }
-            overlay.classList.remove('wn-visible'); if (card) card.classList.remove('wn-visible');
-        }, 220);
-        const cb = document.getElementById('whatsNewDontShow');
-        if (cb && cb.checked) localStorage.setItem('whatsNew_perm_' + WHATS_NEW_VERSION, '1');
-    }
-    document.getElementById('whatsNewOverlay').addEventListener('click', function (e) { if (e.target === this) closeWhatsNew(); });
-</script>
+    <!-- ===================== WHAT'S NEW MODAL (Premium Light Redesign) ===================== -->
+
+    <div id="whatsNewOverlay"
+        style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:16px;">
+
+
+
+        <div id="whatsNewCard"
+            style="background:#ffffff;border-radius:24px;width:100%;max-width:580px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 80px -20px rgba(15,23,42,0.3),0 0 0 1px rgba(226,232,240,0.8);position:relative;">
+
+
+
+            <!-- Top animated gradient line -->
+
+            <div
+                style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#6366f1,#8b5cf6,#a855f7,#ec4899,#8b5cf6,#6366f1);z-index:10;background-size:200% 100%;animation:wn-shimmer 3s linear infinite;">
+
+            </div>
+
+
+
+            <!-- HEADER -->
+
+            <div style="position:relative;padding:30px 28px 24px;overflow:hidden;flex-shrink:0;">
+
+                <!-- Soft gradient background -->
+
+                <div
+                    style="position:absolute;inset:0;background:linear-gradient(135deg,#f5f3ff 0%,#eff6ff 50%,#fdf4ff 100%);">
+
+                </div>
+
+                <!-- Decorative orbs -->
+
+                <div
+                    style="position:absolute;top:-50px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(139,92,246,0.12) 0%,transparent 70%);">
+
+                </div>
+
+                <div
+                    style="position:absolute;bottom:-40px;left:-20px;width:160px;height:160px;background:radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 70%);">
+
+                </div>
+
+
+
+                <div style="position:relative;z-index:2;">
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+
+                        <div style="display:flex;align-items:center;gap:8px;">
+
+                            <div
+                                style="width:7px;height:7px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 10px rgba(139,92,246,0.7);animation:wn-pulse 2s infinite;">
+
+                            </div>
+
+                            <span
+                                style="font-size:9px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:#7c3aed;">Live
+
+                                Updates</span>
+
+                            <span
+                                style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#7c3aed;font-size:8px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;">v3.5
+
+                                &bull; March 2026</span>
+
+                        </div>
+
+                        <button onclick="closeWhatsNew()"
+                            style="background:rgba(100,116,139,0.08);border:1px solid rgba(100,116,139,0.15);color:#94a3b8;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;"
+                            onmouseover="this.style.background='rgba(100,116,139,0.15)';this.style.color='#475569'"
+                            onmouseout="this.style.background='rgba(100,116,139,0.08)';this.style.color='#94a3b8'">&#x2715;</button>
+
+                    </div>
+
+
+
+                    <h2
+                        style="color:#0f172a;font-size:28px;font-weight:900;letter-spacing:-0.045em;margin:0 0 6px;line-height:1;">
+
+                        What&#39;s New &#x1F389;</h2>
+
+                    <p style="color:#64748b;font-size:11px;font-weight:500;margin:0 0 16px;line-height:1.5;">NAVTTC LMS
+                        ke
+
+                        naye features aur improvements — ab aap ke liye available hain.</p>
+
+
+
+                    <div style="display:flex;gap:5px;flex-wrap:wrap;">
+
+                        <span
+                            style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:#7c3aed;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F4CB;
+
+                            Tasks</span>
+
+                        <span
+                            style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:#2563eb;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F4BB;
+
+                            Code Editor</span>
+
+                        <span
+                            style="background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);color:#db2777;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F3AE;
+
+                            Arcade</span>
+
+                        <span
+                            style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#16a34a;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F527;
+
+                            Bug Fixes</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div
+                style="height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,#c7d2fe,#e2e8f0,transparent);flex-shrink:0;">
+
+            </div>
+
+
+
+            <!-- SCROLLABLE BODY -->
+
+            <div style="overflow-y:auto;flex:1;padding:20px 22px 8px;background:#fafafa;" class="custom-scrollbar">
+
+
+
+                <!-- Tasks Section -->
+
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+
+                    <div style="height:1px;width:12px;background:#e2e8f0;"></div>
+
+                    <span
+                        style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">Tasks
+
+                        &amp; Grading</span>
+
+                    <div style="height:1px;flex:1;background:#e2e8f0;"></div>
+
+                </div>
+
+
+
+                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
+
+
+
+                    <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
+                        onmouseover="this.style.borderColor='rgba(139,92,246,0.4)';this.style.boxShadow='0 4px 16px rgba(139,92,246,0.08)'"
+                        onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+
+                        <div
+                            style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+
+                            &#x1F4CE;</div>
+
+                        <div style="flex:1;min-width:0;">
+
+                            <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
+
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">File Upload Support
+                                </p>
+
+                                <span
+                                    style="background:#ede9fe;border:1px solid #ddd6fe;color:#7c3aed;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">New</span>
+
+                            </div>
+
+                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Ab HTML,
+                                CSS,
+
+                                JS, Python, C++ aur C files directly task ke saath submit kar sakte ho.</p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
+                        onmouseover="this.style.borderColor='rgba(34,197,94,0.4)';this.style.boxShadow='0 4px 16px rgba(34,197,94,0.08)'"
+                        onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+
+                        <div
+                            style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+
+                            &#x1F4CA;</div>
+
+                        <div style="flex:1;min-width:0;">
+
+                            <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
+
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Accurate Grade
+                                    Averages
+
+                                </p>
+
+                                <span
+                                    style="background:#dcfce7;border:1px solid #bbf7d0;color:#16a34a;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Fixed</span>
+
+                            </div>
+
+                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Task
+                                scores
+
+                                aur leaderboard rankings ab sahi calculate hoti hain — galat percentages ka masla hal ho
+
+                                gaya.</p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
+                        onmouseover="this.style.borderColor='rgba(234,179,8,0.4)';this.style.boxShadow='0 4px 16px rgba(234,179,8,0.08)'"
+                        onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+
+                        <div
+                            style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#fef9c3,#fde68a);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+
+                            &#x1F4C4;</div>
+
+                        <div style="flex:1;min-width:0;">
+
+                            <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
+
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Improved PDF Reports
+                                </p>
+
+                                <span
+                                    style="background:#fef9c3;border:1px solid #fde68a;color:#ca8a04;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Improved</span>
+
+                            </div>
+
+                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">
+                                Performance
+
+                                reports mein ab cleaner layout, proper instructor remarks aur professional signature.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Code Editor Section -->
+
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+
+                    <div style="height:1px;width:12px;background:#e2e8f0;"></div>
+
+                    <span
+                        style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">Developer
+
+                        Workbench</span>
+
+                    <div style="height:1px;flex:1;background:#e2e8f0;"></div>
+
+                </div>
+
+
+
+                <div
+                    style="border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:16px;background:#ffffff;">
+
+
+
+                    <!-- Autocomplete -->
+
+                    <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9;">
+
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+
+                            <div
+                                style="min-width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">
+
+                                &#x1F9E0;</div>
+
+                            <div style="flex:1;">
+
+                                <p style="font-size:11px;font-weight:800;color:#1e293b;margin:0 0 1px;">Smart
+
+                                    Auto-Suggestions</p>
+
+                                <p style="font-size:9px;color:#94a3b8;margin:0;">Jaise hi type karo, editor suggest
+                                    karta
+
+                                    hai</p>
+
+                            </div>
+
+                            <span
+                                style="background:#dbeafe;border:1px solid #bfdbfe;color:#2563eb;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0;">New</span>
+
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+
+                            <div
+                                style="background:#f8fafc;border-radius:10px;padding:8px 10px;border:1px solid #e2e8f0;">
+
+                                <p
+                                    style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#6366f1;margin:0 0 6px;">
+
+                                    &#x1F3F7; HTML Tags</p>
+
+                                <div style="display:flex;flex-wrap:wrap;gap:3px;"><code
+                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">div</code><code
+                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">p</code><code
+                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">h1-h6</code><code
+                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">a</code><code
+                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">img</code><code
+                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">input</code><code
+                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">button</code><code
+                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">ul/li</code><code
+                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">nav</code><code
+                                        style="background:#e0e7ff;color:#4338ca;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #c7d2fe;">+10</code>
+
+                                </div>
+
+                            </div>
+
+                            <div
+                                style="background:#f8fafc;border-radius:10px;padding:8px 10px;border:1px solid #e2e8f0;">
+
+                                <p
+                                    style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#059669;margin:0 0 6px;">
+
+                                    &#x1F3A8; CSS Properties</p>
+
+                                <div style="display:flex;flex-wrap:wrap;gap:3px;"><code
+                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">color</code><code
+                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">background</code><code
+                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">margin</code><code
+                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">padding</code><code
+                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">font-size</code><code
+                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">display</code><code
+                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">flex</code><code
+                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">box-shadow</code><code
+                                        style="background:#d1fae5;color:#065f46;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #6ee7b7;">+20</code>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div
+                            style="padding:7px 10px;background:#f0f9ff;border-radius:8px;border:1px solid #bae6fd;font-size:9px;color:#0369a1;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+
+                            <span>&#x1F4A1;</span>
+
+                            <span>Navigate: <kbd
+                                    style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:4px;padding:0 5px;font-size:8px;color:#0c4a6e;">&#x2191;&#x2193;</kbd></span>
+
+                            <span>Select: <kbd
+                                    style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:4px;padding:0 5px;font-size:8px;color:#0c4a6e;">Enter/Tab</kbd></span>
+
+                            <span>Cancel: <kbd
+                                    style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:4px;padding:0 5px;font-size:8px;color:#0c4a6e;">Esc</kbd></span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Shortcuts -->
+
+                    <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9;">
+
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+
+                            <div
+                                style="min-width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#fef3c7,#fde68a);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">
+
+                                &#x2328;</div>
+
+                            <p style="font-size:11px;font-weight:800;color:#1e293b;margin:0;flex:1;">Shortcut Keys</p>
+
+                            <span
+                                style="background:#fef9c3;border:1px solid #fde68a;color:#ca8a04;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0;">New</span>
+
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+
+                                <kbd
+                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Ctrl+Z</kbd><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">Undo</span>
+                            </div>
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+
+                                <kbd
+                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Ctrl+Y</kbd><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">Redo</span>
+                            </div>
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+
+                                <kbd
+                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Ctrl+/</kbd><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">Comment line</span>
+                            </div>
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+
+                                <kbd
+                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Shift+Enter</kbd><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">Run Code</span>
+                            </div>
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+
+                                <kbd
+                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Tab</kbd><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">Indent / Snippet</span>
+                            </div>
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+
+                                <kbd
+                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">(
+
+                                    " ' {</kbd><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">Auto-pair</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Snippets -->
+
+                    <div style="padding:14px 16px;">
+
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+
+                            <div
+                                style="min-width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">
+
+                                &#x26A1;</div>
+
+                            <p style="font-size:11px;font-weight:800;color:#1e293b;margin:0;flex:1;">Quick Snippets
+                                <span style="color:#94a3b8;font-weight:500;font-size:9px;">— Tab se expand karo</span>
+                            </p>
+
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
+
+                                <code
+                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">!</code><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">HTML Boilerplate</span>
+                            </div>
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
+
+                                <code
+                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">link</code><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">CSS Stylesheet</span>
+                            </div>
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
+
+                                <code
+                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">img</code><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">Image tag</span>
+                            </div>
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
+
+                                <code
+                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">btn</code><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">Button element</span>
+                            </div>
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
+
+                                <code
+                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">a</code><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">Anchor link</span>
+                            </div>
+
+                            <div
+                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
+
+                                <code
+                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">script</code><span
+                                    style="font-size:9px;color:#64748b;font-weight:600;">Script tag</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Arcade & Security -->
+
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+
+                    <div style="height:1px;width:12px;background:#e2e8f0;"></div>
+
+                    <span
+                        style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">Arcade
+
+                        &amp; Security</span>
+
+                    <div style="height:1px;flex:1;background:#e2e8f0;"></div>
+
+                </div>
+
+
+
+                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
+
+                    <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
+                        onmouseover="this.style.borderColor='rgba(236,72,153,0.4)';this.style.boxShadow='0 4px 16px rgba(236,72,153,0.08)'"
+                        onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+
+                        <div
+                            style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#fce7f3,#fbcfe8);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+
+                            &#x1F579;</div>
+
+                        <div style="flex:1;min-width:0;">
+
+                            <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
+
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Arcade Game Fixes</p>
+                                <span
+                                    style="background:#dcfce7;border:1px solid #bbf7d0;color:#16a34a;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Fixed</span>
+
+                            </div>
+
+                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Sare
+                                arcade
+
+                                games ab sahi se launch ho rahe hain. Level completion screen professionally polished ho
+
+                                gayi.</p>
+
+                        </div>
+
+                    </div>
+
+                    <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
+                        onmouseover="this.style.borderColor='rgba(34,197,94,0.4)';this.style.boxShadow='0 4px 16px rgba(34,197,94,0.08)'"
+                        onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+
+                        <div
+                            style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+
+                            &#x1F510;</div>
+
+                        <div style="flex:1;min-width:0;">
+
+                            <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
+
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Password Reset via
+                                    Email
+
+                                </p><span
+                                    style="background:#ede9fe;border:1px solid #ddd6fe;color:#7c3aed;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">New</span>
+
+                            </div>
+
+                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Password
+                                bhool
+
+                                gaye? Ab email se reset kar sakte ho. Spam/junk folder zaroor check karo.</p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- FOOTER -->
+
+            <div style="padding:14px 20px 18px;border-top:1px solid #f1f5f9;background:#ffffff;flex-shrink:0;">
+
+                <button onclick="closeWhatsNew()"
+                    style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;font-size:11px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 25px rgba(99,102,241,0.35);transition:all 0.25s;margin-bottom:12px;"
+                    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 30px rgba(99,102,241,0.45)'"
+                    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 25px rgba(99,102,241,0.35)'">
+
+                    Got It, Let&#39;s Go! &#x1F680;
+
+                </button>
+
+                <div style="display:flex;align-items:center;justify-content:center;">
+
+                    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;">
+
+                        <input type="checkbox" id="whatsNewDontShow"
+                            style="accent-color:#6366f1;width:13px;height:13px;cursor:pointer;">
+
+                        <span
+                            style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;">Don&#39;t
+
+                            show again for this version</span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <style>
+        @keyframes wn-pulse {
+
+
+
+            0%,
+
+            100% {
+
+                opacity: 1;
+
+                box-shadow: 0 0 10px rgba(139, 92, 246, 0.7)
+            }
+
+
+
+            50% {
+
+                opacity: 0.4;
+
+                box-shadow: 0 0 4px rgba(139, 92, 246, 0.2)
+            }
+
+        }
+
+
+
+        @keyframes wn-shimmer {
+
+            0% {
+
+                background-position: 0% 0%
+            }
+
+
+
+            100% {
+
+                background-position: 200% 0%
+            }
+
+        }
+
+
+
+        @keyframes wn-fadeIn {
+
+            from {
+
+                opacity: 0
+            }
+
+
+
+            to {
+
+                opacity: 1
+            }
+
+        }
+
+
+
+        @keyframes wn-slideUp {
+
+            from {
+
+                transform: translateY(40px) scale(0.96);
+
+                opacity: 0
+            }
+
+
+
+            to {
+
+                transform: translateY(0) scale(1);
+
+                opacity: 1
+            }
+
+        }
+
+
+
+        #whatsNewOverlay.wn-visible {
+
+            animation: wn-fadeIn 0.3s ease both;
+
+        }
+
+
+
+        #whatsNewCard.wn-visible {
+
+            animation: wn-slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+        }
+
+
+
+        #whatsNewOverlay .custom-scrollbar::-webkit-scrollbar {
+
+            width: 3px;
+
+        }
+
+
+
+        #whatsNewOverlay .custom-scrollbar::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+
+
+        #whatsNewOverlay .custom-scrollbar::-webkit-scrollbar-thumb {
+
+            background: #e2e8f0;
+
+            border-radius: 4px;
+
+        }
+    </style>
+
+
+
+    <script>
+
+        const WHATS_NEW_VERSION = 'v3.5_mar2026';
+
+        function showWhatsNew() {
+
+            if (localStorage.getItem('whatsNew_perm_' + WHATS_NEW_VERSION)) return;
+
+            if (sessionStorage.getItem('whatsNew_shown_' + WHATS_NEW_VERSION)) return;
+
+            const overlay = document.getElementById('whatsNewOverlay');
+
+            const card = document.getElementById('whatsNewCard');
+
+            if (overlay) {
+
+                overlay.style.display = 'flex';
+
+                setTimeout(() => { overlay.classList.add('wn-visible'); if (card) card.classList.add('wn-visible'); }, 10);
+
+                sessionStorage.setItem('whatsNew_shown_' + WHATS_NEW_VERSION, '1');
+
+            }
+
+        }
+
+        function closeWhatsNew() {
+
+            const overlay = document.getElementById('whatsNewOverlay');
+
+            const card = document.getElementById('whatsNewCard');
+
+            if (!overlay) return;
+
+            if (card) { card.style.transition = 'transform 0.2s ease,opacity 0.2s ease'; card.style.transform = 'translateY(16px) scale(0.97)'; card.style.opacity = '0'; }
+
+            overlay.style.transition = 'opacity 0.2s ease'; overlay.style.opacity = '0';
+
+            setTimeout(() => {
+
+                overlay.style.display = 'none'; overlay.style.opacity = ''; overlay.style.transition = '';
+
+                if (card) { card.style.transform = ''; card.style.opacity = ''; card.style.transition = ''; }
+
+                overlay.classList.remove('wn-visible'); if (card) card.classList.remove('wn-visible');
+
+            }, 220);
+
+            const cb = document.getElementById('whatsNewDontShow');
+
+            if (cb && cb.checked) localStorage.setItem('whatsNew_perm_' + WHATS_NEW_VERSION, '1');
+
+        }
+
+        document.getElementById('whatsNewOverlay').addEventListener('click', function (e) { if (e.target === this) closeWhatsNew(); });
+
+    </script>
     </script>
 
 
