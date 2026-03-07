@@ -10791,13 +10791,33 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             }
 
             const senderEmail = "lmsnavttc@gmail.com";
-            const apiKey = "YOUR_API_KEY".trim();
+            
+            showToast(`Loading API Settings...`);
+
+            // SECURITY MEASURE: Pull API Key Securely from Supabase Database
+            let apiKey = null;
+            try {
+                const { data, error } = await client
+                    .from('system_settings')
+                    .select('value')
+                    .eq('key', 'brevo_api_key')
+                    .single();
+
+                if (error) throw error;
+                if (!data || !data.value) throw new Error("API Key empty in database");
+
+                apiKey = data.value.trim();
+            } catch (err) {
+                console.error("Supabase Settings Error:", err);
+                showToast("System Error: Could not retrieve Brevo API Key from database. Please run your SQL script.");
+                return;
+            }
 
             showToast(`Dispatching emails to ${targetStudents.length} students... Please wait.`);
 
             try {
                 const bccList = targetStudents.map(u => ({ email: u.email, name: u.name || "Student" }));
-
+                
                 const payload = {
                     sender: { name: "NAVTTC-LMS Admin", email: senderEmail },
                     to: [{ email: senderEmail, name: "Admin (BCC Broadcast)" }],
@@ -10834,7 +10854,13 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 } else {
                     const errData = await response.json();
                     console.error("Brevo API Error:", errData);
-                    showToast("Failed to send: " + (errData.message || response.statusText));
+                    
+                    if(response.status === 401) {
+                        localStorage.removeItem('BREVO_API_KEY');
+                        showToast("Error: API Key is invalid or expired. Please click 'Notify All' again and enter a valid key.");
+                    } else {
+                        showToast("Failed to send: " + (errData.message || response.statusText));
+                    }
                 }
             } catch (err) {
                 console.error("Fetch Error:", err);
