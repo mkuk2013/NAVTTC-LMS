@@ -8,6 +8,10 @@ CREATE TABLE IF NOT EXISTS system_settings (
 -- Enable Row Level Security (RLS)
 ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist so the script can be re-run safely
+DROP POLICY IF EXISTS "Allow authenticated users to read settings" ON system_settings;
+DROP POLICY IF EXISTS "Allow authenticated users to insert/update settings" ON system_settings;
+
 -- Allow all authenticated users to read the key
 -- (The notifyAllStudents function needs this to grab the key)
 CREATE POLICY "Allow authenticated users to read settings" 
