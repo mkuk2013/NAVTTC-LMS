@@ -4074,61 +4074,7 @@
         </div>
     </div>
 
-    <!-- Brevo Email Config Modal (Admin) -->
-    <div class="modal fade" id="brevoConfigModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered max-w-md">
-            <div class="modal-content v-card border-0 shadow-2xl overflow-hidden bg-white dark:bg-[#1e293b]">
-                <div class="bg-indigo-600 px-6 py-4 flex justify-between items-center relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
-                    </div>
-                    <h5
-                        class="font-black text-white uppercase tracking-widest text-sm relative z-10 flex items-center gap-2">
-                        <i data-lucide="mail-check" class="w-4 h-4 text-indigo-300"></i> Dispatch Emails (Brevo)
-                    </h5>
-                    <button type="button" class="text-white hover:text-indigo-200 transition-colors relative z-10 p-1"
-                        data-bs-dismiss="modal">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-                <div class="p-8">
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed mb-6">
-                        Please provide your Brevo Sender Details. This connects directly to the Brevo API to broadcast
-                        reminders.
-                    </p>
-                    <form id="brevo-config-form" class="space-y-5">
-                        <div class="space-y-2">
-                            <label class="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Verified
-                                Sender Email</label>
-                            <div class="relative">
-                                <i data-lucide="at-sign" class="absolute left-4 top-3.5 w-4 h-4 text-slate-400"></i>
-                                <input type="email" id="brevo-sender-email" required
-                                    class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:font-normal placeholder:text-slate-400 dark:text-white"
-                                    placeholder="e.g. admin@navttc.com" value="lmsnavttc@gmail.com">
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Brevo API
-                                Key (v3)</label>
-                            <div class="relative">
-                                <i data-lucide="key" class="absolute left-4 top-3.5 w-4 h-4 text-slate-400"></i>
-                                <input type="password" id="brevo-api-key" required
-                                    class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:font-normal placeholder:text-slate-400 dark:text-white"
-                                    placeholder="xkeysib-..."
-                                    value="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">
-                            </div>
-                        </div>
-                        <div class="pt-2 text-right">
-                            <button type="submit" id="brevo-submit-btn"
-                                class="px-6 py-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all text-xs font-black uppercase tracking-widest flex items-center gap-2 w-full justify-center">
-                                <i data-lucide="send" class="w-4 h-4"></i> Send Broadcast
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Create Resource Modal (Admin) -->
     <div class="modal fade" id="createResourceModal" tabindex="-1">
@@ -10830,7 +10776,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             const users = window.allUsersCache || [];
             const tasks = window.allTasks || [];
             const subs = window.allSubmissions || [];
-            
+
             // Get students with pending tasks
             const targetStudents = users.filter(u => {
                 if (u.role !== 'student' || !u.email) return false;
@@ -10851,7 +10797,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
             try {
                 const bccList = targetStudents.map(u => ({ email: u.email, name: u.name || "Student" }));
-                
+
                 const payload = {
                     sender: { name: "NAVTTC-LMS Admin", email: senderEmail },
                     to: [{ email: senderEmail, name: "Admin (BCC Broadcast)" }],
