@@ -10773,17 +10773,21 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             }
         };
 
+
         window.notifyAllStudents = async () => {
+            const ADMIN_EMAIL = 'lmsnavttc@gmail.com';
             const users = window.allUsersCache || [];
             const tasks = window.allTasks || [];
             const subs = window.allSubmissions || [];
 
-            // Get students with pending tasks
+            // Build list: students (not admin), who have pending tasks
             const targetStudents = users.filter(u => {
                 if (u.role !== 'student' || !u.email) return false;
+                if (u.email.trim().toLowerCase() === ADMIN_EMAIL) return false; // ← skip admin
                 const uId = u.uid || u.id;
-                const studentSubs = subs.filter(s => s.student_id === uId);
-                return tasks.length > studentSubs.length;
+                const submittedTaskIds = subs.filter(s => s.student_id === uId).map(s => s.task_id);
+                const pending = tasks.filter(t => !submittedTaskIds.includes(t.id));
+                return pending.length > 0;
             });
 
             if (targetStudents.length === 0) {
@@ -10791,11 +10795,10 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 return;
             }
 
-            const senderEmail = "lmsnavttc@gmail.com";
-
+            const senderEmail = ADMIN_EMAIL;
             showToast(`Loading API Settings...`);
 
-            // SECURITY MEASURE: Pull API Key Securely from Supabase Database
+            // Securely pull API key from Supabase
             let apiKey = null;
             try {
                 const { data, error } = await client
@@ -10803,10 +10806,8 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                     .select('value')
                     .eq('key', 'brevo_api_key')
                     .single();
-
                 if (error) throw error;
                 if (!data || !data.value) throw new Error("API Key empty in database");
-
                 apiKey = data.value.trim();
             } catch (err) {
                 console.error("Supabase Settings Error:", err);
@@ -10814,92 +10815,127 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 return;
             }
 
-            showToast(`Dispatching emails to ${targetStudents.length} students... Please wait.`);
+            showToast(`Dispatching personalized emails to ${targetStudents.length} students... Please wait.`);
 
-            try {
-                const bccList = targetStudents.map(u => ({ email: u.email, name: u.name || "Student" }));
+            let successCount = 0;
+            const emailHeader = `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f4f5; padding: 20px; border-radius: 12px;">
+    <!-- Header with Logo -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://navttc-lms.netlify.app/assets/logo.png" alt="NAVTTC Logo" style="max-height: 80px;">
+        <h2 style="color: #4f46e5; margin-top: 10px; font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">NAVTTC LMS <span style="background: #4f46e5; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 20px; vertical-align: middle; letter-spacing: 1px;">V2.0</span></h2>
+    </div>`;
 
-                const payload = {
-                    sender: { name: "NAVTTC-LMS Admin", email: senderEmail },
-                    to: [{ email: senderEmail, name: "Admin (BCC Broadcast)" }],
-                    bcc: bccList,
-                    subject: "Action Required: Complete Your Pending Tasks on NAVTTC-LMS",
-                    htmlContent: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f4f5; padding: 20px; border-radius: 12px;">
-                    <!-- Header with Logo -->
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <img src="https://navttc-lms.netlify.app/assets/logo.png" alt="NAVTTC Logo" style="max-height: 80px;">
-                        <h2 style="color: #4f46e5; margin-top: 10px; font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">NAVTTC LMS <span style="background: #4f46e5; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 20px; vertical-align: middle; letter-spacing: 1px;">V2.0</span></h2>
-                    </div>
+            for (const u of targetStudents) {
+                const uId = u.uid || u.id;
+                const submittedTaskIds = subs.filter(s => s.student_id === uId).map(s => s.task_id);
+                const pendingTasks = tasks.filter(t => !submittedTaskIds.includes(t.id));
 
-                    <!-- Main Content Card -->
-                    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-top: 4px solid #4f46e5;">
-                        <h3 style="color: #1e293b; margin-top: 0;">📢 Task Reminder</h3>
-                        
-                        <p style="color: #334155; line-height: 1.6;">Dear Students,</p>
-                        
-                        <p style="color: #334155; line-height: 1.6;">
-                            This is a friendly reminder from the <strong>NAVTTC-LMS Administration</strong> to please log into the LMS portal and complete your <strong>pending assigned tasks</strong> as soon as possible.
-                        </p>
+                // Build pending task rows
+                const taskRows = pendingTasks.map((t, i) => {
+                    const deadline = t.deadline ? new Date(t.deadline).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No Deadline';
+                    return `<tr>
+                        <td style="padding: 8px 12px; font-weight: bold; color: #1e293b; border-bottom: 1px solid #e2e8f0;">${i + 1}. ${t.title || t.name || 'Untitled Task'}</td>
+                        <td style="padding: 8px 12px; color: #ef4444; font-weight: bold; border-bottom: 1px solid #e2e8f0; white-space: nowrap;">⏰ ${deadline}</td>
+                    </tr>`;
+                }).join('');
 
-                        <div style="background-color: #fef9c3; border-left: 4px solid #eab308; padding: 15px; margin: 20px 0; border-radius: 4px;">
-                            <p style="margin: 0; color: #854d0e; font-size: 14px;">
-                                ⏰ Timely submission is important to keep your progress up to date and ensure smooth course completion.
-                            </p>
-                        </div>
-                        
-                        <p style="color: #334155; line-height: 1.6;">
-                            If you face any issue while accessing the portal, please contact the administration for assistance.
-                        </p>
-                        
-                        <p style="margin-top: 30px;">
-                            <a href="https://navttc-lms.netlify.app" style="display: inline-block; background-color: #4f46e5; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; letter-spacing: 0.5px;">🔗 Access LMS Portal</a>
-                        </p>
-                        
-                        <p style="color: #64748b; margin-top: 30px; font-size: 14px;">
-                            Thank you for your cooperation.<br>
-                            <strong>NAVTTC-LMS Administration</strong>
-                        </p>
-                    </div>
-                </div>
-            `
-                };
+                const htmlContent = `${emailHeader}
+    <!-- Main Content Card -->
+    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-top: 4px solid #4f46e5;">
+        <h3 style="color: #1e293b; margin-top: 0;">📢 Task Reminder</h3>
+        <p style="color: #334155; line-height: 1.6;">Dear <strong>${u.name || 'Student'}</strong>,</p>
+        <p style="color: #334155; line-height: 1.6;">
+            This is a friendly reminder from the <strong>NAVTTC-LMS Administration</strong>. You have <strong>${pendingTasks.length} pending task(s)</strong> that need to be completed as soon as possible.
+        </p>
+        <!-- Pending Tasks Table -->
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 20px 0;">
+            <div style="background-color: #4f46e5; padding: 10px 16px;">
+                <p style="margin: 0; color: #fff; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">📋 Your Pending Tasks</p>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="background-color: #f1f5f9;">
+                        <th style="padding: 8px 12px; text-align: left; color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Task</th>
+                        <th style="padding: 8px 12px; text-align: left; color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Deadline</th>
+                    </tr>
+                </thead>
+                <tbody>${taskRows}</tbody>
+            </table>
+        </div>
+        
+        <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #991b1b; font-size: 14px; font-weight: bold;">
+                ⚠️ Note: You only have one week left to submit your pending tasks. After this period, the tasks will disappear from the system, so please complete them before time runs out!
+            </p>
+        </div>
 
-                const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-                    method: "POST",
-                    headers: {
-                        "accept": "application/json",
-                        "api-key": apiKey,
-                        "content-type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
+        <div style="background-color: #fef9c3; border-left: 4px solid #eab308; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #854d0e; font-size: 14px;">
+                ⏰ Timely submission is important to keep your progress up to date and ensure smooth course completion.
+            </p>
+        </div>
+        <p style="color: #334155; line-height: 1.6;">
+            If you face any issue while accessing the portal, please contact the administration for assistance.
+        </p>
+        <p style="margin-top: 30px;">
+            <a href="https://navttc-lms.netlify.app" style="display: inline-block; background-color: #4f46e5; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; letter-spacing: 0.5px;">🔗 Access LMS Portal</a>
+        </p>
+        <p style="color: #64748b; margin-top: 30px; font-size: 14px;">
+            Thank you for your cooperation.<br>
+            <strong>NAVTTC-LMS Administration</strong>
+        </p>
+    </div>
+</div>`;
 
-                if (response.ok) {
-                    showToast(`Success: Emails dispatched to ${bccList.length} students!`);
-                } else {
-                    const errData = await response.json();
-                    console.error("Brevo API Error:", errData);
-
-                    if (response.status === 401) {
-                        localStorage.removeItem('BREVO_API_KEY');
-                        showToast("Error: API Key is invalid or expired. Please click 'Notify All' again and enter a valid key.");
+                try {
+                    const payload = {
+                        sender: { name: "NAVTTC-LMS Admin", email: senderEmail },
+                        to: [{ email: u.email, name: u.name || "Student" }],
+                        subject: `Action Required: You have ${pendingTasks.length} Pending Task(s) on NAVTTC-LMS`,
+                        htmlContent
+                    };
+                    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+                        method: "POST",
+                        headers: { "accept": "application/json", "api-key": apiKey, "content-type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) {
+                        successCount++;
                     } else {
-                        showToast("Failed to send: " + (errData.message || response.statusText));
+                        const errData = await response.json();
+                        console.error(`Brevo error for ${u.email}:`, errData);
+                        if (response.status === 401) {
+                            showToast("Error: API Key is invalid or expired.");
+                            return;
+                        }
                     }
+                } catch (err) {
+                    console.error(`Fetch error for ${u.email}:`, err);
                 }
-            } catch (err) {
-                console.error("Fetch Error:", err);
-                showToast("Network error while contacting Brevo API.");
             }
+            showToast(`✅ Notifications sent to ${successCount} of ${targetStudents.length} students!`);
         };
+
 
         // ── PER-STUDENT NOTIFY ──────────────────────────────────────────────────
         window.notifyOneStudent = async (userId, email, name) => {
+            const ADMIN_EMAIL = 'lmsnavttc@gmail.com';
             if (!email) { showToast('No email found for this student.'); return; }
+            if (email.trim().toLowerCase() === ADMIN_EMAIL) {
+                showToast('⚠️ Cannot send notification to admin email.'); return;
+            }
 
-            const senderEmail = 'lmsnavttc@gmail.com';
+            const tasks = window.allTasks || [];
+            const subs = window.allSubmissions || [];
+            const submittedTaskIds = subs.filter(s => s.student_id === userId).map(s => s.task_id);
+            const pendingTasks = tasks.filter(t => !submittedTaskIds.includes(t.id));
 
+            if (pendingTasks.length === 0) {
+                showToast(`✅ ${name} has no pending tasks!`); return;
+            }
+
+            const senderEmail = ADMIN_EMAIL;
             showToast('Loading API Settings...');
 
             // Pull API key securely from Supabase
@@ -10921,11 +10957,22 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
             showToast(`Sending notification to ${name}...`);
 
+            // Build pending task rows
+            const taskRows = pendingTasks.map((t, i) => {
+                const deadline = t.deadline
+                    ? new Date(t.deadline).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : 'No Deadline';
+                return `<tr>
+                    <td style="padding: 8px 12px; font-weight: bold; color: #1e293b; border-bottom: 1px solid #e2e8f0;">${i + 1}. ${t.title || t.name || 'Untitled Task'}</td>
+                    <td style="padding: 8px 12px; color: #ef4444; font-weight: bold; border-bottom: 1px solid #e2e8f0; white-space: nowrap;">⏰ ${deadline}</td>
+                </tr>`;
+            }).join('');
+
             try {
                 const payload = {
                     sender: { name: 'NAVTTC-LMS Admin', email: senderEmail },
                     to: [{ email: email, name: name || 'Student' }],
-                    subject: 'Action Required: Complete Your Pending Tasks on NAVTTC-LMS',
+                    subject: `Action Required: You have ${pendingTasks.length} Pending Task(s) on NAVTTC-LMS`,
                     htmlContent: `
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f4f5; padding: 20px; border-radius: 12px;">
     <!-- Header with Logo -->
@@ -10938,8 +10985,30 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         <h3 style="color: #1e293b; margin-top: 0;">📢 Personal Task Reminder</h3>
         <p style="color: #334155; line-height: 1.6;">Dear <strong>${name || 'Student'}</strong>,</p>
         <p style="color: #334155; line-height: 1.6;">
-            This is a personal reminder from the <strong>NAVTTC-LMS Administration</strong> to please log into the LMS portal and complete your <strong>pending assigned tasks</strong> as soon as possible.
+            This is a personal reminder from the <strong>NAVTTC-LMS Administration</strong>. You have <strong>${pendingTasks.length} pending task(s)</strong> that need to be completed as soon as possible.
         </p>
+        <!-- Pending Tasks Table -->
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 20px 0;">
+            <div style="background-color: #4f46e5; padding: 10px 16px;">
+                <p style="margin: 0; color: #fff; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">📋 Your Pending Tasks</p>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="background-color: #f1f5f9;">
+                        <th style="padding: 8px 12px; text-align: left; color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Task</th>
+                        <th style="padding: 8px 12px; text-align: left; color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Deadline</th>
+                    </tr>
+                </thead>
+                <tbody>${taskRows}</tbody>
+            </table>
+        </div>
+
+        <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #991b1b; font-size: 14px; font-weight: bold;">
+                ⚠️ Note: You only have one week left to submit your pending tasks. After this period, the tasks will disappear from the system, so please complete them before time runs out!
+            </p>
+        </div>
+
         <div style="background-color: #fef9c3; border-left: 4px solid #eab308; padding: 15px; margin: 20px 0; border-radius: 4px;">
             <p style="margin: 0; color: #854d0e; font-size: 14px;">
                 ⏰ Timely submission is important to keep your progress up to date and ensure smooth course completion.
@@ -10961,11 +11030,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
                 const response = await fetch('https://api.brevo.com/v3/smtp/email', {
                     method: 'POST',
-                    headers: {
-                        'accept': 'application/json',
-                        'api-key': apiKey,
-                        'content-type': 'application/json'
-                    },
+                    headers: { 'accept': 'application/json', 'api-key': apiKey, 'content-type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
@@ -10985,6 +11050,8 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 showToast('Network error while contacting Brevo API.');
             }
         };
+        // ────────────────────────────────────────────────────────────────────────
+
         // ────────────────────────────────────────────────────────────────────────
 
         window.approveAllUsers = async () => {
