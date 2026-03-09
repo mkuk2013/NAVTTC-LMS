@@ -14545,8 +14545,18 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
         window.playChatPopSound = () => {
             try {
-                // Short, soft beep using Web Audio API for a premium feel without downloading files
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                // Try playing a small embedded audio element first (better browser compatibility)
+                if (chatPopSound) {
+                    chatPopSound.volume = 0.3;
+                    chatPopSound.currentTime = 0;
+                    chatPopSound.play().catch(() => {});
+                }
+
+                // Fall back to WebAudio for a quick beep (some browsers block AudioContext until user gesture)
+                if (!window.chatAudioContext) {
+                    window.chatAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const ctx = window.chatAudioContext;
                 if (!ctx) return;
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
@@ -14605,6 +14615,14 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 win.classList.add('opacity-100', 'translate-y-0');
                 document.getElementById('chat-notif-dot').classList.add('hidden');
                 isChatWindowOpen = true;
+                // Ensure audio context is created from a user gesture so future sounds are not blocked.
+                if (!window.chatAudioContext) {
+                    try {
+                        window.chatAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch (e) {
+                        console.warn('Audio context not available yet', e);
+                    }
+                }
                 window.dismissChatTooltip();
                 scrollToBottom();
             }
@@ -14753,8 +14771,9 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                     lastDateStr = dateStr;
                 }
 
-                // Read Receipt Icon
-                const readReceiptHTML = isMine ? `<i data-lucide="check-check" class="w-3 h-3 inline-block ml-0.5 text-indigo-400/80"></i>` : '';
+                // Read Receipt Ticks for outgoing messages
+                // Using simple unicode ticks so it works even if icon set isn't loaded
+                const readReceiptHTML = isMine ? `<span class="text-indigo-400/80 ml-0.5">✓✓</span>` : '';
 
                 const bubble = `
                     <div class="flex ${isMine ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -14894,9 +14913,13 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                     // Message from Admin to Me
                     fetchAdminChatMessages();
 
-                    if (!document.getElementById('chat-window').classList.contains('opacity-100')) {
+                    const chatWindowEl = document.getElementById('chat-window');
+                    const chatNotifDot = document.getElementById('chat-notif-dot');
+                    const isOpen = chatWindowEl ? chatWindowEl.classList.contains('opacity-100') : false;
+
+                    if (!isOpen) {
                         if (window.playChatPopSound) window.playChatPopSound();
-                        document.getElementById('chat-notif-dot').classList.remove('hidden');
+                        if (chatNotifDot) chatNotifDot.classList.remove('hidden');
                         showToast("💬 New message from Admin!", "success");
                     } else {
                         // Play sound even if open
@@ -15052,13 +15075,16 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 const isAdmin = msg.sender_id === currentUser.id;
                 const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+                // Read Receipt ticks for outgoing (admin) messages
+                const readReceiptHTML = isAdmin ? `<span class="text-indigo-200/80 ml-0.5">✓✓</span>` : '';
+
                 const bubble = `
                     <div class="flex ${isAdmin ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div class="max-w-[85%] group">
                             <div class="px-3.5 py-2.5 rounded-2xl text-[12px] font-medium leading-relaxed shadow-sm transition-all ${isAdmin ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-tr-sm shadow-indigo-500/20 group-hover:shadow-indigo-500/40' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-tl-sm border border-slate-100 dark:border-slate-700/50 group-hover:shadow-md'}">
                                 ${msg.content}
                             </div>
-                            <p class="text-[7px] font-black uppercase text-slate-400 tracking-widest mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${isAdmin ? 'text-right' : 'text-left'}">${time}</p>
+                            <p class="text-[7px] font-black uppercase text-slate-400 tracking-widest mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${isAdmin ? 'text-right' : 'text-left'}">${time} ${readReceiptHTML}</p>
                         </div>
                     </div>
                 `;
