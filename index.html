@@ -2559,6 +2559,13 @@
                         <span id="feedback-notification"
                             class="hidden absolute top-3 right-4 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
                     </button>
+                    <button onclick="switchTab('chat')" id="nav-chat" class="nav-item w-full relative"
+                        data-tooltip="Support Chat">
+                        <i data-lucide="messages-square" class="w-5 h-5"></i>
+                        <span class="hide-on-collapse">Support Chat</span>
+                        <span id="chat-notification-dot"
+                            class="hidden absolute top-3 right-4 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
+                    </button>
                 </div>
             </nav>
 
@@ -3302,6 +3309,132 @@
                     </div>
                 </div>
 
+                <!-- 8. Admin Support Chat Hub -->
+                <div id="view-chat"
+                    class="content-view hidden animate-in slide-in-from-bottom-5 duration-500 h-[calc(100vh-180px)]">
+                    <div class="flex flex-col md:flex-row gap-6 h-full">
+                        <!-- Student List (Left) -->
+                        <div
+                            class="w-full md:w-80 bg-white dark:bg-[#1e293b] rounded-3xl border border-slate-100 dark:border-slate-800 flex flex-col overflow-hidden shadow-xl">
+                            <div
+                                class="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
+                                <div>
+                                    <h4
+                                        class="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-slate-100">
+                                        Live Support</h4>
+                                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Manage
+                                        conversations</p>
+                                </div>
+                                <button onclick="fetchAdminRecentChats()"
+                                    class="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4 text-slate-400"></i>
+                                </button>
+                            </div>
+                            <!-- Search -->
+                            <div class="px-5 py-3 border-b border-slate-50 dark:border-slate-800/50">
+                                <div class="relative">
+                                    <i data-lucide="search"
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
+                                    <input type="text" id="chat-student-search" placeholder="Search student..."
+                                        class="w-full bg-slate-50 dark:bg-slate-900/50 border-none rounded-xl pl-9 pr-4 py-2 text-[10px] font-bold uppercase tracking-tight focus:ring-2 focus:ring-indigo-500/20 text-slate-600 dark:text-slate-300">
+                                </div>
+                            </div>
+                            <!-- List -->
+                            <div id="admin-chat-list" class="flex-1 overflow-y-auto custom-scrollbar">
+                                <div class="p-8 text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center mx-auto mb-3">
+                                        <i data-lucide="users" class="w-5 h-5"></i>
+                                    </div>
+                                    <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Select a
+                                        student to chat</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Area (Right) -->
+                        <div
+                            class="flex-1 bg-white dark:bg-[#1e293b] rounded-3xl border border-slate-100 dark:border-slate-800 flex flex-col overflow-hidden shadow-xl relative">
+                            <div id="admin-chat-empty"
+                                class="absolute inset-0 z-10 bg-white dark:bg-[#1e293b] flex flex-col items-center justify-center p-12 text-center">
+                                <div
+                                    class="w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center mb-6">
+                                    <i data-lucide="message-square" class="w-8 h-8 text-slate-300"></i>
+                                </div>
+                                <h4
+                                    class="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white mb-2">
+                                    No Active Thread</h4>
+                                <p
+                                    class="text-[10px] font-medium text-slate-400 leading-relaxed max-w-xs uppercase tracking-wide">
+                                    Select a student from the sidebar to view their messages or start a new live
+                                    conversation.</p>
+                            </div>
+
+                            <!-- Chat Header (Selected Student) -->
+                            <div id="admin-chat-header"
+                                class="hidden p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="relative">
+                                        <div id="selected-student-avatar"
+                                            class="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center text-lg font-black uppercase">
+                                            S</div>
+                                        <span id="selected-student-online"
+                                            class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-4 border-white dark:border-[#1e293b] bg-slate-400"></span>
+                                    </div>
+                                    <div>
+                                        <h4 id="selected-student-name"
+                                            class="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-slate-100">
+                                            Student Name</h4>
+                                        <p id="selected-student-status"
+                                            class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                                            Offline</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button
+                                        class="p-2.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-colors tooltip"
+                                        data-tip="Clear History">
+                                        <i data-lucide="eraser" class="w-4 h-4 text-slate-400"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Messages Area -->
+                            <div id="admin-hub-messages"
+                                class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-slate-50/20 dark:bg-slate-900/10">
+                                <!-- Messages injected here -->
+                            </div>
+
+                            <!-- Input Area -->
+                            <div id="admin-hub-input-area"
+                                class="hidden p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-[#1e293b] relative">
+                                <!-- Upload Overlay Loader -->
+                                <div id="admin-chat-upload-loader"
+                                    class="absolute inset-0 bg-white/80 dark:bg-[#1e293b]/80 backdrop-blur-sm z-10 hidden flex-col items-center justify-center">
+                                    <i data-lucide="loader-2" class="w-5 h-5 text-indigo-600 animate-spin mb-1"></i>
+                                    <span
+                                        class="text-[8px] font-black uppercase tracking-widest text-indigo-600">Uploading...</span>
+                                </div>
+                                <form id="admin-hub-chat-form" class="flex items-center gap-3">
+                                    <button type="button"
+                                        onclick="document.getElementById('admin-chat-attachment-input').click()"
+                                        class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-slate-100 hover:text-indigo-600 transition-colors shrink-0">
+                                        <i data-lucide="paperclip" class="w-5 h-5"></i>
+                                    </button>
+                                    <input type="file" id="admin-chat-attachment-input" class="hidden"
+                                        onchange="uploadAdminChatAttachment(event)">
+                                    <input type="text" id="admin-hub-chat-input" placeholder="Type your reply..."
+                                        class="flex-1 bg-slate-50 dark:bg-slate-900/50 border-none rounded-2xl px-5 py-3.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-700 dark:text-slate-200">
+                                    <button type="submit" id="admin-hub-chat-submit-btn"
+                                        class="w-12 h-12 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-center hover:shadow-lg hover:shadow-indigo-500/20 transition-all active:scale-95 shrink-0">
+                                        <i data-lucide="send" class="w-5 h-5 ml-0.5 mt-0.5"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!-- Selected Private Chat (Hidden by default, will reuse global chat container if needed) -->
                 <!-- Removing the dedicated inbox view as requested -->
@@ -4035,6 +4168,10 @@
         <button onclick="switchTab('feedback')" id="mob-nav-feedback" class="mobile-nav-btn hidden">
             <i data-lucide="message-circle" class="w-5 h-5"></i>
             <span class="text-[8px] font-black uppercase mt-1">Feedback</span>
+        </button>
+        <button onclick="switchTab('chat')" id="mob-nav-chat" class="mobile-nav-btn hidden">
+            <i data-lucide="messages-square" class="w-5 h-5"></i>
+            <span class="text-[8px] font-black uppercase mt-1">Chat</span>
         </button>
 
         <!-- Profile (Common) -->
@@ -5835,7 +5972,7 @@
 
             // 3. Navigation & Mode Setup
             if (userProfile.role === 'admin') {
-                $('#nav-dashboard, #nav-grading, #nav-users, #nav-leaderboard').removeClass('hidden');
+                $('#nav-dashboard, #nav-grading, #nav-users, #nav-leaderboard, #nav-chat').removeClass('hidden');
                 $('#admin-nav').removeClass('hidden');
                 $('#nav-tasks').removeClass('hidden').html('<i data-lucide="clipboard-list" class="w-5 h-5"></i> <span class="hide-on-collapse">Manage Tasks</span>');
 
@@ -5852,8 +5989,11 @@
                 $('#add-resource-btn').removeClass('hidden');
 
                 // --- MOBILE NAVIGATION ROLE-BASED FIX (ADMIN) ---
-                $('#mob-nav-dashboard, #mob-nav-grading, #mob-nav-users, #mob-nav-feedback, #mob-nav-profile, #mob-nav-resources').removeClass('hidden');
+                $('#mob-nav-dashboard, #mob-nav-grading, #mob-nav-users, #mob-nav-feedback, #mob-nav-profile, #mob-nav-resources, #mob-nav-chat').removeClass('hidden');
                 $('#mob-nav-tasks, #mob-nav-playground, #mob-nav-arcade, #mob-nav-leaderboard').addClass('hidden');
+
+                // Show floating chat icon for admin as well
+                $('#admin-chat-wrapper').removeClass('hidden');
 
             } else {
                 $('#nav-dashboard, #nav-tasks, #nav-leaderboard, #nav-resources, #profile-tab, #nav-arcade, #nav-playground, #nav-verify').removeClass('hidden');
@@ -5871,6 +6011,7 @@
                 // --- MOBILE NAVIGATION ROLE-BASED FIX (STUDENT) ---
                 $('#mob-nav-dashboard, #mob-nav-tasks, #mob-nav-playground, #mob-nav-arcade, #mob-nav-leaderboard, #mob-nav-profile, #mob-nav-resources').removeClass('hidden');
                 $('#mob-nav-grading, #mob-nav-users, #mob-nav-feedback').addClass('hidden');
+                $('#admin-chat-wrapper').removeClass('hidden');
             }
 
             // 4. Load Cached Data & Render Charts (CRITICAL FOR INSTANT FEEL)
@@ -6165,19 +6306,33 @@
             const isStudent = userProfile.role === 'student';
 
             if (isStudent) {
-                const mySubs = subs.filter(s => s.student_id === currentUser.id);
-                const total = tasks.length;
-                const completed = mySubs.filter(s => s.status === 'graded').length;
-                const progressPct = total ? Math.round((mySubs.length / total) * 100) : 0;
-                const avgScore = mySubs.filter(s => s.status === 'graded').reduce((a, b) => a + (parseInt(b.grade) || 0), 0) / (mySubs.filter(s => s.status === 'graded').length || 1);
+                // Apply 1-week visibility rule to stats
+                const cleanupDate = new Date();
+                cleanupDate.setDate(cleanupDate.getDate() - 7);
+                const visibleTasks = tasks.filter(t => new Date(t.created_at) > cleanupDate);
 
-                const pendingCount = tasks.filter(t => {
+                const mySubs = subs.filter(s => s.student_id === currentUser.id);
+                const total = visibleTasks.length;
+                const completed = mySubs.filter(s => {
+                    const taskExists = visibleTasks.find(t => String(t.id) === String(s.task_id));
+                    return taskExists && s.status === 'graded';
+                }).length;
+
+                const progressPct = total ? Math.round((mySubs.filter(s => visibleTasks.find(t => String(t.id) === String(s.task_id))).length / total) * 100) : 0;
+
+                const gradedSubs = mySubs.filter(s => {
+                    const taskExists = visibleTasks.find(t => String(t.id) === String(s.task_id));
+                    return taskExists && s.status === 'graded';
+                });
+                const avgScore = gradedSubs.reduce((a, b) => a + (parseInt(b.grade) || 0), 0) / (gradedSubs.length || 1);
+
+                const pendingCount = visibleTasks.filter(t => {
                     const isSubmitted = mySubs.some(s => String(s.task_id) === String(t.id));
-                    // Also check if it's graded - if so, it's definitely not pending
                     const isGraded = mySubs.some(s => String(s.task_id) === String(t.id) && s.status === 'graded');
                     const isExpired = t.deadline && new Date().getTime() > new Date(t.deadline).getTime();
                     return !isGraded && !isSubmitted && !isExpired;
                 }).length;
+
                 $('#stat-label-1').text("Pending Tasks"); $('#stat-active').text(pendingCount);
                 $('#stat-label-2').text("Completed"); $('#stat-completed').text(completed);
                 $('#stat-label-3').text("Avg. Grade"); $('#stat-score').text(Math.round(avgScore) + '%');
@@ -6417,12 +6572,16 @@
             const container = $('#task-grid').empty();
             let filteredTasks = tasks;
 
-            // 0. Auto-Hide Old Tasks (Clutter Reduction)
-            // Hides tasks created >7 days ago from the main 'All' view, unless searched/filtered specifically
-            if (filter === 'all') {
+            // 0. Auto-Hide Old Tasks (Clutter Reduction) - Global Student Filter
+            if (userProfile.role !== 'admin') {
                 const cleanupDate = new Date();
                 cleanupDate.setDate(cleanupDate.getDate() - 7);
-                filteredTasks = tasks.filter(t => new Date(t.created_at) > cleanupDate);
+                tasks = tasks.filter(t => new Date(t.created_at) > cleanupDate);
+                filteredTasks = tasks;
+            } else if (filter === 'all') {
+                // Admin can still see all tasks, but 'all' filter usually shows recent for cleaner look?
+                // Actually, admins should see everything in 'all' if they want.
+                // Keeping original logic for admin if they choose 'all' specifically.
             }
 
             // 1. Status Filter
@@ -7054,7 +7213,15 @@
                 // Real-time Online Check
                 const isOnline = window.onlineUsers && window.onlineUsers.some(ou => ou.user_id === userId);
 
-                const uSubsRaw = window.allSubmissions.filter(s => s.student_id === userId);
+                // Clutter Reduction: Only count tasks/subs from the last 7 days for student stats
+                const cleanupDate = new Date();
+                cleanupDate.setDate(cleanupDate.getDate() - 7);
+                const visibleTasks = (window.allTasks || []).filter(t => new Date(t.created_at) > cleanupDate);
+                const uSubsRaw = window.allSubmissions.filter(s => {
+                    if (s.student_id !== userId) return false;
+                    // Check if the task for this submission is in the 7-day window
+                    return visibleTasks.some(t => String(t.id) === String(s.task_id));
+                });
 
                 // DEDUPLICATE: Map task_id -> latest submission
                 const uniqueSubsMap = new Map();
@@ -7118,7 +7285,7 @@
                                         ${uSubs.length} Done
                                     </span>
                                     <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-100 dark:border-slate-700" title="Not Attempted">
-                                        ${Math.max(0, (window.allTasks ? window.allTasks.length : 0) - uSubs.length)} Pending
+                                        ${Math.max(0, visibleTasks.length - uSubs.length)} Pending
                                     </span>
                                 </div>
                              </div>
@@ -8449,6 +8616,7 @@
 
             // Chat
             if (tabId === 'chat') {
+                if (userProfile && userProfile.role === 'admin' && typeof window.fetchAdminRecentChats === 'function') window.fetchAdminRecentChats();
                 if (typeof initChat === 'function') initChat();
             } else {
                 if (typeof cleanupChat === 'function') cleanupChat();
@@ -9893,6 +10061,11 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                         window.showOnlineStudentsModal();
                     }
                 }
+
+                // Global Chat Presence Integration
+                if (window.checkAdminOnline) {
+                    window.checkAdminOnline(window.onlineUsers);
+                }
             });
 
             presenceChannel.subscribe(async (status) => {
@@ -10037,6 +10210,39 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                     $(`#${toastId} `).fadeOut(500, function () { $(this).remove(); });
                 }, 6000);
             };
+
+            // Admin Chat Real-time Hub
+            if (userProfile.role === 'admin') {
+                const adminChatHub = client.channel('admin_chat_messages_hub');
+                adminChatHub.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_chat_messages' }, payload => {
+                    // New message anywhere - refresh list or active chat
+                    if (window.fetchAdminRecentChats) window.fetchAdminRecentChats();
+                    if (window.selectedChatStudentId && (payload.new.sender_id === window.selectedChatStudentId || payload.new.receiver_id === window.selectedChatStudentId)) {
+                        window.loadStudentChatMessages(window.selectedChatStudentId);
+                    } else if (payload.new.receiver_id === currentUser.id) {
+                        // Play sound
+                        if (window.playChatPopSound) window.playChatPopSound();
+
+                        // Show notification dot on nav and floating icon
+                        $('#chat-notification-dot, #mob-nav-chat i').addClass('text-rose-500 animate-bounce');
+                        $('#chat-notif-dot').removeClass('hidden');
+
+                        let senderName = "Student";
+                        if (window.allUsersCache) {
+                            const student = window.allUsersCache.find(u => (u.uid || u.id) === payload.new.sender_id);
+                            if (student) senderName = student.full_name || student.name;
+                        }
+
+                        showToast(`💬 ${senderName}: ${payload.new.content}`, "success");
+                    }
+                }).subscribe();
+            }
+
+            // Student Chat Init
+            if (userProfile.role === 'student') {
+                if (window.fetchAdminChatMessages) window.fetchAdminChatMessages();
+                if (window.setupStudentChatRealtime) window.setupStudentChatRealtime();
+            }
         };
 
         window.sendGlobalMessage = async () => {
@@ -10673,10 +10879,25 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                         if (currentTask && currentTask.id === editingTaskId) {
                             currentTask = { ...currentTask, ...data };
                         }
+
+                        // Task Update Notification
+                        if (updatedData && updatedData[0]) {
+                            console.log("Triggering Task Update Notification for:", updatedData[0].title);
+                            await window.notifyStudentsOfTaskUpdate(updatedData[0]);
+                        }
                     } else {
-                        const { error } = await client.from('tasks').insert([data]);
+                        const { data: newData, error } = await client.from('tasks').insert([data]).select();
                         if (error) throw error;
+                        console.log("New Task Created:", newData);
                         showToast("New task created.");
+
+                        // New Task Notification
+                        if (newData && newData[0]) {
+                            console.log("Triggering New Task Notification for:", newData[0].title);
+                            await window.notifyStudentsOfNewTask(newData[0]);
+                        } else {
+                            console.warn("New Task Notification skipped: newData[0] missing.");
+                        }
                     }
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('createTaskModal')).hide();
                     fetchData(); // Refresh list
@@ -10915,6 +11136,199 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 }
             }
             showToast(`✅ Notifications sent to ${successCount} of ${targetStudents.length} students!`);
+        };
+
+
+        window.notifyStudentsOfNewTask = async (taskData) => {
+            const ADMIN_EMAIL = 'lmsnavttc@gmail.com';
+
+            // Ensure cache is populated
+            if (!window.allUsersCache || window.allUsersCache.length === 0) {
+                console.log("allUsersCache empty, pre-fetching users for notification...");
+                await fetchUsers();
+            }
+
+            const users = window.allUsersCache || [];
+
+            // Filter: students (not admin)
+            const targetStudents = users.filter(u => {
+                const email = u.email || u.email_address;
+                if (u.role !== 'student' || !email) return false;
+                if (email.trim().toLowerCase() === ADMIN_EMAIL) return false;
+                return true;
+            });
+
+            if (targetStudents.length === 0) {
+                console.log("No student recipients found for new task notification.");
+                return;
+            }
+
+            // Securely pull API key from Supabase
+            let apiKey = null;
+            try {
+                const { data, error } = await client
+                    .from('system_settings')
+                    .select('value')
+                    .eq('key', 'brevo_api_key')
+                    .single();
+                if (error || !data?.value) {
+                    console.error("Brevo API Key not found in system_settings");
+                    return;
+                }
+                apiKey = data.value.trim();
+            } catch (err) {
+                console.error("Error fetching Brevo API Key:", err);
+                return;
+            }
+
+            const senderEmail = ADMIN_EMAIL;
+            const deadlineStr = taskData.deadline ? new Date(taskData.deadline).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No Deadline';
+
+            const emailHeader = `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f4f5; padding: 20px; border-radius: 12px;">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://navttc-lms.netlify.app/assets/logo.png" alt="NAVTTC Logo" style="max-height: 80px;">
+        <h2 style="color: #4f46e5; margin-top: 10px; font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">NAVTTC LMS <span style="background: #4f46e5; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 20px; vertical-align: middle; letter-spacing: 1px;">V2.0</span></h2>
+    </div>`;
+
+            let successCount = 0;
+            for (const u of targetStudents) {
+                const studentEmail = u.email || u.email_address;
+                const htmlContent = `${emailHeader}
+    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-top: 4px solid #4f46e5;">
+        <h3 style="color: #1e293b; margin-top: 0;">✨ New Task Uploaded</h3>
+        <p style="color: #334155; line-height: 1.6;">Dear <strong>${u.name || 'Student'}</strong>,</p>
+        <p style="color: #334155; line-height: 1.6;">
+            A new task has been uploaded to the <strong>NAVTTC-LMS</strong> portal. Please review the details below and ensure timely submission.
+        </p>
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 20px 0; padding: 20px;">
+            <p style="margin: 0 0 10px; color: #1e293b; font-size: 16px; font-weight: bold;">📝 ${taskData.title || 'Untitled Task'}</p>
+            <p style="margin: 0 0 15px; color: #64748b; font-size: 14px; line-height: 1.5;">${taskData.description || 'No description provided.'}</p>
+            <p style="margin: 0; color: #ef4444; font-weight: bold; font-size: 14px;">⏰ Deadline: ${deadlineStr}</p>
+        </div>
+        <div style="background-color: #fef9c3; border-left: 4px solid #eab308; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #854d0e; font-size: 14px; font-weight: bold;">
+                ⚠️ Note: You have one week to submit this task before it disappears from the system.
+            </p>
+        </div>
+        <p style="margin-top: 30px;">
+            <a href="https://navttc-lms.netlify.app" style="display: inline-block; background-color: #4f46e5; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; letter-spacing: 0.5px;">🔗 View Task on Portal</a>
+        </p>
+        <p style="color: #64748b; margin-top: 30px; font-size: 14px;">
+            Best Regards,<br>
+            <strong>NAVTTC-LMS Administration</strong>
+        </p>
+    </div>
+</div>`;
+
+                try {
+                    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+                        method: "POST",
+                        headers: { "accept": "application/json", "api-key": apiKey, "content-type": "application/json" },
+                        body: JSON.stringify({
+                            sender: { name: "NAVTTC-LMS Admin", email: senderEmail },
+                            to: [{ email: studentEmail, name: u.name || "Student" }],
+                            subject: `New Task: ${taskData.title || 'Untitled Task'} | NAVTTC-LMS`,
+                            htmlContent
+                        })
+                    });
+                    if (response.ok) successCount++;
+                    else {
+                        const err = await response.json();
+                        console.error(`Brevo Error for ${studentEmail}:`, err);
+                    }
+                } catch (err) { console.error("New Task Notify Error:", err); }
+            }
+            console.log(`New Task Notification: Processing ${targetStudents.length} students.`, targetStudents.map(s => s.email));
+            console.log(`New Task Notification: Sent ${successCount} emails.`);
+            if (successCount > 0) {
+                showToast(`✅ Notifications sent to ${successCount} students!`);
+            } else if (targetStudents.length > 0) {
+                showToast(`⚠️ Failed to send notifications. Check console.`);
+            }
+        };
+
+        window.notifyStudentsOfTaskUpdate = async (taskData) => {
+            const ADMIN_EMAIL = 'lmsnavttc@gmail.com';
+
+            // Ensure cache is populated
+            if (!window.allUsersCache || window.allUsersCache.length === 0) {
+                await fetchUsers();
+            }
+
+            const users = window.allUsersCache || [];
+
+            // Filter: students (not admin)
+            const targetStudents = users.filter(u => {
+                const email = u.email || u.email_address;
+                if (u.role !== 'student' || !email) return false;
+                if (email.trim().toLowerCase() === ADMIN_EMAIL) return false;
+                return true;
+            });
+
+            if (targetStudents.length === 0) return;
+
+            // Securely pull API key from Supabase
+            let apiKey = null;
+            try {
+                const { data, error } = await client.from('system_settings').select('value').eq('key', 'brevo_api_key').single();
+                if (error || !data?.value) return;
+                apiKey = data.value.trim();
+            } catch (err) { return; }
+
+            const senderEmail = ADMIN_EMAIL;
+            const deadlineStr = taskData.deadline ? new Date(taskData.deadline).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No Deadline';
+
+            const emailHeader = `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f4f5; padding: 20px; border-radius: 12px;">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://navttc-lms.netlify.app/assets/logo.png" alt="NAVTTC Logo" style="max-height: 80px;">
+        <h2 style="color: #4f46e5; margin-top: 10px; font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">NAVTTC LMS <span style="background: #4f46e5; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 20px; vertical-align: middle; letter-spacing: 1px;">V2.0</span></h2>
+    </div>`;
+
+            let successCount = 0;
+            for (const u of targetStudents) {
+                const studentEmail = u.email || u.email_address;
+                const htmlContent = `${emailHeader}
+    <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-top: 4px solid #10b981;">
+        <h3 style="color: #065f46; margin-top: 0;">🔄 Task Updated</h3>
+        <p style="color: #334155; line-height: 1.6;">Dear <strong>${u.name || 'Student'}</strong>,</p>
+        <p style="color: #334155; line-height: 1.6;">
+            A task has been <strong>updated</strong> on the <strong>NAVTTC-LMS</strong> portal. Please review the updated details below.
+        </p>
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; overflow: hidden; margin: 20px 0; padding: 20px;">
+            <p style="margin: 0 0 10px; color: #065f46; font-size: 16px; font-weight: bold;">📝 ${taskData.title || 'Untitled Task'}</p>
+            <p style="margin: 0 0 15px; color: #374151; font-size: 14px; line-height: 1.5;">${taskData.description || 'No description provided.'}</p>
+            <p style="margin: 0; color: #ef4444; font-weight: bold; font-size: 14px;">⏰ Updated Deadline: ${deadlineStr}</p>
+        </div>
+        <p style="margin-top: 30px;">
+            <a href="https://navttc-lms.netlify.app" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; letter-spacing: 0.5px;">🔗 View Changes on Portal</a>
+        </p>
+        <p style="color: #64748b; margin-top: 30px; font-size: 14px;">
+            Best Regards,<br>
+            <strong>NAVTTC-LMS Administration</strong>
+        </p>
+    </div>
+</div>`;
+
+                try {
+                    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+                        method: "POST",
+                        headers: { "accept": "application/json", "api-key": apiKey, "content-type": "application/json" },
+                        body: JSON.stringify({
+                            sender: { name: "NAVTTC-LMS Admin", email: senderEmail },
+                            to: [{ email: studentEmail, name: u.name || "Student" }],
+                            subject: `Task Updated: ${taskData.title || 'Untitled Task'} | NAVTTC-LMS`,
+                            htmlContent
+                        })
+                    });
+                    if (response.ok) successCount++;
+                } catch (err) { console.error("Task Update Notify Error:", err); }
+            }
+            console.log(`Task Update Notification: Sent ${successCount} emails.`);
+            if (successCount > 0) {
+                showToast(`✅ Update notifications sent to ${successCount} students!`);
+            }
         };
 
 
@@ -13651,66 +14065,37 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
                             <div
                                 style="width:7px;height:7px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 10px rgba(139,92,246,0.7);animation:wn-pulse 2s infinite;">
-
                             </div>
-
                             <span
                                 style="font-size:9px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:#7c3aed;">Live
-
                                 Updates</span>
-
                             <span
-                                style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#7c3aed;font-size:8px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;">v3.5
-
-                                &bull; March 2026</span>
-
+                                style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#7c3aed;font-size:8px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;">v4.0
+                                &bull; Ultra Chat</span>
                         </div>
-
                         <button onclick="closeWhatsNew()"
                             style="background:rgba(100,116,139,0.08);border:1px solid rgba(100,116,139,0.15);color:#94a3b8;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;"
                             onmouseover="this.style.background='rgba(100,116,139,0.15)';this.style.color='#475569'"
                             onmouseout="this.style.background='rgba(100,116,139,0.08)';this.style.color='#94a3b8'">&#x2715;</button>
-
                     </div>
-
-
 
                     <h2
                         style="color:#0f172a;font-size:28px;font-weight:900;letter-spacing:-0.045em;margin:0 0 6px;line-height:1;">
-
-                        What&#39;s New &#x1F389;</h2>
-
-                    <p style="color:#64748b;font-size:11px;font-weight:500;margin:0 0 16px;line-height:1.5;">NAVTTC LMS
-                        ke
-
-                        naye features aur improvements — ab aap ke liye available hain.</p>
-
-
+                        ULTRA CHAT &#x1F680;</h2>
+                    <p style="color:#64748b;font-size:11px;font-weight:500;margin:0 0 16px;line-height:1.5;">Admin or
+                        Student communication ab next level professional ho gaya hai!</p>
 
                     <div style="display:flex;gap:5px;flex-wrap:wrap;">
-
                         <span
-                            style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:#7c3aed;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F4CB;
-
-                            Tasks</span>
-
+                            style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:#7c3aed;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F4CE;
+                            Attachments</span>
                         <span
-                            style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:#2563eb;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F4BB;
-
-                            Code Editor</span>
-
+                            style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:#2563eb;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x26A1;
+                            Quick Replies</span>
                         <span
-                            style="background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);color:#db2777;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F3AE;
-
-                            Arcade</span>
-
-                        <span
-                            style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#16a34a;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F527;
-
-                            Bug Fixes</span>
-
+                            style="background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);color:#db2777;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F514;
+                            Sounds</span>
                     </div>
-
                 </div>
 
             </div>
@@ -13724,524 +14109,99 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
 
 
-            <!-- SCROLLABLE BODY -->
-
             <div style="overflow-y:auto;flex:1;padding:20px 22px 8px;background:#fafafa;" class="custom-scrollbar">
 
-
-
-                <!-- Tasks Section -->
-
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-
                     <div style="height:1px;width:12px;background:#e2e8f0;"></div>
-
                     <span
-                        style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">Tasks
-
-                        &amp; Grading</span>
-
+                        style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">High-End
+                        Chatbox Elements</span>
                     <div style="height:1px;flex:1;background:#e2e8f0;"></div>
-
                 </div>
 
-
-
                 <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
-
-
-
                     <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
                         onmouseover="this.style.borderColor='rgba(139,92,246,0.4)';this.style.boxShadow='0 4px 16px rgba(139,92,246,0.08)'"
                         onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-
                         <div
                             style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-
                             &#x1F4CE;</div>
-
                         <div style="flex:1;min-width:0;">
-
                             <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
-
-                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">File Upload Support
-                                </p>
-
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Files & Image
+                                    Attachments</p>
                                 <span
                                     style="background:#ede9fe;border:1px solid #ddd6fe;color:#7c3aed;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">New</span>
-
                             </div>
-
-                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Ab HTML,
-                                CSS,
-
-                                JS, Python, C++ aur C files directly task ke saath submit kar sakte ho.</p>
-
+                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Ab aap
+                                admin ko directly files aur images bhej sakte hain Cloudinary support ke sath!</p>
                         </div>
-
                     </div>
-
-
 
                     <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
                         onmouseover="this.style.borderColor='rgba(34,197,94,0.4)';this.style.boxShadow='0 4px 16px rgba(34,197,94,0.08)'"
                         onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-
                         <div
                             style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-
-                            &#x1F4CA;</div>
-
+                            &#x26A1;</div>
                         <div style="flex:1;min-width:0;">
-
                             <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
-
-                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Accurate Grade
-                                    Averages
-
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Quick Action Replies
                                 </p>
-
                                 <span
-                                    style="background:#dcfce7;border:1px solid #bbf7d0;color:#16a34a;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Fixed</span>
-
+                                    style="background:#dcfce7;border:1px solid #bbf7d0;color:#16a34a;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Featured</span>
                             </div>
-
-                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Task
-                                scores
-
-                                aur leaderboard rankings ab sahi calculate hoti hain — galat percentages ka masla hal ho
-
-                                gaya.</p>
-
+                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Type karne
+                                ka waqt bachao! "Need Help", "Report Bug" pills par tap karo aur auto-send karo.</p>
                         </div>
-
                     </div>
-
-
 
                     <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
                         onmouseover="this.style.borderColor='rgba(234,179,8,0.4)';this.style.boxShadow='0 4px 16px rgba(234,179,8,0.08)'"
                         onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-
                         <div
                             style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#fef9c3,#fde68a);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-
-                            &#x1F4C4;</div>
-
+                            &#x1F4E7;</div>
                         <div style="flex:1;min-width:0;">
-
                             <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
-
-                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Improved PDF Reports
-                                </p>
-
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Read Receipts & Pop
+                                    Sound</p>
                                 <span
-                                    style="background:#fef9c3;border:1px solid #fde68a;color:#ca8a04;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Improved</span>
-
+                                    style="background:#fef9c3;border:1px solid #fde68a;color:#ca8a04;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">SaaS
+                                    Feel</span>
                             </div>
+                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Message
+                                send hone par '✓✓' ticks, aur new message aane par notifications sound!</p>
+                        </div>
+                    </div>
 
+                    <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
+                        onmouseover="this.style.borderColor='rgba(14,165,233,0.4)';this.style.boxShadow='0 4px 16px rgba(14,165,233,0.08)'"
+                        onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+                        <div
+                            style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#e0f2fe,#bae6fd);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+                            &#x2B50;</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Animated Tooltip &
+                                    Auto-Greeting</p>
+                            </div>
                             <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">
-                                Performance
-
-                                reports mein ab cleaner layout, proper instructor remarks aur professional signature.
+                                Beautifully bouncy "Need Help" tooltip and automatic welcome messages jab chat kholo.
                             </p>
-
                         </div>
-
                     </div>
-
                 </div>
-
-
-
-                <!-- Code Editor Section -->
-
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-
-                    <div style="height:1px;width:12px;background:#e2e8f0;"></div>
-
-                    <span
-                        style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">Developer
-
-                        Workbench</span>
-
-                    <div style="height:1px;flex:1;background:#e2e8f0;"></div>
-
-                </div>
-
-
-
-                <div
-                    style="border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:16px;background:#ffffff;">
-
-
-
-                    <!-- Autocomplete -->
-
-                    <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9;">
-
-                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-
-                            <div
-                                style="min-width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">
-
-                                &#x1F9E0;</div>
-
-                            <div style="flex:1;">
-
-                                <p style="font-size:11px;font-weight:800;color:#1e293b;margin:0 0 1px;">Smart
-
-                                    Auto-Suggestions</p>
-
-                                <p style="font-size:9px;color:#94a3b8;margin:0;">Jaise hi type karo, editor suggest
-                                    karta
-
-                                    hai</p>
-
-                            </div>
-
-                            <span
-                                style="background:#dbeafe;border:1px solid #bfdbfe;color:#2563eb;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0;">New</span>
-
-                        </div>
-
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
-
-                            <div
-                                style="background:#f8fafc;border-radius:10px;padding:8px 10px;border:1px solid #e2e8f0;">
-
-                                <p
-                                    style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#6366f1;margin:0 0 6px;">
-
-                                    &#x1F3F7; HTML Tags</p>
-
-                                <div style="display:flex;flex-wrap:wrap;gap:3px;"><code
-                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">div</code><code
-                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">p</code><code
-                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">h1-h6</code><code
-                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">a</code><code
-                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">img</code><code
-                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">input</code><code
-                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">button</code><code
-                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">ul/li</code><code
-                                        style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #ddd6fe;">nav</code><code
-                                        style="background:#e0e7ff;color:#4338ca;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #c7d2fe;">+10</code>
-
-                                </div>
-
-                            </div>
-
-                            <div
-                                style="background:#f8fafc;border-radius:10px;padding:8px 10px;border:1px solid #e2e8f0;">
-
-                                <p
-                                    style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#059669;margin:0 0 6px;">
-
-                                    &#x1F3A8; CSS Properties</p>
-
-                                <div style="display:flex;flex-wrap:wrap;gap:3px;"><code
-                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">color</code><code
-                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">background</code><code
-                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">margin</code><code
-                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">padding</code><code
-                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">font-size</code><code
-                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">display</code><code
-                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">flex</code><code
-                                        style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #bbf7d0;">box-shadow</code><code
-                                        style="background:#d1fae5;color:#065f46;padding:1px 6px;border-radius:4px;font-size:9px;border:1px solid #6ee7b7;">+20</code>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div
-                            style="padding:7px 10px;background:#f0f9ff;border-radius:8px;border:1px solid #bae6fd;font-size:9px;color:#0369a1;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-
-                            <span>&#x1F4A1;</span>
-
-                            <span>Navigate: <kbd
-                                    style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:4px;padding:0 5px;font-size:8px;color:#0c4a6e;">&#x2191;&#x2193;</kbd></span>
-
-                            <span>Select: <kbd
-                                    style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:4px;padding:0 5px;font-size:8px;color:#0c4a6e;">Enter/Tab</kbd></span>
-
-                            <span>Cancel: <kbd
-                                    style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:4px;padding:0 5px;font-size:8px;color:#0c4a6e;">Esc</kbd></span>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- Shortcuts -->
-
-                    <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9;">
-
-                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-
-                            <div
-                                style="min-width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#fef3c7,#fde68a);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">
-
-                                &#x2328;</div>
-
-                            <p style="font-size:11px;font-weight:800;color:#1e293b;margin:0;flex:1;">Shortcut Keys</p>
-
-                            <span
-                                style="background:#fef9c3;border:1px solid #fde68a;color:#ca8a04;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0;">New</span>
-
-                        </div>
-
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-
-                                <kbd
-                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Ctrl+Z</kbd><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">Undo</span>
-                            </div>
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-
-                                <kbd
-                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Ctrl+Y</kbd><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">Redo</span>
-                            </div>
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-
-                                <kbd
-                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Ctrl+/</kbd><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">Comment line</span>
-                            </div>
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-
-                                <kbd
-                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Shift+Enter</kbd><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">Run Code</span>
-                            </div>
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-
-                                <kbd
-                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">Tab</kbd><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">Indent / Snippet</span>
-                            </div>
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
-
-                                <kbd
-                                    style="background:#1e293b;color:#f1f5f9;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;">(
-
-                                    " ' {</kbd><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">Auto-pair</span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- Snippets -->
-
-                    <div style="padding:14px 16px;">
-
-                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-
-                            <div
-                                style="min-width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">
-
-                                &#x26A1;</div>
-
-                            <p style="font-size:11px;font-weight:800;color:#1e293b;margin:0;flex:1;">Quick Snippets
-                                <span style="color:#94a3b8;font-weight:500;font-size:9px;">— Tab se expand karo</span>
-                            </p>
-
-                        </div>
-
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-
-                                <code
-                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">!</code><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">HTML Boilerplate</span>
-                            </div>
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-
-                                <code
-                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">link</code><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">CSS Stylesheet</span>
-                            </div>
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-
-                                <code
-                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">img</code><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">Image tag</span>
-                            </div>
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-
-                                <code
-                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">btn</code><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">Button element</span>
-                            </div>
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-
-                                <code
-                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">a</code><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">Anchor link</span>
-                            </div>
-
-                            <div
-                                style="display:flex;align-items:center;gap:7px;padding:6px 8px;background:#faf5ff;border-radius:8px;border:1px solid #ede9fe;">
-
-                                <code
-                                    style="background:#7c3aed;color:#fff;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:800;min-width:36px;text-align:center;">script</code><span
-                                    style="font-size:9px;color:#64748b;font-weight:600;">Script tag</span>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- Arcade & Security -->
-
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-
-                    <div style="height:1px;width:12px;background:#e2e8f0;"></div>
-
-                    <span
-                        style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">Arcade
-
-                        &amp; Security</span>
-
-                    <div style="height:1px;flex:1;background:#e2e8f0;"></div>
-
-                </div>
-
-
-
-                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
-
-                    <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
-                        onmouseover="this.style.borderColor='rgba(236,72,153,0.4)';this.style.boxShadow='0 4px 16px rgba(236,72,153,0.08)'"
-                        onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-
-                        <div
-                            style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#fce7f3,#fbcfe8);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-
-                            &#x1F579;</div>
-
-                        <div style="flex:1;min-width:0;">
-
-                            <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-
-                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Arcade Game Fixes</p>
-                                <span
-                                    style="background:#dcfce7;border:1px solid #bbf7d0;color:#16a34a;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Fixed</span>
-
-                            </div>
-
-                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Sare
-                                arcade
-
-                                games ab sahi se launch ho rahe hain. Level completion screen professionally polished ho
-
-                                gayi.</p>
-
-                        </div>
-
-                    </div>
-
-                    <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
-                        onmouseover="this.style.borderColor='rgba(34,197,94,0.4)';this.style.boxShadow='0 4px 16px rgba(34,197,94,0.08)'"
-                        onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-
-                        <div
-                            style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-
-                            &#x1F510;</div>
-
-                        <div style="flex:1;min-width:0;">
-
-                            <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-
-                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Password Reset via
-                                    Email
-
-                                </p><span
-                                    style="background:#ede9fe;border:1px solid #ddd6fe;color:#7c3aed;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">New</span>
-
-                            </div>
-
-                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Password
-                                bhool
-
-                                gaye? Ab email se reset kar sakte ho. Spam/junk folder zaroor check karo.</p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
             </div>
 
-
-
             <!-- FOOTER -->
-
             <div style="padding:14px 20px 18px;border-top:1px solid #f1f5f9;background:#ffffff;flex-shrink:0;">
-
                 <button onclick="closeWhatsNew()"
-                    style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;font-size:11px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 25px rgba(99,102,241,0.35);transition:all 0.25s;margin-bottom:12px;"
+                    style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;font-size:11px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 25px rgba(99,102,241,0.35);transition:all 0.25s;"
                     onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 30px rgba(99,102,241,0.45)'"
                     onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 25px rgba(99,102,241,0.35)'">
-
-                    Got It, Let&#39;s Go! &#x1F680;
-
+                    Got It, Let&#39;s Try It! &#x1F680;
                 </button>
-
-                <div style="display:flex;align-items:center;justify-content:center;">
-
-                    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;">
-
-                        <input type="checkbox" id="whatsNewDontShow"
-                            style="accent-color:#6366f1;width:13px;height:13px;cursor:pointer;">
-
-                        <span
-                            style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;">Don&#39;t
-
-                            show again for this version</span>
-
-                    </label>
-
-                </div>
-
             </div>
 
         </div>
@@ -14379,57 +14339,36 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
 
     <script>
-
-        const WHATS_NEW_VERSION = 'v3.5_mar2026';
+        const WHATS_NEW_VERSION = 'v4.0_ultra_chat_update';
 
         function showWhatsNew() {
-
             if (localStorage.getItem('whatsNew_perm_' + WHATS_NEW_VERSION)) return;
 
-            if (sessionStorage.getItem('whatsNew_shown_' + WHATS_NEW_VERSION)) return;
-
             const overlay = document.getElementById('whatsNewOverlay');
-
             const card = document.getElementById('whatsNewCard');
 
             if (overlay) {
-
                 overlay.style.display = 'flex';
-
                 setTimeout(() => { overlay.classList.add('wn-visible'); if (card) card.classList.add('wn-visible'); }, 10);
-
-                sessionStorage.setItem('whatsNew_shown_' + WHATS_NEW_VERSION, '1');
-
             }
-
         }
 
         function closeWhatsNew() {
+            // Save to localStorage immediately so it never shows again for this user on this device
+            localStorage.setItem('whatsNew_perm_' + WHATS_NEW_VERSION, '1');
 
             const overlay = document.getElementById('whatsNewOverlay');
-
             const card = document.getElementById('whatsNewCard');
-
             if (!overlay) return;
 
             if (card) { card.style.transition = 'transform 0.2s ease,opacity 0.2s ease'; card.style.transform = 'translateY(16px) scale(0.97)'; card.style.opacity = '0'; }
-
             overlay.style.transition = 'opacity 0.2s ease'; overlay.style.opacity = '0';
 
             setTimeout(() => {
-
                 overlay.style.display = 'none'; overlay.style.opacity = ''; overlay.style.transition = '';
-
                 if (card) { card.style.transform = ''; card.style.opacity = ''; card.style.transition = ''; }
-
                 overlay.classList.remove('wn-visible'); if (card) card.classList.remove('wn-visible');
-
             }, 220);
-
-            const cb = document.getElementById('whatsNewDontShow');
-
-            if (cb && cb.checked) localStorage.setItem('whatsNew_perm_' + WHATS_NEW_VERSION, '1');
-
         }
 
         document.getElementById('whatsNewOverlay').addEventListener('click', function (e) { if (e.target === this) closeWhatsNew(); });
@@ -14468,6 +14407,762 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             var loader = document.getElementById('global-loader');
             if (loader) loader.style.display = 'none';
         });
+    </script>
+    <!-- --- FLOATING ADMIN CHAT (STUDENT VIEW) --- -->
+    <div id="admin-chat-wrapper" class="hidden">
+        <!-- Animated Help Tooltip -->
+        <div id="chat-help-tooltip"
+            class="fixed bottom-[90px] right-6 z-[5000] w-[220px] bg-slate-900/95 dark:bg-[#0f172a]/95 backdrop-blur-md text-white p-3 rounded-2xl shadow-xl border border-white/10 opacity-0 translate-y-4 pointer-events-none transition-all duration-500 ease-out origin-bottom-right group">
+            <button onclick="dismissChatTooltip(event)"
+                class="absolute -top-2 -right-2 w-5 h-5 bg-slate-800 rounded-full flex items-center justify-center border border-white/20 text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-3 h-3"></i>
+            </button>
+            <div class="flex items-start gap-3">
+                <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shrink-0 shadow-inner">
+                    <span class="text-sm">👋</span>
+                </div>
+                <div>
+                    <h5 class="text-[11px] font-bold text-indigo-100">Need Help?</h5>
+                    <p class="text-[10px] text-slate-300 leading-tight mt-0.5">Contact Admin for an instant reply!</p>
+                </div>
+            </div>
+            <!-- Triangle Pointer -->
+            <div
+                class="absolute -bottom-2 right-5 w-4 h-4 bg-slate-900/95 dark:bg-[#0f172a]/95 border-b border-r border-white/10 rotate-45 transform">
+            </div>
+        </div>
+
+        <!-- Floating Toggle Button -->
+        <button id="chat-toggle-btn"
+            class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-500 text-white shadow-[0_8px_30px_rgb(99,102,241,0.5)] flex items-center justify-center z-[5000] hover:scale-105 active:scale-95 transition-all duration-300 group border border-indigo-400/30">
+            <div
+                class="relative flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
+                <i data-lucide="message-square" class="w-6 h-6"></i>
+                <span id="chat-notif-dot"
+                    class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-500 border-[3px] border-indigo-600 rounded-full hidden animate-pulse"></span>
+            </div>
+            <!-- Glow effect behind button -->
+            <div class="absolute inset-0 rounded-full bg-indigo-500 blur-xl opacity-20 -z-10 animate-pulse-slow"></div>
+        </button>
+
+        <!-- Chat Window -->
+        <div id="chat-window"
+            class="fixed bottom-24 right-6 w-[340px] h-[480px] bg-white dark:bg-[#0f172a]/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] z-[5000] flex flex-col overflow-hidden border border-white/50 dark:border-slate-700/50 translate-y-10 scale-95 opacity-0 pointer-events-none transition-all duration-300 origin-bottom-right">
+            <!-- Header -->
+            <div
+                class="p-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_auto] text-white flex items-center justify-between border-b border-indigo-500/30 shadow-sm relative overflow-hidden">
+                <!-- Decorative background shapes -->
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2">
+                </div>
+                <div class="flex items-center gap-3 relative z-10">
+                    <div class="relative">
+                        <div id="chat-admin-avatar"
+                            class="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-lg font-black shadow-inner overflow-hidden">
+                            A</div>
+                        <span id="admin-online-indicator"
+                            class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-indigo-600 bg-slate-400 shadow-[0_0_10px_rgba(0,0,0,0.3)]"></span>
+                    </div>
+                    <div>
+                        <h4 id="chat-admin-name"
+                            class="text-[13px] font-black uppercase tracking-widest text-white drop-shadow-md">LMS Admin
+                        </h4>
+                        <p id="admin-status-text"
+                            class="text-[9px] font-bold text-indigo-100 uppercase tracking-tighter opacity-90">Offline
+                        </p>
+                    </div>
+                </div>
+                <button onclick="toggleChatWindow()"
+                    class="p-2 hover:bg-white/20 hover:text-white rounded-xl transition-all relative z-10 active:scale-95">
+                    <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Messages Container -->
+            <div id="admin-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                <div class="text-center py-4">
+                    <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest leading-relaxed px-4">
+                        Direct message the admin for help or support!</p>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="admin-typing-indicator" class="px-4 py-1 hidden">
+                <span class="text-[8px] font-black italic text-slate-400 uppercase tracking-widest">Admin is
+                    typing...</span>
+            </div>
+
+            <!-- Quick Replies -->
+            <div
+                class="px-3 py-2 bg-slate-50/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 flex overflow-x-auto gap-2 no-scrollbar">
+                <button onclick="sendQuickReply('I need help with a task.')"
+                    class="whitespace-nowrap px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-[9px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/50 hover:bg-indigo-100 transition-colors shadow-sm">Need
+                    Help</button>
+                <button onclick="sendQuickReply('Can you check my submission?')"
+                    class="whitespace-nowrap px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-[9px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/50 hover:bg-emerald-100 transition-colors shadow-sm">Review
+                    Submission</button>
+                <button onclick="sendQuickReply('I found a bug/system issue.')"
+                    class="whitespace-nowrap px-3 py-1.5 rounded-full bg-orange-50 dark:bg-orange-900/30 text-[9px] font-black uppercase tracking-widest text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800/50 hover:bg-orange-100 transition-colors shadow-sm">Report
+                    Bug</button>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-3 bg-white dark:bg-[#1e293b] border-t border-slate-100 dark:border-slate-800 relative">
+                <!-- Upload Overlay Loader -->
+                <div id="chat-upload-loader"
+                    class="absolute inset-0 bg-white/80 dark:bg-[#1e293b]/80 backdrop-blur-sm z-10 hidden flex-col items-center justify-center">
+                    <i data-lucide="loader-2" class="w-5 h-5 text-indigo-600 animate-spin mb-1"></i>
+                    <span class="text-[8px] font-black uppercase tracking-widest text-indigo-600">Uploading...</span>
+                </div>
+
+                <form id="admin-chat-form" class="flex items-center gap-2">
+                    <button type="button" onclick="document.getElementById('chat-attachment-input').click()"
+                        class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-slate-100 hover:text-indigo-600 transition-colors shrink-0">
+                        <i data-lucide="paperclip" class="w-4 h-4"></i>
+                    </button>
+                    <input type="file" id="chat-attachment-input" class="hidden" onchange="uploadChatAttachment(event)">
+
+                    <input type="text" id="admin-chat-input" placeholder="Type your message..."
+                        class="flex-1 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-slate-700 dark:text-slate-200 transition-all outline-none">
+                    <button type="submit" id="admin-chat-submit-btn"
+                        class="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-center hover:shadow-lg hover:shadow-indigo-500/30 transition-all shrink-0 active:scale-95">
+                        <i data-lucide="send" class="w-4 h-4 ml-0.5 mt-0.5"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- ADMIN CHAT (STUDENT LOGIC) ---
+        let isAdminOnlineFlag = false;
+        let isChatWindowOpen = false;
+
+        // Sound Notification
+        // A short 'pop' sound as base64 to avoid external asset dependencies
+        const chatPopSound = new Audio("data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAAABmYWN0BAAAAAAAAABkYXRhAAAAAA=="); // Tiny placeholder pop, below we implement a small generated beep
+
+        window.playChatPopSound = () => {
+            try {
+                // Short, soft beep using Web Audio API for a premium feel without downloading files
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.1);
+            } catch (e) { console.warn("Audio disabled", e); }
+        };
+
+        window.dismissChatTooltip = (e) => {
+            if (e) e.stopPropagation();
+            const tt = document.getElementById('chat-help-tooltip');
+            if (tt) {
+                tt.classList.remove('opacity-100', 'translate-y-0');
+                tt.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => tt.remove(), 500);
+            }
+        };
+
+        // Show Tooltip after 5 seconds if chat is not open
+        setTimeout(() => {
+            if (!isChatWindowOpen && userProfile && userProfile.role === 'student') {
+                const tt = document.getElementById('chat-help-tooltip');
+                if (tt) {
+                    tt.classList.remove('hidden', 'opacity-0', 'translate-y-4');
+                    tt.classList.add('opacity-100', 'translate-y-0');
+                    if (window.lucide) lucide.createIcons({ root: tt });
+                    // Auto dismiss after 15 seconds
+                    setTimeout(() => window.dismissChatTooltip(), 15000);
+                }
+            }
+        }, 5000);
+        function toggleChatWindow() {
+            if (userProfile && userProfile.role === 'admin') {
+                switchTab('chat');
+                document.getElementById('chat-notif-dot').classList.add('hidden');
+                return;
+            }
+
+            const win = document.getElementById('chat-window');
+            const isVisible = win.classList.contains('opacity-100');
+
+            if (isVisible) {
+                win.classList.remove('opacity-100', 'translate-y-0');
+                win.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+                isChatWindowOpen = false;
+            } else {
+                win.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+                win.classList.add('opacity-100', 'translate-y-0');
+                document.getElementById('chat-notif-dot').classList.add('hidden');
+                isChatWindowOpen = true;
+                window.dismissChatTooltip();
+                scrollToBottom();
+            }
+        }
+
+        document.getElementById('chat-toggle-btn').addEventListener('click', toggleChatWindow);
+
+        function scrollToBottom() {
+            const container = document.getElementById('admin-chat-messages');
+            if (container) container.scrollTop = container.scrollHeight;
+        }
+
+        // Helper to get a valid Admin ID (Online or from DB)
+        async function getValidAdminId() {
+            // 1. Try online admin first
+            const onlineAdmin = window.onlineUsers ? window.onlineUsers.find(u => u.role === 'admin') : null;
+            if (onlineAdmin) return onlineAdmin.user_id;
+
+            // 2. Fallback: Fetch any admin from profiles table
+            const { data, error } = await client
+                .from('profiles')
+                .select('uid')
+                .eq('role', 'admin')
+                .limit(1)
+                .single();
+
+            if (data && data.uid) return data.uid;
+
+            // 3. Last resort (should not happen if system is set up)
+            console.error("No Admin found in database!");
+            return null;
+        }
+
+        // Presence Logic for Students
+        window.checkAdminOnline = async (onlineUsers) => {
+            const admin = onlineUsers.find(u => u.role === 'admin');
+            const indicator = document.getElementById('admin-online-indicator');
+            const statusText = document.getElementById('admin-status-text');
+            const nameEl = document.getElementById('chat-admin-name');
+            const avatarEl = document.getElementById('chat-admin-avatar');
+
+            // Dynamic Admin Profile Fetching
+            let adminName = "LMS Admin";
+            let adminAvatarHTML = "A";
+
+            // Try to find the admin profile from cache
+            let adminProfile = window.allUsersCache ? window.allUsersCache.find(u => u.role === 'admin') : null;
+
+            // If not in cache, try fetching from the DB
+            if (!adminProfile) {
+                const { data, error } = await client
+                    .from('profiles')
+                    .select('*')
+                    .eq('role', 'admin')
+                    .limit(1)
+                    .single();
+                if (data && !error) {
+                    adminProfile = data;
+                    if (!window.allUsersCache) window.allUsersCache = [];
+                    window.allUsersCache.push(data);
+                }
+            }
+
+            if (adminProfile) {
+                adminName = adminProfile.name || adminProfile.full_name || "Admin";
+                if (adminProfile.avatar_url) {
+                    adminAvatarHTML = `<img src="${adminProfile.avatar_url}" alt="${adminName}" class="w-full h-full object-cover" onerror="this.outerHTML='${adminName.charAt(0).toUpperCase()}'">`;
+                } else {
+                    adminAvatarHTML = adminName.charAt(0).toUpperCase();
+                }
+            }
+
+            if (nameEl) nameEl.innerText = adminName;
+            if (avatarEl) avatarEl.innerHTML = adminAvatarHTML;
+
+            if (admin) {
+                if (!isAdminOnlineFlag && (userProfile && userProfile.role === 'student')) {
+                    showToast("👨‍🏫 " + adminName + " is now Online!", "success");
+                }
+                isAdminOnlineFlag = true;
+                if (indicator) indicator.className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-indigo-600 bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]";
+                if (statusText) statusText.innerText = "Online - Ask me anything!";
+            } else {
+                isAdminOnlineFlag = false;
+                if (indicator) indicator.className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-indigo-600 bg-slate-400 opacity-80";
+                if (statusText) statusText.innerText = "Offline";
+            }
+        };
+
+        // Fetch Messages
+        window.fetchAdminChatMessages = async () => {
+            if (!currentUser) return;
+            const { data, error } = await client
+                .from('admin_chat_messages')
+                .select('*')
+                .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                console.error("Chat Fetch Error:", error);
+                return;
+            }
+            renderAdminChatMessages(data || []);
+        };
+
+        function renderAdminChatMessages(messages) {
+            const container = document.getElementById('admin-chat-messages');
+            container.innerHTML = ''; // Start clean
+
+            if (messages.length === 0) {
+                // Auto Welcome Message
+                const welcomeBubble = `
+                    <div class="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300 mt-2">
+                        <div class="max-w-[85%] group">
+                            <div class="px-3.5 py-2.5 rounded-2xl text-[12px] font-medium leading-relaxed shadow-sm transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-tl-sm border border-slate-100 dark:border-slate-700/50 group-hover:shadow-md">
+                                👋 Hello! Welcome to Support. How can I assist you with your courses today?
+                            </div>
+                            <p class="text-[7px] font-black uppercase text-slate-400 tracking-widest mt-1 opacity-100 text-left">Just now</p>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = welcomeBubble;
+                return;
+            }
+
+            let lastDateStr = null;
+
+            messages.forEach(msg => {
+                const isMine = msg.sender_id === currentUser.id;
+                const dateObj = new Date(msg.created_at);
+                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                // --- Date Separator Logic ---
+                const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+                const todayStr = new Date().toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+
+                let displayDate = dateStr;
+                if (dateStr === todayStr) displayDate = "Today";
+                else if (dateStr === yesterdayStr) displayDate = "Yesterday";
+
+                if (lastDateStr !== dateStr) {
+                    container.insertAdjacentHTML('beforeend', `<div class="flex justify-center my-4"><span class="px-3 py-1 bg-slate-100 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm">${displayDate}</span></div>`);
+                    lastDateStr = dateStr;
+                }
+
+                // Read Receipt Icon
+                const readReceiptHTML = isMine ? `<i data-lucide="check-check" class="w-3 h-3 inline-block ml-0.5 text-indigo-400/80"></i>` : '';
+
+                const bubble = `
+                    <div class="flex ${isMine ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div class="max-w-[85%] group">
+                            <div class="px-3.5 py-2.5 rounded-2xl text-[12px] font-medium leading-relaxed shadow-sm transition-all ${isMine ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-tr-sm shadow-indigo-500/20 group-hover:shadow-indigo-500/40' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-tl-sm border border-slate-100 dark:border-slate-700/50 group-hover:shadow-md'}">
+                                ${msg.content}
+                            </div>
+                            <p class="text-[7px] font-black uppercase text-slate-400 tracking-widest mt-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center ${isMine ? 'justify-end' : 'justify-start'}">${timeStr} ${readReceiptHTML}</p>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', bubble);
+            });
+            if (window.lucide) lucide.createIcons({ root: container });
+            scrollToBottom();
+        }
+
+        // Send Quick Reply
+        window.sendQuickReply = async (text) => {
+            const input = document.getElementById('admin-chat-input');
+            input.value = text;
+            document.getElementById('admin-chat-form').dispatchEvent(new Event('submit'));
+        };
+
+        // Upload Chat Attachment
+        window.uploadChatAttachment = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const loader = document.getElementById('chat-upload-loader');
+            const submitBtn = document.getElementById('admin-chat-submit-btn');
+            const inputEl = document.getElementById('admin-chat-input');
+
+            try {
+                // Show Activity Indicator
+                if (loader) loader.classList.remove('hidden');
+                if (loader) loader.classList.add('flex');
+                if (submitBtn) submitBtn.disabled = true;
+                if (inputEl) inputEl.disabled = true;
+
+                const CLOUD_NAME = "dwowte8ny";
+                const UPLO_PRESET = "navttc-lms";
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', UPLO_PRESET);
+
+                const _codeExtTypes = ['html', 'css', 'js', 'ts', 'jsx', 'tsx', 'py', 'cpp', 'c', 'h', 'java', 'php', 'sql', 'json', 'xml', 'txt', 'md'];
+                const _fileExt = file.name.split('.').pop().toLowerCase();
+                const _uploadType = _codeExtTypes.includes(_fileExt) ? 'raw' : 'auto';
+
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${_uploadType}/upload`, { method: 'POST', body: formData });
+                const uploadData = await response.json();
+
+                if (uploadData.error) throw new Error(uploadData.error.message);
+
+                const fileUrl = uploadData.secure_url;
+
+                // Format message based on file type
+                let attachmentHTML = '';
+                if (_uploadType === 'auto' && file.type.startsWith('image/')) {
+                    attachmentHTML = `<a href="${fileUrl}" target="_blank"><img src="${fileUrl}" alt="Attachment" class="max-w-full rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 mt-1 max-h-48 object-cover"></a>`;
+                } else {
+                    attachmentHTML = `<a href="${fileUrl}" target="_blank" class="flex items-center gap-2 p-2 mt-1 rounded-lg bg-white/20 dark:bg-slate-900/40 border border-white/30 dark:border-slate-700/50 hover:bg-white/30 transition-colors text-[10px] font-bold"><i data-lucide="file-down" class="w-4 h-4"></i> ${window.fixEncoding ? window.fixEncoding(file.name) : file.name}</a>`;
+                }
+
+                // Append attachment HTML directly as a message
+                const adminId = await getValidAdminId();
+                if (!adminId) throw new Error("Support is unavailable.");
+
+                const { error } = await client.from('admin_chat_messages').insert([{
+                    sender_id: currentUser.id,
+                    receiver_id: adminId,
+                    content: attachmentHTML
+                }]);
+
+                if (error) throw error;
+
+                if (window.fetchAdminChatMessages) window.fetchAdminChatMessages();
+
+            } catch (err) {
+                console.error("Chat Upload Error:", err);
+                showToast(err.message || "Failed to upload attachment.", "error");
+            } finally {
+                // Restore State
+                if (loader) loader.classList.add('hidden');
+                if (loader) loader.classList.remove('flex');
+                if (submitBtn) submitBtn.disabled = false;
+                if (inputEl) inputEl.disabled = false;
+                event.target.value = ''; // Reset input
+            }
+        };
+
+        // Send Message
+        document.getElementById('admin-chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('admin-chat-input');
+            const content = input.value.trim();
+            if (!content) return;
+
+            input.value = '';
+
+            const adminId = await getValidAdminId();
+            if (!adminId) {
+                showToast("Support is temporarily unavailable.", "error");
+                input.value = content;
+                return;
+            }
+
+            const { error } = await client.from('admin_chat_messages').insert([{
+                sender_id: currentUser.id,
+                receiver_id: adminId,
+                content: content
+            }]);
+
+            if (error) {
+                console.error("Chat Send Error:", error);
+                showToast("Failed to send message.", "error");
+                input.value = content;
+            } else {
+                // Ensure instant UI update even if Realtime ping is delayed
+                if (window.fetchAdminChatMessages) window.fetchAdminChatMessages();
+            }
+        });
+
+        // Real-time Chat Subscription (Student)
+        window.setupStudentChatRealtime = () => {
+            if (userProfile.role !== 'student') return;
+
+            client.channel('admin_chat_messages')
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'admin_chat_messages',
+                    filter: `receiver_id=eq.${currentUser.id}`
+                }, payload => {
+                    // Message from Admin to Me
+                    fetchAdminChatMessages();
+
+                    if (!document.getElementById('chat-window').classList.contains('opacity-100')) {
+                        if (window.playChatPopSound) window.playChatPopSound();
+                        document.getElementById('chat-notif-dot').classList.remove('hidden');
+                        showToast("💬 New message from Admin!", "success");
+                    } else {
+                        // Play sound even if open
+                        if (window.playChatPopSound) window.playChatPopSound();
+                    }
+                })
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'admin_chat_messages',
+                    filter: `sender_id=eq.${currentUser.id}`
+                }, payload => {
+                    // My own message (from another device perhaps)
+                    fetchAdminChatMessages();
+                })
+                .subscribe();
+        };
+
+        // --- ADMIN CHAT HUB (ADMIN LOGIC) ---
+        window.selectedChatStudentId = null;
+
+        window.fetchAdminRecentChats = async () => {
+            if (userProfile.role !== 'admin') return;
+
+            const { data, error } = await client
+                .from('admin_chat_messages')
+                .select('sender_id, receiver_id, created_at, content')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Admin Chat List Error:", error);
+                return;
+            }
+
+            const recentChats = new Map();
+            const missingProfileIds = new Set();
+
+            data.forEach(msg => {
+                const otherId = msg.sender_id === currentUser.id ? msg.receiver_id : msg.sender_id;
+                if (otherId === currentUser.id) return;
+
+                if (!recentChats.has(otherId)) {
+                    recentChats.set(otherId, {
+                        student_id: otherId,
+                        last_message: msg.content,
+                        last_time: msg.created_at
+                    });
+
+                    const student = window.allUsersCache ? window.allUsersCache.find(u => (u.uid || u.id) === otherId) : null;
+                    if (!student) {
+                        missingProfileIds.add(otherId);
+                    }
+                }
+            });
+
+            if (missingProfileIds.size > 0) {
+                const { data: missingUsers, error: missingErr } = await client
+                    .from('profiles')
+                    .select('*')
+                    .in('id', Array.from(missingProfileIds));
+
+                if (!missingErr && missingUsers && missingUsers.length > 0) {
+                    if (!window.allUsersCache) window.allUsersCache = [];
+                    missingUsers.forEach(u => {
+                        u.name = u.name || u.full_name || 'Student';
+                        window.allUsersCache.push(u);
+                    });
+                }
+            }
+
+            renderAdminChatList(Array.from(recentChats.values()));
+        };
+
+        async function renderAdminChatList(chats) {
+            const list = document.getElementById('admin-chat-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            if (chats.length === 0) {
+                list.innerHTML = '<div class="p-8 text-center"><p class="text-[9px] font-black uppercase text-slate-400 tracking-widest">No conversations yet</p></div>';
+                return;
+            }
+
+            for (const chat of chats) {
+                const student = window.allUsersCache ? window.allUsersCache.find(u => (u.uid || u.id) === chat.student_id) : null;
+                const name = student ? (student.full_name || student.name) : 'Unknown Student';
+                const initial = name.charAt(0).toUpperCase();
+                const isOnline = window.onlineUsers?.some(u => u.user_id === chat.student_id);
+                const isActive = window.selectedChatStudentId === chat.student_id;
+
+                const item = `
+                    <div onclick="selectStudentChat('${chat.student_id}', '${name.replace(/'/g, "\\'")}')" 
+                        class="p-4 border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-900/50 cursor-pointer transition-colors ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-l-indigo-600' : ''}">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-black text-indigo-600">${initial}</div>
+                                ${isOnline ? '<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full"></span>' : ''}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h5 class="text-[11px] font-black text-slate-900 dark:text-slate-100 uppercase truncate">${name}</h5>
+                                <p class="text-[9px] font-medium text-slate-400 truncate">${chat.last_message}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                list.insertAdjacentHTML('beforeend', item);
+            }
+        }
+
+        window.selectStudentChat = (studentId, studentName) => {
+            window.selectedChatStudentId = studentId;
+            document.getElementById('admin-chat-empty').classList.add('hidden');
+            document.getElementById('admin-chat-header').classList.remove('hidden');
+            document.getElementById('admin-hub-input-area').classList.remove('hidden');
+
+            document.getElementById('selected-student-name').innerText = studentName;
+            document.getElementById('selected-student-avatar').innerText = studentName.charAt(0);
+
+            const isOnline = window.onlineUsers?.find(u => u.user_id === studentId);
+            const statusEl = document.getElementById('selected-student-status');
+            const indicator = document.getElementById('selected-student-online');
+
+            if (isOnline) {
+                statusEl.innerText = "Online";
+                statusEl.className = "text-[9px] font-bold text-emerald-500 uppercase tracking-tighter";
+                indicator.className = "absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-4 border-white dark:border-[#1e293b] bg-emerald-500";
+            } else {
+                statusEl.innerText = "Offline";
+                statusEl.className = "text-[9px] font-bold text-slate-400 uppercase tracking-tighter";
+                indicator.className = "absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-4 border-white dark:border-[#1e293b] bg-slate-400";
+            }
+
+            window.loadStudentChatMessages(studentId);
+            window.fetchAdminRecentChats();
+
+            // Clear notification dots
+            $('#chat-notification-dot, #mob-nav-chat i').removeClass('text-rose-500 animate-bounce');
+        };
+
+        window.loadStudentChatMessages = async (studentId) => {
+            const { data, error } = await client
+                .from('admin_chat_messages')
+                .select('*')
+                .or(`sender_id.eq.${studentId},receiver_id.eq.${studentId}`)
+                .order('created_at', { ascending: true });
+
+            if (error) return;
+
+            const container = document.getElementById('admin-hub-messages');
+            container.innerHTML = '';
+
+            data.forEach(msg => {
+                const isAdmin = msg.sender_id === currentUser.id;
+                const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const bubble = `
+                    <div class="flex ${isAdmin ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div class="max-w-[85%] group">
+                            <div class="px-3.5 py-2.5 rounded-2xl text-[12px] font-medium leading-relaxed shadow-sm transition-all ${isAdmin ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-tr-sm shadow-indigo-500/20 group-hover:shadow-indigo-500/40' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-tl-sm border border-slate-100 dark:border-slate-700/50 group-hover:shadow-md'}">
+                                ${msg.content}
+                            </div>
+                            <p class="text-[7px] font-black uppercase text-slate-400 tracking-widest mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${isAdmin ? 'text-right' : 'text-left'}">${time}</p>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', bubble);
+            });
+            container.scrollTop = container.scrollHeight;
+        };
+
+        document.getElementById('admin-hub-chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!window.selectedChatStudentId) return;
+
+            const input = document.getElementById('admin-hub-chat-input');
+            const content = input.value.trim();
+            if (!content) return;
+
+            input.value = '';
+            const { error } = await client.from('admin_chat_messages').insert([{
+                sender_id: currentUser.id,
+                receiver_id: window.selectedChatStudentId,
+                content: content
+            }]);
+
+            if (error) {
+                showToast("Reply failed", "error");
+                input.value = content;
+            } else {
+                window.loadStudentChatMessages(window.selectedChatStudentId);
+                window.fetchAdminRecentChats();
+            }
+        });
+
+        // Upload Admin Chat Attachment
+        window.uploadAdminChatAttachment = async (event) => {
+            if (!window.selectedChatStudentId) {
+                showToast("Please select a student conversation first.", "error");
+                event.target.value = '';
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const loader = document.getElementById('admin-chat-upload-loader');
+            const submitBtn = document.getElementById('admin-hub-chat-submit-btn');
+            const inputEl = document.getElementById('admin-hub-chat-input');
+
+            try {
+                // Show Activity Indicator
+                if (loader) loader.classList.remove('hidden');
+                if (loader) loader.classList.add('flex');
+                if (submitBtn) submitBtn.disabled = true;
+                if (inputEl) inputEl.disabled = true;
+
+                const CLOUD_NAME = "dwowte8ny";
+                const UPLO_PRESET = "navttc-lms";
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', UPLO_PRESET);
+
+                const _codeExtTypes = ['html', 'css', 'js', 'ts', 'jsx', 'tsx', 'py', 'cpp', 'c', 'h', 'java', 'php', 'sql', 'json', 'xml', 'txt', 'md'];
+                const _fileExt = file.name.split('.').pop().toLowerCase();
+                const _uploadType = _codeExtTypes.includes(_fileExt) ? 'raw' : 'auto';
+
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${_uploadType}/upload`, { method: 'POST', body: formData });
+                const uploadData = await response.json();
+
+                if (uploadData.error) throw new Error(uploadData.error.message);
+
+                const fileUrl = uploadData.secure_url;
+
+                // Format message based on file type
+                let attachmentHTML = '';
+                if (_uploadType === 'auto' && file.type.startsWith('image/')) {
+                    attachmentHTML = `<a href="${fileUrl}" target="_blank"><img src="${fileUrl}" alt="Attachment" class="max-w-full rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 mt-1 max-h-48 object-cover"></a>`;
+                } else {
+                    attachmentHTML = `<a href="${fileUrl}" target="_blank" class="flex items-center gap-2 p-2 mt-1 rounded-lg bg-white/20 dark:bg-slate-900/40 border border-white/30 dark:border-slate-700/50 hover:bg-white/30 transition-colors text-[10px] font-bold"><i data-lucide="file-down" class="w-4 h-4"></i> ${window.fixEncoding ? window.fixEncoding(file.name) : file.name}</a>`;
+                }
+
+                // Append attachment HTML directly as a message
+                const { error } = await client.from('admin_chat_messages').insert([{
+                    sender_id: currentUser.id,
+                    receiver_id: window.selectedChatStudentId,
+                    content: attachmentHTML
+                }]);
+
+                if (error) throw error;
+
+                window.loadStudentChatMessages(window.selectedChatStudentId);
+                window.fetchAdminRecentChats();
+
+            } catch (err) {
+                console.error("Chat Upload Error:", err);
+                showToast(err.message || "Failed to upload attachment.", "error");
+            } finally {
+                // Restore State
+                if (loader) loader.classList.add('hidden');
+                if (loader) loader.classList.remove('flex');
+                if (submitBtn) submitBtn.disabled = false;
+                if (inputEl) inputEl.disabled = false;
+                event.target.value = ''; // Reset input
+            }
+        };
     </script>
 </body>
 
