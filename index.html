@@ -3229,6 +3229,10 @@
                                 student tasks</p>
                         </div>
                         <div class="flex items-center gap-3">
+                            <button onclick="fetchData(true)"
+                                class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-500/20 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sync Submissions
+                            </button>
                             <div
                                 class="px-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm flex items-center gap-2">
                                 <i data-lucide="filter" class="w-3.5 h-3.5 text-slate-400"></i>
@@ -3239,6 +3243,19 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Grading Category Tabs -->
+                    <div class="flex items-center gap-2 mb-6 border-b border-slate-200 dark:border-slate-800 pb-px">
+                        <button onclick="window.setGradingTab('pending')" id="tab-btn-pending"
+                            class="px-6 py-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400">
+                            Pending Review
+                        </button>
+                        <button onclick="window.setGradingTab('graded')" id="tab-btn-graded"
+                            class="px-6 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
+                            Graded History
+                        </button>
+                    </div>
+
                     <div id="grading-list" class="space-y-4 pb-10">
                         <!-- Submissions Injected -->
                     </div>
@@ -5584,7 +5601,7 @@
             fetchNotices().then(() => setTimeout(() => icon.removeClass('animate-spin'), 1000));
         };
 
-        window.fetchNotices = async () => {
+        async function fetchNotices() {
             try {
                 const { data: notices, error } = await client.from('notices')
                     .select('*')
@@ -5603,6 +5620,7 @@
                 console.error("Error fetching notices:", e);
             }
         };
+        window.fetchNotices = fetchNotices;
 
         window.renderNotices = (notices) => {
             const list = $('#notice-list');
@@ -6233,15 +6251,15 @@
 
             if (cachedTasks && cachedSubs) {
                 const tasks = JSON.parse(cachedTasks);
-                const subs = JSON.parse(cachedSubs);
+                // Apply global deduplication on load
+                const subs = deduplicateSubmissions(JSON.parse(cachedSubs));
 
                 window.allTasks = tasks;
                 window.allSubmissions = subs;
 
-                console.log("? Instant Load from Cache triggered");
+                console.log("? Instant Load from Cache triggered (Deduplicated)");
                 renderStats(tasks, subs);
                 if (activeTab === 'tasks') renderTasks(tasks, subs);
-                // We shouldn't solely rely on cache for the leaderboard, but if it exists, use it temporarily
                 if (activeTab === 'leaderboard') renderLeaderboard(userProfile.role === 'admin' ? subs : (window.leaderboardData || []));
                 if (userProfile.role === 'admin' && activeTab === 'grading') renderGrading(subs);
             }
@@ -6254,8 +6272,7 @@
             syncInterval = setInterval(fetchData, 5000);
         }
 
-        // NEW: AJAX Version of fetchData
-        async function fetchData() {
+        async function fetchData(forceUpdate = false) {
             // Use Supabase Client SDK instead of raw AJAX for better stability & auth handling
             const { data: { session } } = await client.auth.getSession();
             if (!session) return;
@@ -6273,22 +6290,25 @@
                 const leaderboardData = leaderboardRes.data || [];
 
                 const tasks = tasksRes.data;
-                const subs = subsRes.data;
+                // Apply global deduplication on fetch
+                const subs = deduplicateSubmissions(subsRes.data);
+                console.log("%c?[FETCH] LATEST FETCHED Data Fetched Successfully", 'color: #10b981; font-weight: bold;');
 
                 window.allTasks = tasks;
                 window.allSubmissions = subs;
                 window.leaderboardData = leaderboardData;
 
-                // SAVE TO CACHE FOR NEXT LOAD
+                // SAVE TO CACHE FOR NEXT LOAD (Store deduplicated clean data)
                 localStorage.setItem('cached_tasks', JSON.stringify(tasks));
                 localStorage.setItem('cached_subs', JSON.stringify(subs));
 
                 renderStats(tasks, subs);
-                if (activeTab === 'tasks') renderTasks(tasks, subs);
-                // Use new unified anonymous view for the leaderboard instead of personal subs (fallback to subs for admin if view is missing)
+                // FORCE RE-RENDER current tab to ensure latest data (deduplicated) is visible
+                renderTasks(tasks, subs, window.currentTaskFilter || 'all');
+
                 if (activeTab === 'leaderboard') renderLeaderboard(userProfile.role === 'admin' ? subs : leaderboardData);
                 if (userProfile.role === 'admin') {
-                    if (activeTab === 'grading') renderGrading(subs);
+                    if (activeTab === 'grading' || forceUpdate) renderGrading(subs, forceUpdate);
                     // fetchUsers is called separately when needed/tab switches, to save bandwidth
                     if (activeTab === 'users') fetchUsers();
 
@@ -6302,6 +6322,7 @@
             // Live Chart Update
             if (activeTab === 'dashboard' && performanceChart) updateChart();
         }
+        window.fetchData = fetchData;
         function renderStats(tasks, subs) {
             const isStudent = userProfile.role === 'student';
 
@@ -6802,7 +6823,12 @@
                 // if 'Strict Transformations' are enabled on the account.
                 // ZIP files (raw resources) also do NOT support transformations like 'fl_attachment'
                 // on most accounts, so we leave the URL exactly as generated during upload.
-                return url;
+
+                // Add a cache-busting query parameter to force the browser/CDN to fetch the newest version
+                // This fixes the issue where an admin sees the "purana file" (old file) for 
+                // re-submissions that were uploaded before the unique ID fix.
+                const separator = url.includes('?') ? '&' : '?';
+                return `${url}${separator}cb=${Date.now()}`;
             }
             return url;
         }
@@ -6813,6 +6839,46 @@
                 if (content.trim().startsWith('{')) return JSON.parse(content);
             } catch (e) { }
             return { file: content }; // Legacy fallback
+        }
+
+        // Helper to safely parse dates even if null/invalid
+        function parseSafeDate(d) {
+            if (!d) return 0;
+            const parsed = new Date(d).getTime();
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        // Centralized utility to ensure only the LATEST submission for each student-task is kept
+        function deduplicateSubmissions(subs) {
+            if (!subs || !Array.isArray(subs)) return [];
+            console.log(`%c[DEBUG] Processing ${subs.length} total records for deduplication...`, 'color: #94a3b8');
+            const map = new Map();
+            subs.forEach(s => {
+                const key = `${s.student_id}_${s.task_id}`;
+                const existing = map.get(key);
+
+                // Priority order for timestamps: submitted_at > created_at > update_at
+                const currentTS = Math.max(parseSafeDate(s.submitted_at), parseSafeDate(s.created_at), parseSafeDate(s.updated_at));
+
+                if (existing) {
+                    const existingTS = Math.max(parseSafeDate(existing.submitted_at), parseSafeDate(existing.created_at), parseSafeDate(existing.updated_at));
+                    console.log(`[TRACE] Duplicate Task ID ${s.task_id} for User ${s.student_id.substring(0, 8)}:`);
+                    console.log(`   - Existing: ${new Date(existingTS).toISOString()} | ID: ${existing.id}`);
+                    console.log(`   - Incoming: ${new Date(currentTS).toISOString()} | ID: ${s.id}`);
+
+                    if (currentTS > existingTS) {
+                        console.log(`   %c-> REPLACING with newer record.`, 'color: #10b981; font-weight: bold;');
+                        map.set(key, s);
+                    } else {
+                        console.log(`   %c-> KEEPING existing record (it is newer or same).`, 'color: #f59e0b; font-weight: bold;');
+                    }
+                } else {
+                    map.set(key, s);
+                }
+            });
+            const result = Array.from(map.values());
+            console.log(`%c[LATEST FETCHED] Deduplication complete. kept ${result.length} unique submissions.`, 'color: #10b981; font-weight: bold;');
+            return result;
         }
 
         // --- TASK DETAIL MODAL LOGIC (FIXED) ---
@@ -6906,20 +6972,21 @@
 
             // ROBUST SUBMISSION FINDER (Async)
             const findSub = async () => {
-                // 1. Try Local Cache First (Fastest)
+                // 1. Try Local Cache First (Fastest) - SORTED BY LATEST
                 if (window.allSubmissions) {
-                    const cached = window.allSubmissions.find(s =>
-                        s.student_id === currentUser?.id &&
-                        String(s.task_id) === taskIdStr
-                    );
+                    const cached = window.allSubmissions
+                        .filter(s => s.student_id === currentUser?.id && String(s.task_id) === taskIdStr)
+                        .sort((a, b) => {
+                            const tsA = Math.max(parseSafeDate(a.submitted_at), parseSafeDate(a.created_at), parseSafeDate(a.updated_at));
+                            const tsB = Math.max(parseSafeDate(b.submitted_at), parseSafeDate(b.created_at), parseSafeDate(b.updated_at));
+                            return tsB - tsA;
+                        })[0];
                     if (cached) return cached;
                 }
 
-                // 2. Direct DB Fetch (Fallback)
-                // This guarantees we find it if it exists in Supabase
+                // 2. Direct DB Fetch (Fallback) - SORTED BY LATEST
                 if (currentUser) {
                     try {
-                        // Create a timeout promise for this specific check
                         const timeoutCheck = new Promise((_, reject) =>
                             setTimeout(() => reject(new Error("Sub check timeout")), 5000)
                         );
@@ -6929,15 +6996,17 @@
                                 .select('*')
                                 .eq('task_id', taskIdStr)
                                 .eq('student_id', currentUser.id)
-                                .maybeSingle(),
+                                .order('submitted_at', { ascending: false })
+                                .limit(1),
                             timeoutCheck
                         ]);
 
                         if (error) console.warn("Submission Check Error:", error);
-                        if (data) {
+                        if (data && data.length > 0) {
+                            const subRecord = data[0];
                             // Sync to cache so we don't fetch again next time
-                            if (window.allSubmissions) window.allSubmissions.push(data);
-                            return data;
+                            if (window.allSubmissions) window.allSubmissions.push(subRecord);
+                            return subRecord;
                         }
                     } catch (err) {
                         console.error("Network Error during submission check:", err);
@@ -6981,35 +7050,10 @@
                         <p class="text-xs font-bold text-indigo-800 dark:text-indigo-300">Admin Mode Preview</p>
                         <p class="text-[9px] text-indigo-400 uppercase tracking-widest mt-1">This is how students see the task.</p>
                     </div>`);
-            }
-            // STUDENT VIEW IN MODAL
-            else if (sub) {
-                // Already Submitted View -> Use the Helper Function
-                if (sub.status === 'graded') {
-                    // Graded View (Keep separate as it has feedback/score)
-                    const feedbackHtml = `
-                        <div class="mt-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800">
-                            <h6 class="font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest text-[9px] mb-1">Teacher Feedback</h6>
-                            <p class="text-xs text-emerald-900 dark:text-emerald-100 italic">"${sub.feedback}"</p>
-                            <div class="mt-2 font-black text-2xl text-emerald-600">${sub.grade}/100</div>
-                         <button onclick="downloadReport('${sub.task_id}')" class="mt-3 w-full py-2 bg-white border border-emerald-200 text-emerald-600 hover:bg-emerald-50 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all">
-                            <i data-lucide="file-down" class="w-4 h-4"></i> PDF Report
-                        </button>
-                    </div>`;
-
-                    footer.html(`
-                    <div class="text-center py-6">
-                        <div class="w-12 h-12 mx-auto bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 rounded-full flex items-center justify-center mb-3">
-                            <i data-lucide="check-circle" class="w-6 h-6"></i>
-                        </div>
-                        <h4 class="font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight">Assignment Graded</h4>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-4">Status: <span class="text-emerald-500">GRADED</span></p>
-                        ${feedbackHtml}
-                    </div>`);
-                } else {
-                    // Pending Result - Show Status Card which has the "Resubmit" button
-                    footer.html(window.renderStatusCard(sub));
-                }
+            } else if (sub) {
+                // STUDENT VIEW IN MODAL
+                // Already Submitted View -> Always show Status Card (Resubmission disabled)
+                footer.html(window.renderStatusCard(sub));
             } else {
                 // Submission Form for Student (Not Submitted Yet OR Resubmitting via toggle)
                 if (typeof window.renderSubmitForm === 'function') {
@@ -7024,9 +7068,22 @@
             lucide.createIcons();
         };
 
-        window.renderGrading = (subs) => {
-            // Prevent UI refresh if admin is currently typing
-            if ($('#grading-list input:focus, #grading-list textarea:focus').length > 0) return;
+        window.currentGradingTab = 'pending'; // Default tab state
+
+        window.setGradingTab = (tab) => {
+            window.currentGradingTab = tab;
+
+            // Update Tab UI Styles
+            $('#tab-btn-pending, #tab-btn-graded').removeClass('border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 font-black').addClass('border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold');
+            $(`#tab-btn-${tab}`).removeClass('border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold').addClass('border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 font-black');
+
+            // Force Re-render based on new filter
+            window.renderGrading(window.allSubmissions, true);
+        };
+
+        window.renderGrading = (subs, forceUpdate = false) => {
+            // Prevent UI refresh if admin is currently typing, UNLESS forced (manual sync)
+            if (!forceUpdate && $('#grading-list input:focus, #grading-list textarea:focus').length > 0) return;
 
             // PRESERVE STATE
             const openAccordions = [];
@@ -7057,6 +7114,7 @@
             });
 
             const students = Object.values(studentsDict).sort((a, b) => a.name.localeCompare(b.name));
+            let studentsRendered = 0;
 
             students.forEach(student => {
                 // 1. Identify Graded Tasks First
@@ -7066,15 +7124,22 @@
                     .forEach(s => gradedSet.add(s.task_id));
                 const gradedCount = gradedSet.size;
 
-                // 2. Calculate Pending (Excluding tasks that are already graded)
+                // 2. Identify Pending
                 const pendingSet = new Set();
                 student.submissions
                     .filter(s => s.status === 'submitted') // Only pending
-                    .filter(s => !gradedSet.has(s.task_id)) // CRITICAL: If graded, don't count as pending
                     .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
                     .forEach(s => pendingSet.add(s.task_id));
 
                 const pendingCount = pendingSet.size;
+
+                // --- TAB FILTER LOGIC ---
+                // If we are on the 'pending' tab, skip students who have NO pending tasks
+                if (window.currentGradingTab === 'pending' && pendingCount === 0) return;
+                // If we are on the 'graded' tab, skip students who have NO graded tasks
+                if (window.currentGradingTab === 'graded' && gradedCount === 0) return;
+
+                studentsRendered++;
                 const accordionId = `grading-${student.id}`;
 
                 // Check if this card was previously open
@@ -7090,9 +7155,20 @@
                                 </div>
                                 <div>
                                     <h5 class="font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight leading-none mb-1.5 text-sm">${student.name}</h5>
-                                    <div class="text-[9px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-3">
-                                        <span class="${pendingCount > 0 ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded border border-amber-100 dark:border-amber-900/30' : 'text-slate-400'}">${pendingCount} Pending</span>
-                                        <span class="text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded border border-emerald-100 dark:border-emerald-900/30">${gradedCount} Graded</span>
+                                    <div class="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-3">
+                                        ${window.currentGradingTab === 'pending' || window.currentGradingTab === 'all' ? `
+                                        <span class="${pendingCount > 0 ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 rounded-full shadow-lg shadow-orange-500/30 border border-orange-400/50 flex flex-row items-center gap-1.5' : 'hidden'}">
+                                            <i data-lucide="clock" class="w-3 h-3 ${pendingCount > 0 ? 'animate-pulse' : ''}"></i>
+                                            ${pendingCount} AWAITING REVIEW
+                                        </span>
+                                        ` : ''}
+                                        
+                                        ${window.currentGradingTab === 'graded' || window.currentGradingTab === 'all' ? `
+                                        <span class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-3 py-1 rounded-full shadow-lg shadow-emerald-500/30 border border-emerald-400/50 flex flex-row items-center gap-1.5 ${gradedCount > 0 ? '' : 'hidden'}">
+                                            <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                                            ${gradedCount} EVALUATED
+                                        </span>
+                                        ` : ''}
                                     </div>
                                 </div>
                             </div>
@@ -7111,15 +7187,21 @@
 
                 // Add Submissions to the list
                 const rawPending = student.submissions
-                    .filter(s => s.status !== 'graded')
-                    .filter(s => !gradedSet.has(s.task_id)) // Hide if already graded
-                    .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+                    .sort((a, b) => {
+                        const dateA = new Date(a.submitted_at || a.created_at);
+                        const dateB = new Date(b.submitted_at || b.created_at);
+                        return dateB - dateA;
+                    });
 
                 const sortedSubs = [];
                 const seenTasks = new Set();
                 rawPending.forEach(s => {
                     if (!seenTasks.has(s.task_id)) {
                         seenTasks.add(s.task_id);
+                        // --- TAB FILTER LOGIC (Inner Files) ---
+                        if (window.currentGradingTab === 'pending' && s.status !== 'submitted') return;
+                        if (window.currentGradingTab === 'graded' && s.status !== 'graded') return;
+
                         sortedSubs.push(s);
                     }
                 });
@@ -7146,8 +7228,13 @@
                                          ${(() => {
                                 const data = parseSubmission(s.content);
                                 let html = '';
-                                if (data.file) html += `<a href="${formatDownloadUrl(data.file)}" target="_blank" class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:border-indigo-500 hover:text-indigo-500 transition-all text-slate-600 dark:text-slate-400"><i data-lucide="file" class="w-3.5 h-3.5"></i> Download File</a>`;
-                                if (data.github) html += `<a href="${data.github}" target="_blank" class="px-4 py-2 rounded-xl bg-slate-900 text-white border-2 border-slate-900 text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all"><i data-lucide="github" class="w-3.5 h-3.5"></i> View Code</a>`;
+                                if (data.file) {
+                                    const _codeExts = ['html', 'css', 'js', 'ts', 'jsx', 'tsx', 'py', 'cpp', 'c', 'h', 'java', 'php', 'sql', 'json', 'xml', 'txt', 'md'];
+                                    const _ext = (data.file.split('.').pop() || '').toLowerCase();
+                                    const _isCode = _codeExts.includes(_ext);
+                                    html += `<a href="${formatDownloadUrl(data.file)}" target="_blank" download class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:border-indigo-500 hover:text-indigo-500 transition-all text-slate-600 dark:text-slate-400"><i data-lucide="${_isCode ? 'code-2' : 'file'}" class="w-3.5 h-3.5"></i> ${_isCode ? 'Download Code' : 'Download File'}</a>`;
+                                }
+                                if (data.github) html += `<a href="${data.github}" target="_blank" class="px-4 py-2 rounded-xl bg-slate-900 text-white border-2 border-slate-900 text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all"><i data-lucide="github" class="w-3.5 h-3.5"></i> View GitHub</a>`;
                                 if (data.live) html += `<a href="${data.live}" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-500 text-white border-2 border-emerald-500 text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-600 transition-all"><i data-lucide="globe" class="w-3.5 h-3.5"></i> Live Demo</a>`;
                                 return html || '<span class="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-500 border border-rose-100 text-[8px] font-black uppercase tracking-widest">No Assets</span>';
                             })()}
@@ -7173,6 +7260,11 @@
                     container.append($card);
                 }
             });
+
+            if (studentsRendered === 0) {
+                container.html(`<div class="p-16 text-center text-slate-400 font-black uppercase tracking-[0.2em] text-[10px] italic">Status: No ${window.currentGradingTab} submissions found.</div>`);
+            }
+
             lucide.createIcons();
         };
 
@@ -7201,6 +7293,7 @@
             window.allArcadeProgress = progress || [];
             renderUsers(window.allUsersCache);
         }
+        window.fetchUsers = fetchUsers;
 
         function renderUsers(users) {
             const container = $('#user-table-body').empty();
@@ -8449,7 +8542,7 @@
             }
         };
 
-        window.switchTab = (tabId) => {
+        window.switchTab = (tabId, forceUpdate = false) => {
             console.log("Switching to:", tabId);
             activeTab = tabId;
 
@@ -8710,7 +8803,7 @@
             }
 
             // --- 9. GLOBAL UPDATES ---
-            if (typeof fetchData === 'function') fetchData();
+            if (typeof fetchData === 'function') fetchData(forceUpdate);
 
             // Fix for stuck modal backdrops
             $('.modal').on('hidden.bs.modal', function () {
@@ -10419,14 +10512,15 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         };
 
         window.enableResubmission = () => {
-            const taskId = currentTask.id;
+            if (!window.currentTask || !window.currentTask.id) return;
+            const taskId = window.currentTask.id;
             window.renderSubmitForm(taskId);
-            if (currentSub) {
-                const data = parseSubmission(currentSub.content);
+            if (window.currentSub && window.currentSub.content) {
+                const data = parseSubmission(window.currentSub.content);
                 if (data.github) $('#submit-github').val(data.github);
                 if (data.live) $('#submit-live').val(data.live);
-                $('#submit-form button').text('Update Submission');
             }
+            $('#submit-form button').text('Update Submission');
         };
 
 
@@ -10440,27 +10534,45 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         });
 
         window.renderStatusCard = (sub) => {
+            const isGraded = sub.status === 'graded';
+            const feedbackHtml = isGraded ? `
+                <div class="mt-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800 w-full text-center">
+                    <h6 class="font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest text-[9px] mb-1">Teacher Feedback</h6>
+                    <p class="text-xs text-emerald-900 dark:text-emerald-100 italic">"${sub.feedback || 'Good work!'}"</p>
+                    <div class="mt-2 font-black text-2xl text-emerald-600">${sub.grade || 0}/100</div>
+                    <button onclick="downloadReport('${sub.task_id}')" class="mt-3 w-full py-2 bg-white border border-emerald-200 text-emerald-600 hover:bg-emerald-50 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all">
+                        <i data-lucide="file-down" class="w-4 h-4"></i> PDF Report
+                    </button>
+                </div>` : '';
+
             return `
             <div class="p-10 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-3xl text-center font-black uppercase tracking-[0.2em] text-[10px] border border-indigo-100 dark:border-indigo-900/50 flex flex-col items-center gap-4">
-                <i data-lucide="check-circle-2" class="w-8 h-8 animate-in zoom-in duration-300"></i> 
+                <i data-lucide="${isGraded ? 'check-circle' : 'check-circle-2'}" class="w-8 h-8 animate-in zoom-in duration-300 ${isGraded ? 'text-emerald-500' : ''}"></i> 
                 <div>
                     <p class="text-[8px] opacity-70 mb-1">SUBMISSION STATUS</p>
-                    <p class="text-xs">RECEIVED: ${(sub.task_title || 'Task Submitted')}</p>
+                    <p class="text-xs">${isGraded ? 'GRADED' : 'RECEIVED'}: ${(sub.task_title || 'Task Submitted')}</p>
                 </div>
-                <p class="text-[8px] bg-indigo-100 dark:bg-indigo-500/20 px-4 py-2 rounded-full mt-2">Result Pending</p>
+                ${!isGraded ? '<p class="text-[8px] bg-indigo-100 dark:bg-indigo-500/20 px-4 py-2 rounded-full mt-2">Result Pending</p>' : ''}
                 <div class="flex gap-2 justify-center mt-3">
                     ${(() => {
                     const data = parseSubmission(sub.content);
                     let html = '';
-                    if (data.file) { const _codeExts = ['html', 'css', 'js', 'ts', 'jsx', 'tsx', 'py', 'cpp', 'c', 'h', 'java', 'php', 'sql', 'json', 'xml', 'txt', 'md']; const _ext = (data.file.split('.').pop() || '').toLowerCase(); const _isCode = _codeExts.includes(_ext); html += `<a href="${formatDownloadUrl(data.file)}" download target="_blank" class="text-[8px] font-black uppercase text-indigo-500 hover:underline flex items-center gap-1"><i data-lucide="${_isCode ? 'code-2' : 'file'}" class="w-2.5 h-2.5"></i> ${_isCode ? 'Code' : 'File'}</a>`; }
+                    if (data.file) {
+                        const _codeExts = ['html', 'css', 'js', 'ts', 'jsx', 'tsx', 'py', 'cpp', 'c', 'h', 'java', 'php', 'sql', 'json', 'xml', 'txt', 'md'];
+                        const _ext = (data.file.split('.').pop() || '').toLowerCase();
+                        const _isCode = _codeExts.includes(_ext);
+                        // ALWAYS apply cache buster here to ensure latest re-uploaded file is downloaded
+                        const safeUrl = formatDownloadUrl(data.file);
+                        const finalUrl = safeUrl.includes('?') ? `${safeUrl}&cb=${Date.now()}` : `${safeUrl}?cb=${Date.now()}`;
+                        html += `<a href="${finalUrl}" download target="_blank" class="text-[8px] font-black uppercase text-indigo-500 hover:underline flex items-center gap-1"><i data-lucide="${_isCode ? 'code-2' : 'file'}" class="w-2.5 h-2.5"></i> ${_isCode ? 'Code' : 'File'}</a>`;
+                    }
                     if (data.github) html += `<a href="${data.github}" target="_blank" class="text-[8px] font-black uppercase text-slate-500 hover:text-indigo-500 flex items-center gap-1"><i data-lucide="github" class="w-2.5 h-2.5"></i> Code</a>`;
                     if (data.live) html += `<a href="${data.live}" target="_blank" class="text-[8px] font-black uppercase text-emerald-500 hover:underline flex items-center gap-1"><i data-lucide="globe" class="w-2.5 h-2.5"></i> Live</a>`;
                     return html;
                 })()}
                 </div>
-                <button onclick="enableResubmission()" class="mt-4 px-6 py-2 bg-white dark:bg-indigo-950 text-indigo-500 border border-indigo-200 dark:border-indigo-800 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-900/40 transition-all shadow-sm">
-                    Resubmit / Replace
-                </button>
+                ${feedbackHtml}
+                ${!isGraded ? `<button onclick="window.enableResubmission()" class="mt-4 px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 transition-all flex items-center gap-2"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Replace Submission</button>` : ''}
             </div>`;
         };
 
@@ -10627,14 +10739,38 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                     const formData = new FormData();
                     formData.append('file', file);
                     formData.append('upload_preset', UPLO_PRESET);
+
                     // Use 'raw' for code/text files so Cloudinary doesn't reject them
                     const _codeExtTypes = ['html', 'css', 'js', 'ts', 'jsx', 'tsx', 'py', 'cpp', 'c', 'h', 'java', 'php', 'sql', 'json', 'xml', 'txt', 'md'];
                     const _fileExt = file.name.split('.').pop().toLowerCase();
-                    const _uploadType = _codeExtTypes.includes(_fileExt) ? 'raw' : 'auto';
+                    const isZip = _fileExt === 'zip' || _fileExt === 'rar';
+                    const _uploadType = _codeExtTypes.includes(_fileExt) || isZip ? 'raw' : 'auto';
+
+                    // Folder and Cache Busting for re-uploads
+                    formData.append('folder', `student_submissions/${currentUser.id}`);
+                    const baseName = file.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
+                    const randomHash = Math.random().toString(36).substring(2, 8);
+                    const finalPublicId = isZip || _codeExtTypes.includes(_fileExt) ? `${baseName}_${Date.now()}_${randomHash}.${_fileExt}` : `${baseName}_${Date.now()}_${randomHash}`;
+                    formData.append('public_id', finalPublicId);
+
                     const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${_uploadType}/upload`, { method: 'POST', body: formData });
                     const uploadData = await response.json();
+
                     if (uploadData.error) throw new Error(uploadData.error.message);
                     cloudFileUrl = uploadData.secure_url;
+                } else if (window.currentSub && window.currentSub.task_id == taskId) {
+                    // PRESERVE OLD FILE IF NO NEW FILE UPLOADED
+                    try {
+                        const oldParsed = JSON.parse(window.currentSub.content);
+                        if (oldParsed && oldParsed.file) {
+                            cloudFileUrl = oldParsed.file;
+                        }
+                    } catch (e) {
+                        // Fallback for legacy
+                        if (window.currentSub.content.startsWith('http')) {
+                            cloudFileUrl = window.currentSub.content;
+                        }
+                    }
                 }
 
                 // Construct JSON Content
@@ -10649,21 +10785,13 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 const activeTask = window.currentTask || (window.allTasks ? window.allTasks.find(t => String(t.id) === String(taskId)) : null);
                 const safeTitle = activeTask ? activeTask.title : 'Task Submission';
 
-                let dbOp;
-                // If we have a current submission for this task, UPDATE it
+                let dbResult, dbErr;
+
                 if (window.currentSub && window.currentSub.task_id == taskId) {
-                    if (window.currentSub.status === 'graded') {
-                        throw new Error("Cannot resubmit a graded task.");
-                    }
-                    console.log("Updating existing submission:", window.currentSub.id);
-                    dbOp = client.from('submissions').update({
-                        content: JSON.stringify(submissionData),
-                        status: 'submitted', // Ensure status is submitted (in case we add other statuses later)
-                        submitted_at: new Date().toISOString()
-                    }).eq('id', window.currentSub.id);
-                } else {
-                    // Create NEW submission
-                    dbOp = client.from('submissions').insert([{
+                    console.log("[DEBUG] Upserting submission for Task ID:", taskId);
+
+                    const { data, error } = await client.from('submissions').upsert({
+                        id: window.currentSub.id, // Primary Key map
                         task_id: taskId,
                         task_title: safeTitle,
                         student_id: currentUser.id,
@@ -10671,27 +10799,60 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                         content: JSON.stringify(submissionData),
                         status: 'submitted',
                         submitted_at: new Date().toISOString()
-                    }]);
-                }
+                    }, { onConflict: 'task_id,student_id' }).select();
 
-                const { error: dbErr } = await dbOp;
+                    console.log("[DEBUG] Replace complete:", { data, error });
+
+                    if (error && error.code === '42501') {
+                        // 42501 is PostgreSQL Insufficient Privilege.
+                        console.error("[DEBUG] RLS Blocked the Update!");
+                    }
+
+                    dbResult = data;
+                    dbErr = error;
+                } else {
+                    // Create NEW submission
+                    const { data, error } = await client.from('submissions').insert([{
+                        task_id: taskId,
+                        task_title: safeTitle,
+                        student_id: currentUser.id,
+                        student_name: userProfile.name,
+                        content: JSON.stringify(submissionData),
+                        status: 'submitted',
+                        submitted_at: new Date().toISOString()
+                    }]).select();
+
+                    dbResult = data;
+                    dbErr = error;
+                }
 
                 if (dbErr) throw dbErr;
 
                 // REFRESH DATA & UI
-                // Update global state immediately for the status card to work if re-opened
-                const fakeSub = {
+                const finalSub = (dbResult && dbResult[0]) ? dbResult[0] : {
                     ...submissionData,
                     task_title: safeTitle,
                     content: JSON.stringify(submissionData),
                     status: 'submitted'
                 };
 
+                window.currentSub = finalSub;
+
+                // Sync local state manually to fix fetch latency race-condition caching the old file
+                if (window.allSubmissions) {
+                    const idx = window.allSubmissions.findIndex(s => s.id === finalSub.id);
+                    if (idx !== -1) {
+                        window.allSubmissions[idx] = finalSub;
+                    } else {
+                        window.allSubmissions.push(finalSub);
+                    }
+                }
+
                 // Force UI update manually to guarantee the form disappears
-                $('#submission-section').html(window.renderStatusCard(fakeSub));
+                $('#submission-section').html(window.renderStatusCard(finalSub));
                 lucide.createIcons();
 
-                await fetchData(); // Refresh background data
+                fetchData(); // Refresh background data quietly
                 showToast("Work Submitted Successfully!");
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
 
@@ -10707,13 +10868,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
 
 
-        // Global function to toggle manual resubmission
-        window.enableResubmission = () => {
-            // Simply render the form for the current task
-            if (window.currentTask) {
-                window.renderSubmitForm(window.currentTask.id);
-            }
-        };
+
 
         // --- PROFILE AVATAR CROP & UPLOAD ---
         let cropper;
@@ -11549,7 +11704,12 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                     .eq('task_id', currentSub.task_id)
                     .neq('id', sid);
 
-                if (deleteError) console.warn("Cleanup warning:", deleteError);
+                if (deleteError) {
+                    console.warn("Cleanup warning:", deleteError);
+                    if (deleteError.code === '42501' || deleteError.status === 403) {
+                        showToast("Admin cleanup restricted: Check Supabase DELETE policies.");
+                    }
+                }
 
                 // 4. INSTANT LOCAL UPDATE
                 // We manually prune the pending/duplicate items from the local cache immediately.
@@ -14549,7 +14709,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 if (chatPopSound) {
                     chatPopSound.volume = 0.3;
                     chatPopSound.currentTime = 0;
-                    chatPopSound.play().catch(() => {});
+                    chatPopSound.play().catch(() => { });
                 }
 
                 // Fall back to WebAudio for a quick beep (some browsers block AudioContext until user gesture)
@@ -15189,6 +15349,8 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 event.target.value = ''; // Reset input
             }
         };
+
+        // --- GLOBAL EXPOSURE (FIX) ---
     </script>
 </body>
 
