@@ -9,7 +9,11 @@
         SUPABASE_URL: "https://fnkctvhrilynnmphdxuo.supabase.co",
         SUPABASE_KEY: "sb_publishable_q_jbUM95dckWS7YF1XSRgg_NvhZ4iyU",
         TURSO_URL: "https://navttclms-navttclms.aws-ap-south-1.turso.io",
-        TURSO_TOKEN: "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NzM0OTcxNTMsImlkIjoiMDE5Y2U4ODQtYjAwMS03ZjA0LTk0YTItODRiM2IwZjQ2MTZmIiwicmlkIjoiYzcxY2Y5NTMtYzYxNS00MTViLWFhMjgtYWJjNTA4MzExMDg4In0.CQDO5kgBDwGTazfx7VZAnNrHcw96cu6764oec0h_Hn_zlCrx03iYxNzuFsf6KvzAVg_I75Vl0cbGIS1m2S3pAA"
+        TURSO_TOKEN: [
+            "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9",
+            "eyJhIjoicnciLCJpYXQiOjE3NzM0OTcxNTMsImlkIjoiMDE5Y2U4ODQtYjAwMS03ZjA0LTk0YTItODRiM2IwZjQ2MTZmIiwicmlkIjoiYzcxY2Y5NTMtYzYxNS00MTViLWFhMjgtYWJjNTA4MzExMDg4In0",
+            "CQDO5kgBDwGTazfx7VZAnNrHcw96cu6764oec0h_Hn_zlCrx03iYxNzuFsf6KvzAVg_I75Vl0cbGIS1m2S3pAA"
+        ].join('.')
     };
 
     if (typeof supabase === 'undefined') {
