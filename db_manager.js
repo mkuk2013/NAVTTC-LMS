@@ -36,9 +36,13 @@
                                 if (bProp === 'then') return bTarget.then.bind(bTarget);
                                 
                                 return (...args) => {
-                                    bTarget.realQuery = bTarget.realQuery[bProp](...args);
-                                    bTarget.captureCall(bProp, args);
-                                    return proxy; // Chaining
+                                    const next = bTarget.realQuery[bProp];
+                                    if (typeof next === 'function') {
+                                        bTarget.realQuery = next.apply(bTarget.realQuery, args);
+                                        bTarget.captureCall(bProp, args);
+                                        return proxy; // Chaining
+                                    }
+                                    return next;
                                 };
                             }
                         });
@@ -69,22 +73,30 @@
         }
 
         async then(onFulfilled, onRejected) {
+            let res;
             try {
-                const result = await this.realQuery;
-                if (this.operation !== 'SELECT' && !result.error) {
+                res = await this.realQuery;
+                if (this.operation !== 'SELECT' && !res.error) {
                     this.mirrorToTurso();
                 }
-                if (result.error) throw result.error;
-                return onFulfilled ? onFulfilled(result) : result;
+                if (res.error) throw res.error;
             } catch (err) {
-                console.warn(`[DB Manager] Supabase Fail: ${err.message}. Switching to Turso...`);
-                let res;
-                if (this.operation === 'SELECT') res = await this.executeTursoRead();
-                else res = await this.executeTursoWrite();
+                // Only switch to Turso if it's a network/db error, not an app logic error
+                if (!err.message || err.message.includes('fetch') || err.status === 500 || err.code === 'P0001') {
+                    console.warn(`[DB Manager] Supabase Fail: ${err.message}. Switching to Turso...`);
+                    try {
+                        if (this.operation === 'SELECT') res = await this.executeTursoRead();
+                        else res = await this.executeTursoWrite();
 
-                if (this.isSingle && res.data && Array.isArray(res.data)) res.data = res.data[0] || null;
-                return onFulfilled ? onFulfilled(res) : res;
+                        if (this.isSingle && res.data && Array.isArray(res.data)) res.data = res.data[0] || null;
+                    } catch (tursoErr) {
+                        res = { data: null, error: tursoErr };
+                    }
+                } else {
+                    res = { data: null, error: err };
+                }
             }
+            return onFulfilled ? onFulfilled(res) : res;
         }
 
         async mirrorToTurso() {

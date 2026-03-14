@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS resources (
 );
 
 CREATE TABLE IF NOT EXISTS system_settings (
-  key TEXT NOT NULL,
+  key TEXT PRIMARY KEY,
   value text NOT NULL,
   updated_at TEXT 
 );
