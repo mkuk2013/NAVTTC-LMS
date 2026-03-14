@@ -45,6 +45,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="db_manager.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -2457,6 +2458,33 @@
                     New here? <button onclick="customToggleMode()" class="text-indigo-500 hover:underline">Create
                         Account</button>
                 </p>
+
+                <!-- Pro Dual Database Badge -->
+                <div class="mt-10 pt-6 border-t border-slate-100 dark:border-slate-800/60 flex flex-col items-center gap-3">
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/5 border border-emerald-500/10 dark:border-emerald-500/20">
+                        <span class="relative flex h-1.5 w-1.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                        </span>
+                        <span class="text-[7px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">High Availability Dual-Core Mode</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 opacity-60 hover:opacity-100 transition-all duration-700">
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-4 h-4 rounded bg-indigo-500/10 dark:bg-indigo-500/20 flex items-center justify-center border border-indigo-500/20">
+                                <i data-lucide="server" class="w-2.5 h-2.5 text-indigo-500"></i>
+                            </div>
+                            <span class="text-[8px] font-black tracking-tighter text-slate-500 dark:text-slate-400 uppercase">Supabase Cloud</span>
+                        </div>
+                        <div class="h-3 w-[1px] bg-slate-200 dark:bg-slate-800"></div>
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-4 h-4 rounded bg-sky-500/10 dark:bg-sky-500/20 flex items-center justify-center border border-sky-500/20">
+                                <i data-lucide="shield-check" class="w-2.5 h-2.5 text-sky-500"></i>
+                            </div>
+                            <span class="text-[8px] font-black tracking-tighter text-slate-500 dark:text-slate-400 uppercase">Turso Failover</span>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -14220,18 +14248,14 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 <div style="position:relative;z-index:2;">
 
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-
                         <div style="display:flex;align-items:center;gap:8px;">
-
                             <div
-                                style="width:7px;height:7px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 10px rgba(139,92,246,0.7);animation:wn-pulse 2s infinite;">
+                                style="width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 10px rgba(16,185,129,0.7);animation:wn-pulse 2s infinite;">
                             </div>
                             <span
-                                style="font-size:9px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:#7c3aed;">Live
-                                Updates</span>
+                                style="font-size:9px;font-weight:900;letter-spacing:0.2em;text-transform:uppercase;color:#059669;">System Status: Online</span>
                             <span
-                                style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#7c3aed;font-size:8px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;">v4.0
-                                &bull; Ultra Chat</span>
+                                style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#059669;font-size:8px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;">v2.0 &bull; Bulletproof DB</span>
                         </div>
                         <button onclick="closeWhatsNew()"
                             style="background:rgba(100,116,139,0.08);border:1px solid rgba(100,116,139,0.15);color:#94a3b8;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;"
@@ -14241,20 +14265,19 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
                     <h2
                         style="color:#0f172a;font-size:28px;font-weight:900;letter-spacing:-0.045em;margin:0 0 6px;line-height:1;">
-                        ULTRA CHAT &#x1F680;</h2>
-                    <p style="color:#64748b;font-size:11px;font-weight:500;margin:0 0 16px;line-height:1.5;">Admin or
-                        Student communication ab next level professional ho gaya hai!</p>
+                        LMS FULLY RESTORED &#x1F680;</h2>
+                    <p style="color:#64748b;font-size:11px;font-weight:500;margin:0 0 16px;line-height:1.5;">Ab aapka LMS pehle se zyada mazboot (Bulletproof) ho gaya hai! No more Downtime.</p>
 
                     <div style="display:flex;gap:5px;flex-wrap:wrap;">
                         <span
-                            style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:#7c3aed;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F4CE;
-                            Attachments</span>
+                            style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:#059669;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F6E1;
+                            Dual Database</span>
                         <span
                             style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:#2563eb;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x26A1;
-                            Quick Replies</span>
+                            Auto Failover</span>
                         <span
-                            style="background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);color:#db2777;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x1F514;
-                            Sounds</span>
+                            style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:#d97706;font-size:7.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:8px;">&#x2705;
+                            Tasks Active</span>
                     </div>
                 </div>
 
@@ -14274,27 +14297,25 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
                     <div style="height:1px;width:12px;background:#e2e8f0;"></div>
                     <span
-                        style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">High-End
-                        Chatbox Elements</span>
+                        style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;">Redundancy
+                        Engine Powered By</span>
                     <div style="height:1px;flex:1;background:#e2e8f0;"></div>
                 </div>
 
                 <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
                     <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;transition:border-color 0.2s,box-shadow 0.2s;"
-                        onmouseover="this.style.borderColor='rgba(139,92,246,0.4)';this.style.boxShadow='0 4px 16px rgba(139,92,246,0.08)'"
+                        onmouseover="this.style.borderColor='rgba(99,102,241,0.4)';this.style.boxShadow='0 4px 16px rgba(99,102,241,0.08)'"
                         onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
                         <div
-                            style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-                            &#x1F4CE;</div>
+                            style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+                            &#x1F4D8;</div>
                         <div style="flex:1;min-width:0;">
                             <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
-                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Files & Image
-                                    Attachments</p>
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Supabase + Turso Sync</p>
                                 <span
-                                    style="background:#ede9fe;border:1px solid #ddd6fe;color:#7c3aed;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">New</span>
+                                    style="background:#f0fdf4;border:1px solid #dcfce7;color:#16a34a;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Protected</span>
                             </div>
-                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Ab aap
-                                admin ko directly files aur images bhej sakte hain Cloudinary support ke sath!</p>
+                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Ab aapka data aik sath do mukhtalif databases mein save ho raha hai. Agar aik band ho, doosra foran kaam sambhaal lega.</p>
                         </div>
                     </div>
 
@@ -14303,16 +14324,14 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                         onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
                         <div
                             style="min-width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-                            &#x26A1;</div>
+                            &#x2705;</div>
                         <div style="flex:1;min-width:0;">
                             <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
-                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Quick Action Replies
-                                </p>
+                                <p style="font-size:12px;font-weight:800;color:#1e293b;margin:0;">Task Completion Required</p>
                                 <span
-                                    style="background:#dcfce7;border:1px solid #bbf7d0;color:#16a34a;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Featured</span>
+                                    style="background:#fff7ed;border:1px solid #ffedd5;color:#c2410c;font-size:7px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;">Immediate</span>
                             </div>
-                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Type karne
-                                ka waqt bachao! "Need Help", "Report Bug" pills par tap karo aur auto-send karo.</p>
+                            <p style="font-size:10px;color:#64748b;font-weight:500;margin:0;line-height:1.6;">Tamam students se guzarish hai ke apne pending tasks ab mukammal karein. LMS ab bilkul stable hai.</p>
                         </div>
                     </div>
 
@@ -14499,16 +14518,18 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
 
     <script>
-        const WHATS_NEW_VERSION = 'v4.0_ultra_chat_update';
+        const WHATS_NEW_VERSION = 'v2.0_dual_db_restored';
 
         function showWhatsNew() {
             if (localStorage.getItem('whatsNew_perm_' + WHATS_NEW_VERSION)) return;
+            if (sessionStorage.getItem('whatsNew_session_' + WHATS_NEW_VERSION)) return;
 
             const overlay = document.getElementById('whatsNewOverlay');
             const card = document.getElementById('whatsNewCard');
 
             if (overlay) {
                 overlay.style.display = 'flex';
+                sessionStorage.setItem('whatsNew_session_' + WHATS_NEW_VERSION, '1');
                 setTimeout(() => { overlay.classList.add('wn-visible'); if (card) card.classList.add('wn-visible'); }, 10);
             }
         }
