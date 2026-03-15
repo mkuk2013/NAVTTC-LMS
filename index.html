@@ -15174,7 +15174,12 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
                 // --- AUTOMATIC THANK YOU REPLY ---
                 try {
-                    const autoReplyMessage = `💖 [Admin Reply]: ${getRandomThankYouMessage(window.currentUser.full_name ? window.currentUser.full_name.split(' ')[0] : 'Student')}`;
+                    const firstName = window.currentUser.full_name ? window.currentUser.full_name.split(' ')[0] : 'Student';
+                    let randomMsg = 'Your kind words made my day truly special.'; // default
+                    if (typeof window.getRandomThankYouMessage === 'function') {
+                        randomMsg = window.getRandomThankYouMessage(firstName).replace(`Thank you so much, ${firstName}! `, '');
+                    }
+                    const autoReplyMessage = `💖 [Admin Reply]: Thank you so much, ${firstName}! ${randomMsg}`;
                     console.log("Sending auto reply to", window.currentUser.id, ":", autoReplyMessage);
                     
                     const { error: replyError } = await client.from('admin_chat_messages').insert({
@@ -15198,6 +15203,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                                 created_at: new Date().toISOString()
                             });
                         }
+                        if (typeof window.renderMessages === 'function') window.renderMessages();
                     }
                 } catch (replyErr) {
                     console.error("Error in auto reply:", replyErr);
