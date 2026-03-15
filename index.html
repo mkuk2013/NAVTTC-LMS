@@ -14881,6 +14881,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 (window.userProfile.full_name.includes('Mukesh') || window.userProfile.full_name.includes('मुकेश'));
             
             if (!isAdminMukesh) return;
+            const existingBanner = document.getElementById('admin-bday-banner');
 
             // 1. Festive Dashboard Banner
             const bannerHtml = `
@@ -14908,7 +14909,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                     <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></div>
                 </div>
             `;
-            $('#view-dashboard').prepend(bannerHtml);
+            if (!existingBanner) $('#view-dashboard').prepend(bannerHtml);
             
             // 2. Load Wish Count
             updateBirthdayWishCount();
@@ -14921,7 +14922,9 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             }, 500);
 
             // 4. Real-time Wish Listener for Admin (Sir Mukesh)
-            client
+            if (!window.adminBirthdayWishChannelSubscribed) {
+                window.adminBirthdayWishChannelSubscribed = true;
+                client
                 .channel('bday-wishes-sir')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_chat_messages' }, async payload => {
                     const msg = payload.new;
@@ -14957,7 +14960,25 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                         }, 2000);
                     }
                 })
-                .subscribe();
+                    .subscribe();
+            }
+        }
+
+        async function hasExistingBirthdayReply(adminId, studentId) {
+            const { data, error } = await client
+                .from('admin_chat_messages')
+                .select('id')
+                .eq('sender_id', adminId)
+                .eq('receiver_id', studentId)
+                .or('content.ilike.%Admin Reply%,content.ilike.%Auto-Reply%')
+                .limit(1);
+
+            if (error) {
+                console.error('Failed to check existing birthday reply', error);
+                return false;
+            }
+
+            return !!(data && data.length > 0);
         }
 
         window.replyToBirthdayWish = async (studentId, studentName) => {
@@ -15044,40 +15065,63 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 .in('receiver_id', userIds);
             
             const repliedSet = new Set(replies ? replies.map(r => r.receiver_id) : []);
+            const uniqueWishes = Array.from(
+                data.reduce((map, wish) => {
+                    if (!map.has(wish.sender_id)) map.set(wish.sender_id, wish);
+                    return map;
+                }, new Map()).values()
+            );
 
             // Auto reply to pending wishes
-            const pendingWishes = data.filter(wish => !repliedSet.has(wish.sender_id));
-            if (pendingWishes.length > 0) {
+            const pendingWishes = uniqueWishes.filter(wish => !repliedSet.has(wish.sender_id));
+            if (pendingWishes.length > 0 && !window.birthdayAutoReplyBatchRunning) {
+                window.birthdayAutoReplyBatchRunning = true;
                 const adminId = window.userProfile.uid || window.currentUser.id;
-                for (const wish of pendingWishes) {
-                    try {
-                        const firstName = profileMap[wish.sender_id]?.full_name?.split(' ')[0] || 'Student';
-                        let randomMsg = 'Your kind words made my day truly special.';
-                        if (typeof window.getRandomThankYouMessage === 'function') {
-                            randomMsg = window.getRandomThankYouMessage(firstName).replace(`Thank you so much, ${firstName}! `, '');
+                window.birthdayAutoReplyLocks = window.birthdayAutoReplyLocks || new Set();
+                try {
+                    for (const wish of pendingWishes) {
+                        if (window.birthdayAutoReplyLocks.has(wish.sender_id)) continue;
+                        window.birthdayAutoReplyLocks.add(wish.sender_id);
+
+                        try {
+                            const alreadyReplied = repliedSet.has(wish.sender_id) || await hasExistingBirthdayReply(adminId, wish.sender_id);
+                            if (alreadyReplied) {
+                                repliedSet.add(wish.sender_id);
+                                continue;
+                            }
+
+                            const firstName = profileMap[wish.sender_id]?.full_name?.split(' ')[0] || 'Student';
+                            let randomMsg = 'Your kind words made my day truly special.';
+                            if (typeof window.getRandomThankYouMessage === 'function') {
+                                randomMsg = window.getRandomThankYouMessage(firstName).replace(`Thank you so much, ${firstName}! `, '');
+                            }
+                            const autoReplyMessage = `[Admin Reply]: Thank you so much, ${firstName}! ${randomMsg}`;
+
+                            await client.from('admin_chat_messages').insert({
+                                id: crypto.randomUUID(),
+                                sender_id: adminId,
+                                receiver_id: wish.sender_id,
+                                content: autoReplyMessage,
+                                is_read: 0,
+                                created_at: new Date().toISOString()
+                            });
+
+                            console.log('Auto reply sent to', wish.sender_id);
+                            repliedSet.add(wish.sender_id);
+                        } catch (err) {
+                            console.error('Failed to send auto reply to', wish.sender_id, err);
+                        } finally {
+                            window.birthdayAutoReplyLocks.delete(wish.sender_id);
                         }
-                        const autoReplyMessage = `💖 [Admin Reply]: Thank you so much, ${firstName}! ${randomMsg}`;
-                        
-                        await client.from('admin_chat_messages').insert({
-                            id: crypto.randomUUID(),
-                            sender_id: adminId,
-                            receiver_id: wish.sender_id,
-                            content: autoReplyMessage,
-                            is_read: 0,
-                            created_at: new Date().toISOString()
-                        });
-                        
-                        console.log("Auto reply sent to", wish.sender_id);
-                        repliedSet.add(wish.sender_id); // Mark as replied
-                    } catch (err) {
-                        console.error("Failed to send auto reply to", wish.sender_id, err);
                     }
+                } finally {
+                    window.birthdayAutoReplyBatchRunning = false;
                 }
             }
 
             let html = `
                 <div class="max-h-[500px] overflow-y-auto no-scrollbar space-y-4 p-2">
-                    ${data.filter(wish => !repliedSet.has(wish.sender_id)).map(wish => {
+                    ${uniqueWishes.filter(wish => !repliedSet.has(wish.sender_id)).map(wish => {
                         const profile = profileMap[wish.sender_id] || { full_name: 'Student', avatar_url: null };
                         return `
                         <div class="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col gap-3">
@@ -15098,7 +15142,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                             </div>
                         </div>`;
                     }).join('')}
-                    ${data.filter(wish => !repliedSet.has(wish.sender_id)).length === 0 ? '<p class="text-center text-slate-400 py-8 italic">No pending wishes. All have been thanked! 🎉</p>' : ''}
+                    ${uniqueWishes.filter(wish => !repliedSet.has(wish.sender_id)).length === 0 ? '<p class="text-center text-slate-400 py-8 italic">No pending wishes. All have been thanked! ????</p>' : ''}
                 </div>
             `;
 
@@ -15201,43 +15245,6 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                         content: wishMessage,
                         created_at: new Date().toISOString()
                     });
-                }
-
-                // --- AUTOMATIC THANK YOU REPLY ---
-                try {
-                    const firstName = window.currentUser.full_name ? window.currentUser.full_name.split(' ')[0] : 'Student';
-                    let randomMsg = 'Your kind words made my day truly special.'; // default
-                    if (typeof window.getRandomThankYouMessage === 'function') {
-                        randomMsg = window.getRandomThankYouMessage(firstName).replace(`Thank you so much, ${firstName}! `, '');
-                    }
-                    const autoReplyMessage = `💖 [Admin Reply]: Thank you so much, ${firstName}! ${randomMsg}`;
-                    console.log("Sending auto reply to", window.currentUser.id, ":", autoReplyMessage);
-                    
-                    const { error: replyError } = await client.from('admin_chat_messages').insert({
-                        id: crypto.randomUUID(),
-                        sender_id: adminId,
-                        receiver_id: window.currentUser.id,
-                        content: autoReplyMessage,
-                        is_read: 0,
-                        created_at: new Date().toISOString()
-                    });
-
-                    if (replyError) {
-                        console.error("Failed to send auto reply:", replyError);
-                    } else {
-                        console.log("Auto reply sent successfully");
-                        if (window.adminChatMessages) {
-                            window.adminChatMessages.push({
-                                sender_id: adminId,
-                                receiver_id: window.currentUser.id,
-                                content: autoReplyMessage,
-                                created_at: new Date().toISOString()
-                            });
-                        }
-                        if (typeof window.renderMessages === 'function') window.renderMessages();
-                    }
-                } catch (replyErr) {
-                    console.error("Error in auto reply:", replyErr);
                 }
 
                 if (typeof window.renderMessages === 'function') window.renderMessages();
@@ -15787,6 +15794,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                     table: 'admin_chat_messages',
                     filter: `receiver_id=eq.${currentUser.id}`
                 }, payload => {
+                    console.log("Student received new message:", payload);
                     // Message from Admin to Me
                     fetchAdminChatMessages();
 
