@@ -2416,9 +2416,9 @@
 
             <div id="auth-tabs"
                 class="flex p-1 bg-slate-100 dark:bg-[#0b1120] rounded-xl mb-6 border dark:border-slate-800">
-                <button onclick="window.switchAuth('student')" id="tab-student"
+                <button type="button" onclick="return window.switchAuth('student', event)" id="tab-student"
                     class="flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all bg-white dark:bg-[#1e293b] shadow-sm text-indigo-600 dark:text-indigo-400">Student</button>
-                <button onclick="window.switchAuth('admin')" id="tab-admin"
+                <button type="button" onclick="return window.switchAuth('admin', event)" id="tab-admin"
                     class="flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all text-slate-500">Admin</button>
             </div>
 
@@ -2477,7 +2477,7 @@
 
                 <p id="auth-footer"
                     class="text-center text-[9px] font-black uppercase tracking-widest text-slate-400 mt-6">
-                    New here? <button onclick="customToggleMode()" class="text-indigo-500 hover:underline">Create
+                    New here? <button type="button" onclick="customToggleMode()" class="text-indigo-500 hover:underline">Create
                         Account</button>
                 </p>
 
@@ -4956,39 +4956,47 @@
 
 
         // --- AUTH LOGIC ---
-        window.switchAuth = (role) => {
-            // Persist selection to prevent refresh mismatches
-            localStorage.setItem('last_auth_tab', role);
+        window.switchAuth = (role, event) => {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
 
-            $('#auth-form').data('role', role);
-            $('#auth-error').addClass('hidden').text('');
-
-            // Modern classes for auth tabs (matching the UI design)
+            const normalizedRole = role === 'admin' ? 'admin' : 'student';
+            const isStudent = normalizedRole === 'student';
             const activeClass = "bg-white dark:bg-[#1e293b] shadow-sm text-indigo-600 dark:text-indigo-400";
             const inactiveClass = "text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300";
+            const studentTab = $('#tab-student');
+            const adminTab = $('#tab-admin');
+            const isSignupMode = $('#auth-btn span').text() === 'Create Account';
 
-            const isStudent = role === 'student';
+            localStorage.setItem('last_auth_tab', normalizedRole);
+            $('#auth-form').data('role', normalizedRole).attr('data-role', normalizedRole);
+            $('#auth-error').addClass('hidden').text('');
 
-            if (!isStudent) {
-                $('#tab-admin').addClass(activeClass).removeClass(inactiveClass);
-                $('#tab-student').removeClass(activeClass).addClass(inactiveClass);
+            studentTab.removeClass(activeClass).removeClass(inactiveClass);
+            adminTab.removeClass(activeClass).removeClass(inactiveClass);
 
-                // Admin is login only
-                $('#name-field, #avatar-field').slideUp(200);
-                $('#auth-footer').hide();
-                if (typeof customToggleMode === 'function' && $('#auth-btn span').text() === 'Create Account') {
-                    customToggleMode();
-                }
-            } else {
-                $('#tab-student').addClass(activeClass).removeClass(inactiveClass);
-                $('#tab-admin').removeClass(activeClass).addClass(inactiveClass);
+            if (isStudent) {
+                studentTab.addClass(activeClass).attr('aria-pressed', 'true');
+                adminTab.addClass(inactiveClass).attr('aria-pressed', 'false');
 
-                // Form Fields State
-                if ($('#auth-btn span').text() === 'Create Account') {
-                    $('#name-field, #avatar-field').slideDown(200);
+                if (isSignupMode) {
+                    $('#name-field, #avatar-field').stop(true, true).slideDown(200);
                 }
                 $('#auth-footer').show();
+            } else {
+                adminTab.addClass(activeClass).attr('aria-pressed', 'true');
+                studentTab.addClass(inactiveClass).attr('aria-pressed', 'false');
+
+                if (typeof customToggleMode === 'function' && isSignupMode) {
+                    customToggleMode();
+                }
+                $('#name-field, #avatar-field').stop(true, true).slideUp(200);
+                $('#auth-footer').hide();
             }
+
+            return false;
         };
 
         // --- SESSION MANAGEMENT ---
@@ -5353,7 +5361,7 @@
                 btn.find('svg, i').remove();
                 btn.append('<i data-lucide="user-plus" class="w-3.5 h-3.5"></i>');
 
-                footer.html('Already have an account? <button onclick="customToggleMode()" class="text-indigo-500 hover:underline">Sign In</button>');
+                footer.html('Already have an account? <button type="button" onclick="customToggleMode()" class="text-indigo-500 hover:underline">Sign In</button>');
             } else {
                 // SWITCH TO LOGIN
                 nameField.addClass('hidden');
@@ -5369,7 +5377,7 @@
                 $('#auth-name').val('');
                 $('#auth-avatar').val('');
 
-                footer.html('New here? <button onclick="customToggleMode()" class="text-indigo-500 hover:underline">Create Account</button>');
+                footer.html('New here? <button type="button" onclick="customToggleMode()" class="text-indigo-500 hover:underline">Create Account</button>');
             }
             lucide.createIcons();
         };
@@ -5714,7 +5722,8 @@
                     return;
                 }
 
-                renderNotices(notices || []);
+                const mergedNotices = await decorateFeedbackNotices(notices || []);
+                renderNotices(mergedNotices);
 
             } catch (e) {
                 console.error("Error fetching notices:", e);
@@ -5722,28 +5731,25 @@
         };
         window.fetchNotices = fetchNotices;
 
-        window.renderNotices = (notices) => {
+        window.renderNotices = (notices = []) => {
             const list = $('#notice-list');
             list.empty();
             let hasUrgent = false;
 
-            // Personalized Filtering
-            const relevantNotices = notices.filter(n => {
-                const title = n.title || '';
+            const relevantNotices = (Array.isArray(notices) ? notices : []).filter(n => {
+                const title = n?.title || '';
 
-                // Admin sees EVERYTHING to monitor the system
-                if (userProfile.role === 'admin') return true;
+                if (userProfile?.role === 'admin') return true;
 
-                // If it starts with @, it's a private message.
-                // Only show if it matches @[MyName]
                 if (title.startsWith('@')) {
-                    if (title.toLowerCase().startsWith(`@${userProfile.name.toLowerCase()}`)) return true;
-                    return false; // Hide other people's private messages
+                    const name = (userProfile?.name || userProfile?.full_name || '').toLowerCase();
+                    return name ? title.toLowerCase().startsWith(`@${name}`) : false;
                 }
-                return true; // Show global notices
+
+                return true;
             });
 
-            if (!relevantNotices || relevantNotices.length === 0) {
+            if (!relevantNotices.length) {
                 list.html('<div class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-wide">No new announcements.</div>');
                 $('#urgent-ticker').addClass('hidden');
                 return;
@@ -5751,15 +5757,16 @@
 
             relevantNotices.forEach(n => {
                 const isUrgent = n.priority === 'urgent';
-                const isPersonal = n.title.startsWith('@');
+                const isPersonal = (n.title || '').startsWith('@');
 
                 if (isUrgent && !hasUrgent && !isPersonal) {
-                    $('#ticker-text').text(n.title + ": " + (n.content || ""));
+                    $('#ticker-text').text((n.title || '') + ": " + (n.content || ""));
                     $('#urgent-ticker').removeClass('hidden');
                     hasUrgent = true;
                 }
 
-                const date = new Date(n.created_at).toLocaleDateString();
+                const parsedDate = n.created_at ? new Date(n.created_at) : null;
+                const date = (parsedDate && !Number.isNaN(parsedDate.getTime())) ? parsedDate.toLocaleDateString() : 'N/A';
                 const badge = isUrgent
                     ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-600 text-[9px] font-black uppercase">Urgent</span>`
                     : `<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[9px] font-black uppercase">Info</span>`;
@@ -5767,7 +5774,7 @@
                 list.append(`
                     <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 transition-colors">
                         <div class="flex justify-between items-start mb-1">
-                            <h4 class="text-xs font-bold text-slate-900 dark:text-slate-200 line-clamp-1">${n.title}</h4>
+                            <h4 class="text-xs font-bold text-slate-900 dark:text-slate-200 line-clamp-1">${n.title || ''}</h4>
                             <span class="text-[8px] font-bold text-slate-400">${date}</span>
                         </div>
                         <p class="text-[10px] text-slate-500 font-medium line-clamp-2 leading-relaxed mb-2">${n.content || ''}</p>
@@ -5883,50 +5890,12 @@
                     return;
                 }
 
-                renderNotices(notices || []);
+                const mergedNotices = await decorateFeedbackNotices(notices || []);
+                renderNotices(mergedNotices);
 
             } catch (e) {
                 console.error("Error fetching notices:", e);
             }
-        };
-
-        window.renderNotices = (notices) => {
-            const list = $('#notice-list');
-            list.empty();
-            let hasUrgent = false;
-
-            if (!notices || notices.length === 0) {
-                list.html('<div class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-wide">No new announcements.</div>');
-                $('#urgent-ticker').addClass('hidden');
-                return;
-            }
-
-            notices.forEach(n => {
-                const isUrgent = n.priority === 'urgent';
-                if (isUrgent && !hasUrgent) {
-                    $('#ticker-text').text(n.title + ": " + (n.content || ""));
-                    $('#urgent-ticker').removeClass('hidden');
-                    hasUrgent = true;
-                }
-
-                const date = new Date(n.created_at).toLocaleDateString();
-                const badge = isUrgent
-                    ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-600 text-[9px] font-black uppercase">Urgent</span>`
-                    : `<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[9px] font-black uppercase">Info</span>`;
-
-                list.append(`
-                    <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 transition-colors">
-                        <div class="flex justify-between items-start mb-1">
-                            <h4 class="text-xs font-bold text-slate-900 dark:text-slate-200 line-clamp-1">${n.title}</h4>
-                            <span class="text-[8px] font-bold text-slate-400">${date}</span>
-                        </div>
-                        <p class="text-[10px] text-slate-500 font-medium line-clamp-2 leading-relaxed mb-2">${n.content || ''}</p>
-                        ${badge}
-                    </div>
-                `);
-            });
-
-            if (!hasUrgent) $('#urgent-ticker').addClass('hidden');
         };
 
         // --- PASSWORD RESET (LOGGED IN) ---
@@ -7566,6 +7535,128 @@
         }
 
         // --- FEEDBACK LOGIC ---
+        const FEEDBACK_RELEASE_DATE = new Date(2026, 2, 16, 0, 0, 0, 0);
+        const FEEDBACK_RELEASE_LABEL = 'March 16, 2026';
+        const FEEDBACK_NOTICE_KEY = 'student_feedback_march_16_2026';
+
+        function getFeedbackStudentId() {
+            return userProfile?.uid || currentUser?.id || userProfile?.id || null;
+        }
+
+        function isFeedbackWindowOpen() {
+            return new Date() >= FEEDBACK_RELEASE_DATE;
+        }
+
+        async function hasStudentSubmittedFeedback(studentId = getFeedbackStudentId()) {
+            if (!studentId) return false;
+
+            if (localStorage.getItem(`feedback_submitted_${studentId}`) === 'true') {
+                return true;
+            }
+
+            try {
+                const { data, error } = await client
+                    .from('feedback')
+                    .select('id')
+                    .eq('student_id', studentId)
+                    .limit(1)
+                    .maybeSingle();
+
+                if (error) {
+                    console.warn("Feedback status check warning:", error);
+                    return false;
+                }
+
+                if (data) {
+                    localStorage.setItem(`feedback_submitted_${studentId}`, 'true');
+                    return true;
+                }
+            } catch (err) {
+                console.warn("Feedback status lookup failed:", err);
+            }
+
+            return false;
+        }
+
+        async function shouldShowStudentFeedbackNotice() {
+            if (!userProfile || userProfile.role !== 'student') return false;
+            if (!isFeedbackWindowOpen()) return false;
+            return !(await hasStudentSubmittedFeedback());
+        }
+
+        async function decorateFeedbackNotices(notices = []) {
+            const mergedNotices = Array.isArray(notices) ? [...notices] : [];
+
+            if (await shouldShowStudentFeedbackNotice()) {
+                const alreadyExists = mergedNotices.some(n => n.system_notice_key === FEEDBACK_NOTICE_KEY);
+                if (!alreadyExists) {
+                    mergedNotices.unshift({
+                        id: FEEDBACK_NOTICE_KEY,
+                        title: 'LMS Feedback Form',
+                        content: 'Apni LMS aur UI/UX feedback dein. Info par click karke form open karein.',
+                        priority: 'normal',
+                        created_at: FEEDBACK_RELEASE_DATE.toISOString(),
+                        system_notice_key: FEEDBACK_NOTICE_KEY,
+                        system_action: 'feedback_form'
+                    });
+                }
+            }
+
+            return mergedNotices;
+        }
+
+        window.openFeedbackForm = async (event) => {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            if (!isFeedbackWindowOpen()) {
+                showToast(`Feedback form ${FEEDBACK_RELEASE_LABEL} se open hogi.`, 'info');
+                return false;
+            }
+
+            if (userProfile?.role === 'student' && await hasStudentSubmittedFeedback()) {
+                showToast('Aap apni feedback pehle hi submit kar chuke hain.', 'info');
+                return false;
+            }
+
+            window.location.href = 'feedback.html';
+            return false;
+        };
+
+        async function buildFeedbackProfileMap(studentIds) {
+            const profileMap = {};
+            if (!studentIds || studentIds.length === 0) return profileMap;
+
+            const collectProfiles = (profiles = []) => {
+                profiles.forEach(profile => {
+                    const label = profile.full_name || profile.name || profile.email || '';
+                    if (!label) return;
+                    if (profile.uid) profileMap[profile.uid] = label;
+                    if (profile.id) profileMap[profile.id] = label;
+                });
+            };
+
+            const { data: byUid } = await client
+                .from('profiles')
+                .select('uid, id, full_name, name, email')
+                .in('uid', studentIds);
+
+            collectProfiles(byUid || []);
+
+            const unresolved = studentIds.filter(id => !profileMap[id]);
+            if (unresolved.length) {
+                const { data: byId } = await client
+                    .from('profiles')
+                    .select('uid, id, full_name, name, email')
+                    .in('id', unresolved);
+                collectProfiles(byId || []);
+            }
+
+            return profileMap;
+        }
+
         // NEW: Check for feedback count for admin notification
         async function checkFeedbackCount() {
             // Only admins need this
@@ -7641,8 +7732,17 @@
                 console.error("fetchFeedback Error:", error);
                 showToast("Failed to fetch feedback.");
             } else {
-                renderFeedbackTable(feedback || []);
-                $('#total-feedback-count').text(`${feedback ? feedback.length : 0} Records`);
+                const feedbackRows = feedback || [];
+                const studentIds = [...new Set(feedbackRows.map(item => item.student_id).filter(Boolean))];
+                const profileMap = await buildFeedbackProfileMap(studentIds);
+
+                const hydratedFeedback = feedbackRows.map(item => ({
+                    ...item,
+                    student_name: item.student_name || profileMap[item.student_id] || item.student_name
+                }));
+
+                renderFeedbackTable(hydratedFeedback);
+                $('#total-feedback-count').text(`${hydratedFeedback.length} Records`);
             }
         }
 
@@ -8399,58 +8499,125 @@
                 return;
             }
 
+            const parseSummaryFeedback = (content) => {
+                const summary = {};
+                if (!content) return summary;
+
+                String(content).split(/\r?\n+/).forEach((line) => {
+                    const separatorIndex = line.indexOf(':');
+                    if (separatorIndex === -1) return;
+                    const key = line.slice(0, separatorIndex).trim().toLowerCase();
+                    const value = line.slice(separatorIndex + 1).trim();
+                    if (key && value) summary[key] = value;
+                });
+
+                return summary;
+            };
+
+            const cleanValue = (value) => {
+                if (value === null || value === undefined) return '';
+                const textValue = String(value).trim();
+                const normalized = textValue.toLowerCase();
+                if (!textValue || normalized === 'undefined' || normalized === 'null') return '';
+                return textValue;
+            };
+
+            const escapeHtml = (value) => String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+
+            const labelFromValue = (value, type) => {
+                const normalized = cleanValue(value).toLowerCase();
+
+                if (type === 'quality') {
+                    if (normalized === 'excellent' || normalized === 'bohat achi') return 'Bohat achi';
+                    if (normalized === 'good' || normalized === 'achi') return 'Achi';
+                    if (normalized === 'average' || normalized === 'theek thaak') return 'Theek thaak';
+                    if (normalized === 'poor' || normalized === 'kamzor') return 'Kamzor';
+                }
+
+                if (type === 'usability') {
+                    if (normalized === 'yes' || normalized === 'asaan') return 'Asaan';
+                    if (normalized === 'somewhat' || normalized === 'theek thaak') return 'Theek thaak';
+                    if (normalized === 'no' || normalized === 'mushkil') return 'Mushkil';
+                }
+
+                return cleanValue(value) || 'N/A';
+            };
+
+            const getBadgeMarkup = (value, type) => {
+                const badgeClass = 'px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest border';
+                const label = labelFromValue(value, type);
+                const normalized = cleanValue(value).toLowerCase();
+
+                if (type === 'quality') {
+                    if (normalized === 'excellent' || normalized === 'bohat achi') return `<span class="${badgeClass} bg-emerald-50 text-emerald-600 border-emerald-200">${label}</span>`;
+                    if (normalized === 'good' || normalized === 'achi') return `<span class="${badgeClass} bg-indigo-50 text-indigo-600 border-indigo-200">${label}</span>`;
+                    if (normalized === 'average' || normalized === 'theek thaak') return `<span class="${badgeClass} bg-amber-50 text-amber-600 border-amber-200">${label}</span>`;
+                    if (normalized === 'poor' || normalized === 'kamzor') return `<span class="${badgeClass} bg-rose-50 text-rose-600 border-rose-200">${label}</span>`;
+                }
+
+                if (type === 'usability') {
+                    if (normalized === 'yes' || normalized === 'asaan') return `<span class="${badgeClass} bg-emerald-50 text-emerald-600 border-emerald-200">${label}</span>`;
+                    if (normalized === 'somewhat' || normalized === 'theek thaak') return `<span class="${badgeClass} bg-amber-50 text-amber-600 border-amber-200">${label}</span>`;
+                    if (normalized === 'no' || normalized === 'mushkil') return `<span class="${badgeClass} bg-rose-50 text-rose-600 border-rose-200">${label}</span>`;
+                }
+
+                return `<span class="${badgeClass} bg-slate-100 text-slate-500 border-slate-200">${label}</span>`;
+            };
+
             feedbackList.forEach(item => {
-                const date = new Date(item.created_at).toLocaleDateString();
+                const summary = parseSummaryFeedback(item.content);
+                const rawContent = cleanValue(item.content);
+                const studentName = cleanValue(item.student_name) || cleanValue(summary['student']) || cleanValue(item.student_id) || 'Student';
+                const comments = cleanValue(item.comments) || cleanValue(summary['agar koi mashwara dena ho to yahan likhein']) || cleanValue(summary['comments']) || (Object.keys(summary).length === 0 ? rawContent : '') || 'No comments';
+                const contentQuality = cleanValue(item.content_quality) || cleanValue(summary['course ka content kaisa hai?']) || cleanValue(item.quality) || 'N/A';
+                const usability = cleanValue(item.usability) || cleanValue(summary['lms use karna kitna asaan hai?']) || 'N/A';
+                const dateValue = cleanValue(item.created_at) || cleanValue(item.submitted_at) || cleanValue(item.date);
+                const parsedDate = dateValue ? new Date(dateValue) : null;
+                const date = (parsedDate && !Number.isNaN(parsedDate.getTime())) ? parsedDate.toLocaleDateString() : 'N/A';
+                const safeName = escapeHtml(studentName);
+                const safeComments = escapeHtml(comments);
 
                 let stars = '';
                 for (let i = 1; i <= 5; i++) {
-                    if (i <= item.rating) stars += '<i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400 inline"></i>';
+                    if (i <= Number(item.rating || 0)) stars += '<i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400 inline"></i>';
                     else stars += '<i data-lucide="star" class="w-3 h-3 text-slate-300 inline"></i>';
                 }
 
-                const badgeClass = "px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest border";
-                let qBadge = `<span class="${badgeClass} bg-slate-100 text-slate-500 border-slate-200">${item.content_quality}</span>`;
-                if (item.content_quality === 'excellent') qBadge = `<span class="${badgeClass} bg-emerald-50 text-emerald-600 border-emerald-200">${item.content_quality}</span>`;
-                else if (item.content_quality === 'good') qBadge = `<span class="${badgeClass} bg-indigo-50 text-indigo-600 border-indigo-200">${item.content_quality}</span>`;
-                else if (item.content_quality === 'average') qBadge = `<span class="${badgeClass} bg-amber-50 text-amber-600 border-amber-200">${item.content_quality}</span>`;
-                else if (item.content_quality === 'poor') qBadge = `<span class="${badgeClass} bg-rose-50 text-rose-600 border-rose-200">${item.content_quality}</span>`;
-
-                let uBadge = `<span class="${badgeClass} bg-slate-100 text-slate-500 border-slate-200">${item.usability}</span>`;
-                if (item.usability === 'yes') uBadge = `<span class="${badgeClass} bg-emerald-50 text-emerald-600 border-emerald-200">Easy</span>`;
-                else if (item.usability === 'somewhat') uBadge = `<span class="${badgeClass} bg-amber-50 text-amber-600 border-amber-200">Okay</span>`;
-                else if (item.usability === 'no') uBadge = `<span class="${badgeClass} bg-rose-50 text-rose-600 border-rose-200">Hard</span>`;
-
-                // Unread Indicator
+                const qBadge = getBadgeMarkup(contentQuality, 'quality');
+                const uBadge = getBadgeMarkup(usability, 'usability');
                 const unreadDot = (!item.is_read)
                     ? `<span id="dot-${item.id}" class="absolute top-1/2 left-2 -translate-y-1/2 w-2 h-2 bg-rose-500 rounded-full animate-pulse shadow-sm"></span>`
                     : '';
-                const rowClass = (!item.is_read) ? "bg-slate-50/50 dark:bg-slate-800/50 font-bold" : "";
+                const rowClass = (!item.is_read) ? 'bg-slate-50/50 dark:bg-slate-800/50 font-bold' : '';
 
                 container.append(`
                     <tr id="row-${item.id}" class="relative hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors border-b border-slate-50 dark:border-slate-800/50 text-xs ${rowClass}">
                         <td class="px-6 py-4 relative pl-8">
                             ${unreadDot}
-                            <div class="font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight">${item.student_name || 'Anonymous'}</div>
+                            <div class="font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight">${safeName}</div>
                         </td>
                         <td class="px-6 py-4 text-center">
                             <div class="flex items-center justify-center gap-0.5">${stars}</div>
                         </td>
                         <td class="px-6 py-4 text-center">${qBadge}</td>
                         <td class="px-6 py-4 text-center">${uBadge}</td>
-                        <td class="px-6 py-4 max-w-xs truncate" title="${item.comments || ''}">
-                            <span class="text-slate-600 dark:text-slate-400 font-medium italic">"${item.comments || 'No comments'}"</span>
+                        <td class="px-6 py-4 max-w-xs truncate" title="${safeComments}">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium italic">"${safeComments}"</span>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${date}</span>
                         </td>
                         <td class="px-6 py-4 text-right">
                              <div class="flex items-center justify-end gap-2">
-                                <button onclick="viewFeedbackDetails('${item.id}')" 
-                                    class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="View Details">
+                                <button onclick="viewFeedbackDetails('${item.id}')" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="View Details">
                                     <i data-lucide="eye" class="w-4 h-4"></i>
                                 </button>
-                                <button onclick="deleteFeedback('${item.id}')" 
-                                    class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Delete Feedback">
+                                <button onclick="deleteFeedback('${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Delete Feedback">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                             </div>
@@ -8460,7 +8627,6 @@
             });
             lucide.createIcons();
         }
-
         window.deleteFeedback = async (id) => {
             console.log("Delete requested for:", id);
 
@@ -8615,42 +8781,14 @@
 
         // Feedback Popup Logic
         window.showFeedbackPopup = async () => {
-            // 1. Check if user is logged in and is a student
-            if (!userProfile || userProfile.role !== 'student') return;
-
-            // 2. Check LocalStorage Cache first (fast check)
-            // We use 'uid' (UUID) to be consistent with feedback.html and auth.user.id
-            if (localStorage.getItem(`feedback_submitted_${userProfile.uid}`) === 'true') {
-                console.log("Feedback already submitted (Cached).");
-                return;
-            }
-
-            // 3. Check Supabase DB (Robust check)
-            try {
-                const { data, error } = await client
-                    .from('feedback')
-                    .select('id')
-                    .eq('student_id', userProfile.uid) // Use UUID to match feedback table
-                    .maybeSingle(); // Returns null if not found, instead of error for 0 rows
-
-                if (data) {
-                    // Feedback exists
-                    console.log("Feedback already found in DB. Skipping popup.");
-                    localStorage.setItem(`feedback_submitted_${userProfile.uid}`, 'true'); // Update cache
-                    return;
-                }
-            } catch (err) {
-                console.error("Error checking feedback status:", err);
-                // If error (e.g. offline), maybe skip to avoid annoying user? 
-                // Or show it? Let's skip to be safe.
-                return;
-            }
+            if (!(await shouldShowStudentFeedbackNotice())) return;
 
             const modal = document.getElementById('feedback-modal');
+            if (!modal) return;
 
-            if (modal && modal.classList.contains('hidden')) {
+            if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
-                modal.classList.add('flex'); // Enable flexbox for centering
+                modal.classList.add('flex');
                 setTimeout(() => {
                     modal.classList.remove('opacity-0');
                     const innerDiv = modal.querySelector('div');
@@ -16080,3 +16218,4 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 </body>
 
 </html>
+

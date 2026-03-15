@@ -1,481 +1,405 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feedback - BBSHRRDB LMS v2.0</title>
-    <link rel="icon" href="assets/bbsydp_logo.png" type="image/png">
-
-    <!-- Core Libraries -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="db_manager.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof tailwind !== 'undefined') {
-                tailwind.config = {
-                    theme: {
-                        extend: {
-                            colors: {
-                                indigo: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#5b21b6', 900: '#4c1d95', 950: '#2e1065' },
-                                slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' }
-                            },
-                            fontFamily: {
-                                sans: ['Outfit', 'Inter', 'sans-serif'],
-                            },
-                            animation: {
-                                'fade-in': 'fadeIn 0.5s ease-out forwards',
-                                'slide-up': 'slideUp 0.5s ease-out forwards',
-                            },
-                            keyframes: {
-                                fadeIn: {
-                                    '0%': { opacity: '0' },
-                                    '100%': { opacity: '1' },
-                                },
-                                slideUp: {
-                                    '0%': { opacity: '0', transform: 'translateY(20px)' },
-                                    '100%': { opacity: '1', transform: 'translateY(0)' },
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #f8fafc;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAVTTC LMS | Feedback Form</title>
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="db_manager.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#0f172a',
+            ocean: '#0f766e',
+            skypro: '#0284c7',
+            sun: '#f59e0b',
+            berry: '#e11d48',
+            soft: '#f8fbff'
+          },
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+            display: ['Sora', 'sans-serif']
+          },
+          boxShadow: {
+            luxe: '0 28px 80px rgba(15, 23, 42, 0.16)',
+            card: '0 18px 40px rgba(15, 23, 42, 0.10)'
+          }
         }
-        .star-rating input {
-            display: none;
-        }
-        .star-rating label {
-            cursor: pointer;
-            color: #cbd5e1;
-            transition: color 0.2s;
-        }
-        .star-rating input:checked ~ label,
-        .star-rating label:hover,
-        .star-rating label:hover ~ label {
-            color: #fbbf24;
-        }
-        .star-rating {
-            display: flex;
-            flex-direction: row-reverse;
-            justify-content: flex-end;
-            gap: 4px;
-        }
-    </style>
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Manrope', sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(2,132,199,0.20), transparent 24%),
+        radial-gradient(circle at top right, rgba(245,158,11,0.16), transparent 20%),
+        radial-gradient(circle at bottom left, rgba(225,29,72,0.12), transparent 24%),
+        linear-gradient(180deg, #f8fbff 0%, #eef7ff 45%, #ffffff 100%);
+      min-height: 100vh;
+      color: #0f172a;
+    }
+    .glass {
+      background: rgba(255,255,255,0.84);
+      border: 1px solid rgba(148,163,184,0.18);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 28px 80px rgba(15,23,42,0.16);
+    }
+    .hero {
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.12), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(34,197,94,0.18), transparent 30%),
+        linear-gradient(135deg, #ffffff 0%, #e0f2fe 42%, #dcfce7 100%);
+    }
+    .choice-input,
+    .star-input { display:none; }
+    .choice-card {
+      transition: all .22s ease;
+    }
+    .choice-input:checked + .choice-card {
+      border-color: rgba(2,132,199,0.42);
+      background: linear-gradient(135deg, rgba(224,242,254,0.98), rgba(255,255,255,1));
+      transform: translateY(-2px);
+      box-shadow: 0 16px 34px rgba(2,132,199,0.16);
+    }
+    .star-wrap {
+      display:flex;
+      flex-direction:row-reverse;
+      justify-content:flex-start;
+      gap:.55rem;
+    }
+    .star-label {
+      color:#cbd5e1;
+      cursor:pointer;
+      transition: transform .2s ease, color .2s ease;
+    }
+    .star-input:checked ~ .star-label,
+    .star-label:hover,
+    .star-label:hover ~ .star-label {
+      color:#f59e0b;
+    }
+    .star-label:hover { transform: scale(1.08); }
+  </style>
 </head>
+<body>
+  <main class="px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl space-y-6">
+      <div id="feedbackMessage" class="hidden rounded-3xl border px-5 py-4 text-sm font-semibold"></div>
 
-<body class="bg-slate-50 text-slate-900">
+      <section class="glass overflow-hidden rounded-[34px]">
+        <div class="hero relative px-6 py-8 text-white sm:px-8 sm:py-10">
+          <div class="absolute -right-10 top-6 h-40 w-40 rounded-full bg-sky-200/50 blur-3xl"></div>
+          <div class="absolute -left-8 bottom-0 h-32 w-32 rounded-full bg-emerald-200/60 blur-3xl"></div>
+          <div class="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-start gap-4">
+              <div class="flex h-16 w-16 items-center justify-center rounded-[22px] border border-slate-200 bg-white shadow-card">
+                <img src="assets/logo.png" alt="NAVTTC LMS Logo" class="h-10 w-10 object-contain">
+              </div>
+              <div>
+                <p class="text-[11px] font-black uppercase tracking-[0.34em] text-sky-700">NAVTTC LMS</p>
+                <h1 class="font-display text-3xl text-slate-900 sm:text-4xl">Feedback Form</h1>
+              </div>
+            </div>
 
-    <!-- Navbar -->
-    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
+          </div>
+        </div>
+
+        <div class="p-5 sm:p-8">
+          <section class="mx-auto max-w-3xl">
+            <form id="feedbackForm" class="space-y-6">
+              <div class="rounded-[28px] border border-slate-200 bg-white p-5 sm:p-6 shadow-card">
                 <div class="flex items-center gap-3">
-                    <div class="p-1">
-                        <img src="assets/bbsydp_logo.png" class="w-16 h-16 object-contain" alt="Logo">
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-xl tracking-tight text-slate-900">BBSHRRDB <span class="text-indigo-600">LMS v2.0</span></h1>
-                        <p class="text-xs text-slate-500 font-medium tracking-wide">STUDENT FEEDBACK</p>
-                    </div>
+                  <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-100 text-sun"><i data-lucide="star" class="h-5 w-5"></i></div>
+                  <label class="text-sm font-extrabold text-ink">LMS ka overall experience kaisa hai?</label>
                 </div>
-                <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors flex items-center gap-2">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    Back to Dashboard
-                </a>
+                <div class="mt-5 star-wrap">
+                  <input class="star-input" id="star5" type="radio" name="rating" value="5" required>
+                  <label class="star-label" for="star5"><i data-lucide="star" class="h-12 w-12 fill-current"></i></label>
+                  <input class="star-input" id="star4" type="radio" name="rating" value="4">
+                  <label class="star-label" for="star4"><i data-lucide="star" class="h-12 w-12 fill-current"></i></label>
+                  <input class="star-input" id="star3" type="radio" name="rating" value="3">
+                  <label class="star-label" for="star3"><i data-lucide="star" class="h-12 w-12 fill-current"></i></label>
+                  <input class="star-input" id="star2" type="radio" name="rating" value="2">
+                  <label class="star-label" for="star2"><i data-lucide="star" class="h-12 w-12 fill-current"></i></label>
+                  <input class="star-input" id="star1" type="radio" name="rating" value="1">
+                  <label class="star-label" for="star1"><i data-lucide="star" class="h-12 w-12 fill-current"></i></label>
+                </div>
+              </div>
+
+              <div class="rounded-[28px] border border-slate-200 bg-white p-5 sm:p-6 shadow-card space-y-6">
+                <div>
+                  <div class="mb-3 flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-100 text-skypro"><i data-lucide="book-open-text" class="h-5 w-5"></i></div>
+                    <label class="text-sm font-extrabold text-ink">Course ka content kaisa hai?</label>
+                  </div>
+                  <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <label><input class="choice-input" type="radio" name="content_quality" value="excellent" required><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Bohat achi</span></span></label>
+                    <label><input class="choice-input" type="radio" name="content_quality" value="good"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Achi</span></span></label>
+                    <label><input class="choice-input" type="radio" name="content_quality" value="average"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Theek thaak</span></span></label>
+                    <label><input class="choice-input" type="radio" name="content_quality" value="poor"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Kamzor</span></span></label>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="mb-3 flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-ocean"><i data-lucide="users" class="h-5 w-5"></i></div>
+                    <label class="text-sm font-extrabold text-ink">Teacher ki madad aur rehnumai kaisi hai?</label>
+                  </div>
+                  <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <label><input class="choice-input" type="radio" name="instructor_quality" value="excellent" required><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Bohat achi</span></span></label>
+                    <label><input class="choice-input" type="radio" name="instructor_quality" value="good"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Achi</span></span></label>
+                    <label><input class="choice-input" type="radio" name="instructor_quality" value="average"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Theek thaak</span></span></label>
+                    <label><input class="choice-input" type="radio" name="instructor_quality" value="poor"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Kamzor</span></span></label>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="mb-3 flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-100 text-indigo-600"><i data-lucide="gauge" class="h-5 w-5"></i></div>
+                    <label class="text-sm font-extrabold text-ink">Class aur course ki raftaar kaisi hai?</label>
+                  </div>
+                  <div class="grid gap-3 md:grid-cols-3">
+                    <label><input class="choice-input" type="radio" name="course_pace" value="too_fast" required><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Bohat Tez</span></span></label>
+                    <label><input class="choice-input" type="radio" name="course_pace" value="perfect"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Bilkul theek</span></span></label>
+                    <label><input class="choice-input" type="radio" name="course_pace" value="too_slow"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Bohat aahista</span></span></label>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="mb-3 flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-pink-100 text-berry"><i data-lucide="monitor-smartphone" class="h-5 w-5"></i></div>
+                    <label class="text-sm font-extrabold text-ink">LMS use karna kitna asaan hai?</label>
+                  </div>
+                  <div class="grid gap-3 md:grid-cols-3">
+                    <label><input class="choice-input" type="radio" name="usability" value="yes" required><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Asaan</span></span></label>
+                    <label><input class="choice-input" type="radio" name="usability" value="somewhat"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Theek thaak</span></span></label>
+                    <label><input class="choice-input" type="radio" name="usability" value="no"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Mushkil</span></span></label>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="mb-3 flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-100 text-sun"><i data-lucide="briefcase-business" class="h-5 w-5"></i></div>
+                    <label class="text-sm font-extrabold text-ink">Kya LMS se aapka kaam asaan ho raha hai?</label>
+                  </div>
+                  <div class="grid gap-3 md:grid-cols-2">
+                    <label><input class="choice-input" type="radio" name="would_recommend" value="yes" required><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Haan</span></span></label>
+                    <label><input class="choice-input" type="radio" name="would_recommend" value="no"><span class="choice-card block rounded-2xl border border-slate-200 bg-white px-4 py-4"><span class="block text-sm font-extrabold">Nahi</span></span></label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-[28px] border border-slate-200 bg-white p-5 sm:p-6 shadow-card">
+                <div class="mb-3 flex items-center gap-3">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-100 text-ocean"><i data-lucide="pen-square" class="h-5 w-5"></i></div>
+                  <label class="text-sm font-extrabold text-ink">Agar koi mashwara dena ho to yahan likhein</label>
+                </div>
+                <textarea id="comments" name="comments" rows="6" class="w-full rounded-[24px] border border-slate-200 bg-slate-50 px-5 py-4 text-sm leading-7 text-slate-700 outline-none transition focus:border-ocean focus:bg-white focus:ring-4 focus:ring-cyan-100" placeholder="Apni simple feedback ya mashwara yahan likhein..."></textarea>
+              </div>
+
+              <div class="flex justify-end">
+                <button id="submitBtn" type="submit" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-skypro to-ocean px-7 py-4 text-sm font-extrabold text-white shadow-card transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60">
+                  <i data-lucide="send" class="h-4 w-4"></i>
+                  Feedback Submit Karein
+                </button>
+              </div>
+            </form>
+
+            <div id="successState" class="hidden rounded-[30px] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-8 text-center shadow-card">
+              <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-[28px] bg-white text-ocean">
+                <i data-lucide="badge-check" class="h-10 w-10"></i>
+              </div>
+              <h2 class="mt-5 text-3xl font-extrabold text-ink">Feedback successfully submit ho gayi</h2>
+              <a href="index.html" class="mt-6 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-skypro to-ocean px-6 py-3.5 text-sm font-extrabold text-white transition hover:scale-[1.01]">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                Dashboard par wapas jayein
+              </a>
             </div>
+          </section>
         </div>
-    </nav>
+      </section>
+    </div>
+  </main>
 
-    <!-- Main Content -->
-    <main class="flex-grow flex items-center justify-center p-4 sm:p-8">
-        <div class="max-w-2xl w-full">
-            
-            <!-- Feedback Form Card -->
-            <div id="feedbackForm" class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden animate-slide-up">
-                <!-- Header -->
-                <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 p-8 text-center relative overflow-hidden">
-                    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LCAyNTUsIDI1NSwgMC4xKSIvPjwvc3ZnPg==')] opacity-30"></div>
-                    <div class="relative z-10">
-                        <div class="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/20 shadow-inner">
-                            <i data-lucide="message-square-heart" class="w-8 h-8 text-white"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-white mb-2">Apki Raaye Hamare Liye Ahem Hai</h2>
-                        <p class="text-indigo-100 text-sm max-w-md mx-auto">LMS ko behtar banane main hamari madad karen. Aapka feedback hamare liye bohot zaroori hai.</p>
-                    </div>
-                </div>
+  <script>
+    lucide.createIcons();
+    const SUPABASE_URL = 'https://fnkctvhrilynnmphdxuo.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_q_jbUM95dckWS7YF1XSRgg_NvhZ4iyU';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-                <!-- Form Content -->
-                <form id="lmsFeedbackForm" class="p-6 sm:p-8 space-y-8 bg-slate-50/50">
-                    
-                    <!-- Section 1: Overall Rating -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <div class="text-center space-y-4">
-                            <h3 class="text-lg font-bold text-slate-800 flex items-center justify-center gap-2">
-                                <i data-lucide="sparkles" class="w-5 h-5 text-yellow-500"></i>
-                                Overall Experience Kaisa Raha?
-                            </h3>
-                            <div class="star-rating justify-center gap-2">
-                                <input type="radio" name="rating" id="star5" value="5" required><label for="star5" title="Excellent" class="hover:scale-110 transition-transform"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
-                                <input type="radio" name="rating" id="star4" value="4"><label for="star4" title="Good" class="hover:scale-110 transition-transform"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
-                                <input type="radio" name="rating" id="star3" value="3"><label for="star3" title="Average" class="hover:scale-110 transition-transform"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
-                                <input type="radio" name="rating" id="star2" value="2"><label for="star2" title="Poor" class="hover:scale-110 transition-transform"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
-                                <input type="radio" name="rating" id="star1" value="1"><label for="star1" title="Very Poor" class="hover:scale-110 transition-transform"><i data-lucide="star" class="w-10 h-10 fill-current"></i></label>
-                            </div>
-                            <p class="text-xs text-slate-400 font-medium uppercase tracking-widest">Select Stars</p>
-                        </div>
-                    </div>
+    const messageBox = document.getElementById('feedbackMessage');
+    const form = document.getElementById('feedbackForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const successState = document.getElementById('successState');
 
-                    <!-- Section 2: Learning Experience -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300 space-y-6">
-                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
-                            <i data-lucide="graduation-cap" class="w-5 h-5 text-indigo-500"></i>
-                            Learning Experience
-                        </h3>
+    function showMessage(type, text) {
+      const styles = {
+        info: 'border-sky-200 bg-sky-50 text-sky-900',
+        success: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+        error: 'border-rose-200 bg-rose-50 text-rose-900'
+      };
+      messageBox.className = 'hidden rounded-3xl border px-5 py-4 text-sm font-semibold ' + (styles[type] || styles.info);
+      messageBox.textContent = text;
+      messageBox.classList.remove('hidden');
+    }
 
-                        <!-- Q1: Content Quality -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-semibold text-slate-700">Course Content ki Quality kaisi lagi?</label>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <label class="cursor-pointer group">
-                                    <input type="radio" name="content_quality" value="excellent" class="peer sr-only" required>
-                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 transition-all group-hover:border-indigo-200">
-                                        <div class="text-xs font-bold mb-1">Behtareen</div>
-                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Excellent)</div>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer group">
-                                    <input type="radio" name="content_quality" value="good" class="peer sr-only">
-                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 transition-all group-hover:border-indigo-200">
-                                        <div class="text-xs font-bold mb-1">Achi</div>
-                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Good)</div>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer group">
-                                    <input type="radio" name="content_quality" value="average" class="peer sr-only">
-                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 transition-all group-hover:border-indigo-200">
-                                        <div class="text-xs font-bold mb-1">Theek</div>
-                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Average)</div>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer group">
-                                    <input type="radio" name="content_quality" value="poor" class="peer sr-only">
-                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:text-indigo-700 transition-all group-hover:border-indigo-200">
-                                        <div class="text-xs font-bold mb-1">Kharab</div>
-                                        <div class="text-[10px] text-slate-500 peer-checked:text-indigo-500">(Poor)</div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+    async function getSessionUser() {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session?.user) {
+        window.location.href = 'index.html';
+        return null;
+      }
+      return session.user;
+    }
 
-                        <!-- Q2: Instructor Quality (NEW) -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-semibold text-slate-700">Instructor ka padhane ka tareeqa kaisa tha?</label>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <label class="cursor-pointer group">
-                                    <input type="radio" name="instructor_quality" value="excellent" class="peer sr-only" required>
-                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 transition-all group-hover:border-teal-200">
-                                        <div class="text-xs font-bold mb-1">Zabardast</div>
-                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Excellent)</div>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer group">
-                                    <input type="radio" name="instructor_quality" value="good" class="peer sr-only">
-                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 transition-all group-hover:border-teal-200">
-                                        <div class="text-xs font-bold mb-1">Acha</div>
-                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Good)</div>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer group">
-                                    <input type="radio" name="instructor_quality" value="average" class="peer sr-only">
-                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 transition-all group-hover:border-teal-200">
-                                        <div class="text-xs font-bold mb-1">Samajh Aya</div>
-                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Understandable)</div>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer group">
-                                    <input type="radio" name="instructor_quality" value="poor" class="peer sr-only">
-                                    <div class="p-3 text-center rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 transition-all group-hover:border-teal-200">
-                                        <div class="text-xs font-bold mb-1">Mushkil</div>
-                                        <div class="text-[10px] text-slate-500 peer-checked:text-teal-500">(Confusing)</div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+    async function findProfile(uid) {
+      let res = await client.from('profiles').select('uid, full_name, role, id').eq('uid', uid).maybeSingle();
+      if (res.data) return res.data;
+      res = await client.from('profiles').select('uid, full_name, role, id').eq('id', uid).maybeSingle();
+      return res.data || null;
+    }
 
-                        <!-- Q3: Course Pace (NEW) -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-semibold text-slate-700">Course ki speed (Raftaar) kaisi thi?</label>
-                            <div class="flex flex-col sm:flex-row gap-3">
-                                <label class="flex-1 cursor-pointer group">
-                                    <input type="radio" name="course_pace" value="too_fast" class="peer sr-only" required>
-                                    <div class="p-3 flex items-center gap-3 rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-orange-50 peer-checked:border-orange-500 peer-checked:text-orange-700 transition-all">
-                                        <i data-lucide="zap" class="w-4 h-4 text-slate-400 peer-checked:text-orange-500"></i>
-                                        <span class="text-xs font-bold">Bohat Tez (Too Fast)</span>
-                                    </div>
-                                </label>
-                                <label class="flex-1 cursor-pointer group">
-                                    <input type="radio" name="course_pace" value="perfect" class="peer sr-only">
-                                    <div class="p-3 flex items-center gap-3 rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700 transition-all">
-                                        <i data-lucide="thumbs-up" class="w-4 h-4 text-slate-400 peer-checked:text-green-500"></i>
-                                        <span class="text-xs font-bold">Bilkul Theek (Perfect)</span>
-                                    </div>
-                                </label>
-                                <label class="flex-1 cursor-pointer group">
-                                    <input type="radio" name="course_pace" value="too_slow" class="peer sr-only">
-                                    <div class="p-3 flex items-center gap-3 rounded-xl border-2 border-slate-100 bg-slate-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 transition-all">
-                                        <i data-lucide="snail" class="w-4 h-4 text-slate-400 peer-checked:text-blue-500"></i>
-                                        <span class="text-xs font-bold">Bohat Sust (Too Slow)</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
+    async function initPage() {
+      const user = await getSessionUser();
+      if (!user) return null;
+      const profile = await findProfile(user.id);
+      const role = profile?.role || 'student';
+      const isAdminPreview = role === 'admin';
 
-                    <!-- Section 3: Platform & Usability -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300 space-y-6">
-                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
-                            <i data-lucide="laptop" class="w-5 h-5 text-blue-500"></i>
-                            Platform Experience
-                        </h3>
+      if (role !== 'student' && !isAdminPreview) {
+        window.location.href = 'index.html';
+        return null;
+      }
 
-                        <!-- Q4: Usability -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-semibold text-slate-700">Kya LMS use karna aasan hai?</label>
-                            <div class="flex flex-wrap gap-4">
-                                <label class="flex items-center gap-2 cursor-pointer group bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 hover:border-blue-400 transition-colors">
-                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 group-hover:border-blue-500 transition-colors">
-                                        <input type="radio" name="usability" value="yes" class="peer sr-only" required>
-                                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
-                                    </div>
-                                    <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900">Haan, bilkul (Yes)</span>
-                                </label>
-                                <label class="flex items-center gap-2 cursor-pointer group bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 hover:border-blue-400 transition-colors">
-                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 group-hover:border-blue-500 transition-colors">
-                                        <input type="radio" name="usability" value="somewhat" class="peer sr-only">
-                                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
-                                    </div>
-                                    <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900">Kuch had tak (Somewhat)</span>
-                                </label>
-                                <label class="flex items-center gap-2 cursor-pointer group bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 hover:border-blue-400 transition-colors">
-                                    <div class="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-slate-300 group-hover:border-blue-500 transition-colors">
-                                        <input type="radio" name="usability" value="no" class="peer sr-only">
-                                        <div class="w-2.5 h-2.5 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
-                                    </div>
-                                    <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900">Nahi, mushkil hai (No)</span>
-                                </label>
-                            </div>
-                        </div>
+      if (!isAdminPreview && localStorage.getItem('feedback_submitted_' + user.id) === 'true') {
+        window.location.href = 'index.html';
+        return null;
+      }
 
-                        <!-- Q5: Recommendation (NEW) -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-semibold text-slate-700">Kya aap yeh course apne doston ko recommend karenge?</label>
-                            <div class="flex gap-4">
-                                <label class="cursor-pointer group">
-                                    <input type="radio" name="would_recommend" value="yes" class="peer sr-only" required>
-                                    <div class="px-6 py-2 rounded-full border-2 border-slate-200 text-slate-500 font-bold text-sm peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 transition-all hover:border-emerald-300">
-                                        <span class="flex items-center gap-2"><i data-lucide="thumbs-up" class="w-4 h-4"></i> Ji Haan</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer group">
-                                    <input type="radio" name="would_recommend" value="no" class="peer sr-only">
-                                    <div class="px-6 py-2 rounded-full border-2 border-slate-200 text-slate-500 font-bold text-sm peer-checked:bg-rose-500 peer-checked:text-white peer-checked:border-rose-500 transition-all hover:border-rose-300">
-                                        <span class="flex items-center gap-2"><i data-lucide="thumbs-down" class="w-4 h-4"></i> Ji Nahi</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section 4: Text Feedback -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <div class="space-y-3">
-                            <label for="feedbackText" class="block text-sm font-semibold text-slate-800 flex items-center gap-2">
-                                <i data-lucide="message-circle" class="w-4 h-4 text-indigo-500"></i>
-                                Koi mashwara ya specific feedback jo aap dena chahein?
-                            </label>
-                            <textarea id="feedbackText" rows="4" 
-                                class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none text-sm text-slate-700 placeholder:text-slate-400"
-                                placeholder="Hamein batayen ke hum aur kya behtar kar sakte hain..."></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button type="submit" id="submitBtn"
-                        class="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 group disabled:opacity-70 disabled:cursor-not-allowed">
-                        <span class="text-lg">Submit Feedback</span>
-                        <i data-lucide="send" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
-                    </button>
-                </form>
-            </div>
-
-            <!-- Success Message (Hidden by default) -->
-            <div id="successMessage" class="hidden bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-12 text-center animate-fade-in">
-                <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i data-lucide="check-circle-2" class="w-12 h-12 text-green-600"></i>
-                </div>
-                <h2 class="text-3xl font-bold text-slate-900 mb-4">Shukriya!</h2>
-                <p class="text-slate-600 mb-8 max-w-md mx-auto">Aapka feedback hamein mil gaya hai. Aapke waqt ka shukriya.</p>
-                
-                <a href="index.html" 
-                    class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium px-8 py-3 rounded-xl transition-all hover:shadow-lg transform hover:-translate-y-0.5">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    Back to LMS Dashboard
-                </a>
-            </div>
-
-            <!-- Footer -->
-            <div class="mt-8 text-center">
-                <p class="text-slate-400 text-xs">© <span class="dynamic-year">2025</span> Super Systech Computers Umerkot. All rights reserved.</p>
-            </div>
-
-        </div>
-    </main>
-
-    <script>
-        // Initialize Icons
-        lucide.createIcons();
-        
-        // Auto Update Year
-        document.querySelectorAll('.dynamic-year').forEach(el => el.textContent = new Date().getFullYear());
-
-        // Supabase Configuration
-        const SUPABASE_URL = "https://fnkctvhrilynnmphdxuo.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_q_jbUM95dckWS7YF1XSRgg_NvhZ4iyU";
-        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // Auth Guard - Strict Check & Already Submitted Check
-        async function checkAuth() {
-            const { data: { session } } = await client.auth.getSession();
-            if (!session) {
-                // User not logged in
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            const user = session.user;
-            
-            // 1. Local Check (Fast)
-            if (localStorage.getItem(`feedback_submitted_${user.id}`) === 'true') {
-                // Already submitted, redirect to dashboard
-                alert("Aap pehle hi feedback de chuke hain. Shukriya!");
-                window.location.href = 'index.html';
-                return;
-            }
-
-            // 2. Server Check (Robust)
-            try {
-                const { data, error } = await client
-                    .from('feedback')
-                    .select('id')
-                    .eq('student_id', user.id)
-                    .maybeSingle();
-                
-                if (data) {
-                    // Feedback found on server
-                    localStorage.setItem(`feedback_submitted_${user.id}`, 'true'); // Sync local
-                    alert("Aap pehle hi feedback de chuke hain. Shukriya!");
-                    window.location.href = 'index.html';
-                }
-            } catch (e) {
-                console.warn("Feedback check failed", e);
-            }
+      if (!isAdminPreview) {
+        const existing = await client.from('feedback').select('id').eq('student_id', user.id).maybeSingle();
+        if (existing.data) {
+          localStorage.setItem('feedback_submitted_' + user.id, 'true');
+          window.location.href = 'index.html';
+          return null;
         }
-        checkAuth();
+      }
 
-        // Handle Form Submission
-        document.getElementById('lmsFeedbackForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const originalBtnText = submitBtn.innerHTML;
-            
-            // Disable button
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="animate-pulse">Submitting...</span>';
+      if (isAdminPreview) {
+        showMessage('info', 'Admin preview mode on hai. Aap form dekh sakte hain lekin yahan se feedback save nahi hogi.');
+      } else {
+        showMessage('info', 'Neeche form fill karein. Sada aur asaan alfaaz mein apni raaye dein.');
+      }
 
-            try {
-                // Get Current User
-                const { data: { user } } = await client.auth.getUser();
-                
-                if (!user) {
-                    throw new Error("User not authenticated");
-                }
+      return { user, profile, isAdminPreview };
+    }
 
-                let studentName = "Student";
-                let studentId = user.id;
+    function buildSummary(payload) {
+      return [
+        'Student Feedback Summary',
+        'Student: ' + payload.student_name,
+        'Overall Rating: ' + payload.rating + '/5',
+        'Course ka content kaisa hai?: ' + payload.content_quality,
+        'Teacher ki madad aur rehnumai kaisi hai?: ' + payload.instructor_quality,
+        'Class aur course ki raftaar kaisi hai?: ' + payload.course_pace,
+        'LMS use karna kitna asaan hai?: ' + payload.usability,
+        'Kya LMS se aapka kaam asaan ho raha hai?: ' + payload.would_recommend,
+        'Agar koi mashwara dena ho to yahan likhein: ' + (payload.comments || 'Koi extra comment nahi diya gaya.')
+      ].join('\n');
+    }
 
-                // Fetch Profile Name
-                const { data: profile } = await client
-                    .from('profiles')
-                    .select('name')
-                    .eq('uid', user.id)
-                    .single();
-                
-                if (profile && profile.name) {
-                    studentName = profile.name;
-                }
+    function isDuplicate(error) {
+      const msg = ((error?.message || '') + ' ' + (error?.details || '')).toLowerCase();
+      return error?.code === '23505' || msg.includes('duplicate') || msg.includes('unique');
+    }
 
-                // Gather Form Data
-                const formData = new FormData(this);
-                const feedbackData = {
-                    student_name: studentName,
-                    student_id: studentId,
-                    rating: formData.get('rating'),
-                    content_quality: formData.get('content_quality'),
-                    usability: formData.get('usability'),
-                    instructor_quality: formData.get('instructor_quality'),
-                    course_pace: formData.get('course_pace'),
-                    would_recommend: formData.get('would_recommend'),
-                    comments: document.getElementById('feedbackText').value,
-                    created_at: new Date().toISOString()
-                };
+    function hasSchemaIssue(error) {
+      const msg = ((error?.message || '') + ' ' + (error?.details || '')).toLowerCase();
+      return msg.includes('column') || msg.includes('schema') || msg.includes('student_name') || msg.includes('comments') || msg.includes('content_quality');
+    }
 
-                // Insert into Supabase
-                const { error } = await client
-                    .from('feedback')
-                    .insert([feedbackData]);
+    initPage().then((ctx) => {
+      if (!ctx) return;
 
-                if (error) throw error;
-
-                // Set LocalStorage flag to prevent popup on dashboard
-                localStorage.setItem(`feedback_submitted_${user.id}`, 'true');
-
-                // UI Transition
-                const formCard = document.getElementById('feedbackForm');
-                const successCard = document.getElementById('successMessage');
-
-                // Fade out form
-                formCard.style.opacity = '0';
-                formCard.style.transform = 'translateY(-20px)';
-                formCard.style.transition = 'all 0.3s ease-in';
-
-                setTimeout(() => {
-                    formCard.style.display = 'none';
-                    successCard.classList.remove('hidden');
-                    // Trigger reflow for animation
-                    void successCard.offsetWidth;
-                }, 300);
-
-            } catch (err) {
-                console.error('Error submitting feedback:', err);
-                alert('Feedback submit karne mein masla hua. Please try again.');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-            }
+      if (ctx.isAdminPreview) {
+        submitBtn.type = 'button';
+        submitBtn.innerHTML = '<span class="inline-flex items-center gap-2"><i data-lucide="eye" class="h-4 w-4"></i>Preview Only</span>';
+        submitBtn.addEventListener('click', () => {
+          showMessage('info', 'Admin preview mode mein submit disabled hai. Student login se hi feedback save hogi.');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-    </script>
+        lucide.createIcons();
+        return;
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const original = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="inline-flex items-center gap-2"><i data-lucide="loader-circle" class="h-4 w-4 animate-spin"></i>Submitting...</span>';
+        lucide.createIcons();
+
+        try {
+          const data = new FormData(form);
+          const payload = {
+            id: ctx.user.id,
+            student_id: ctx.user.id,
+            student_name: ctx.profile?.full_name || ctx.user.email || 'Student',
+            rating: Number(data.get('rating')),
+            content_quality: data.get('content_quality'),
+            instructor_quality: data.get('instructor_quality'),
+            course_pace: data.get('course_pace'),
+            usability: data.get('usability'),
+            would_recommend: data.get('would_recommend'),
+            comments: (data.get('comments') || '').toString().trim(),
+            content: '',
+            is_read: false,
+            created_at: new Date().toISOString(),
+            submitted_at: new Date().toISOString()
+          };
+          payload.content = buildSummary(payload);
+
+          let result = await client.from('feedback').insert([payload]);
+          if (result.error && hasSchemaIssue(result.error)) {
+            result = await client.from('feedback').insert([{
+              id: ctx.user.id,
+              student_id: ctx.user.id,
+              rating: payload.rating,
+              content: payload.content,
+              is_read: false,
+              submitted_at: payload.submitted_at
+            }]);
+          }
+
+          if (result.error && isDuplicate(result.error)) {
+            showMessage('success', 'Aapki feedback pehle hi save ho chuki hai.');
+            window.location.href = 'index.html';
+            return;
+          }
+          if (result.error) throw result.error;
+
+          localStorage.setItem('feedback_submitted_' + ctx.user.id, 'true');
+          showMessage('success', 'Feedback successfully submit ho gayi.');
+          form.classList.add('hidden');
+          successState.classList.remove('hidden');
+          lucide.createIcons();
+        } catch (error) {
+          console.error('Feedback submission failed:', error);
+          showMessage('error', 'Feedback submit karne mein masla hua. Dobara try karein.');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = original;
+          lucide.createIcons();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
