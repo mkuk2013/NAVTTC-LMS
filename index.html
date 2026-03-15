@@ -58,6 +58,7 @@
             const randomMsg = thankYouMessages[Math.floor(Math.random() * thankYouMessages.length)];
             return `Thank you so much, ${firstName}! ${randomMsg}`;
         }
+        window.getRandomThankYouMessage = getRandomThankYouMessage;
     </script>
 
     <link
@@ -15172,24 +15173,34 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 }
 
                 // --- AUTOMATIC THANK YOU REPLY ---
-                const autoReplyMessage = `💖 [Admin Reply]: ${getRandomThankYouMessage(window.currentUser.full_name ? window.currentUser.full_name.split(' ')[0] : 'Student')}`;
-                
-                await client.from('admin_chat_messages').insert({
-                    id: crypto.randomUUID(),
-                    sender_id: adminId,
-                    receiver_id: window.currentUser.id,
-                    content: autoReplyMessage,
-                    is_read: 0,
-                    created_at: new Date().toISOString()
-                });
-
-                if (window.adminChatMessages) {
-                    window.adminChatMessages.push({
+                try {
+                    const autoReplyMessage = `💖 [Admin Reply]: ${getRandomThankYouMessage(window.currentUser.full_name ? window.currentUser.full_name.split(' ')[0] : 'Student')}`;
+                    console.log("Sending auto reply to", window.currentUser.id, ":", autoReplyMessage);
+                    
+                    const { error: replyError } = await client.from('admin_chat_messages').insert({
+                        id: crypto.randomUUID(),
                         sender_id: adminId,
                         receiver_id: window.currentUser.id,
                         content: autoReplyMessage,
+                        is_read: 0,
                         created_at: new Date().toISOString()
                     });
+
+                    if (replyError) {
+                        console.error("Failed to send auto reply:", replyError);
+                    } else {
+                        console.log("Auto reply sent successfully");
+                        if (window.adminChatMessages) {
+                            window.adminChatMessages.push({
+                                sender_id: adminId,
+                                receiver_id: window.currentUser.id,
+                                content: autoReplyMessage,
+                                created_at: new Date().toISOString()
+                            });
+                        }
+                    }
+                } catch (replyErr) {
+                    console.error("Error in auto reply:", replyErr);
                 }
 
                 if (typeof window.renderMessages === 'function') window.renderMessages();
