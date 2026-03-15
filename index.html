@@ -6210,9 +6210,11 @@
             fetchAchievements();
             if (window.setupRealtime) window.setupRealtime();
 
-            // --- WHAT'S NEW NOTIFICATION (Students only) ---
             if (userProfile.role === 'student') {
-                setTimeout(() => showWhatsNew(), 1500);
+                setTimeout(() => showBirthdayModal(), 1200);
+                setTimeout(() => showWhatsNew(), 4000);
+            } else if (userProfile.role === 'admin') {
+                setTimeout(() => initAdminBirthdayCelebration(), 1000);
             }
 
 
@@ -14541,6 +14543,49 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         </div>
 
     </div>
+    <!-- ===================== ADMIN BIRTHDAY MODAL ===================== -->
+    <div id="birthdayOverlay"
+        style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:16px;">
+        <div id="birthdayCard"
+            style="background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);border-radius:24px;width:100%;max-width:480px;overflow:visible;display:flex;flex-direction:column;position:relative;border:1px solid rgba(0,120,212,0.2);box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);">
+            
+            <div class="bday-glow" style="background:radial-gradient(circle, rgba(0,120,212,0.2) 0%, transparent 70%);"></div>
+
+            <!-- Windows Accent Top Border -->
+            <div style="position:absolute;top:0;left:0;right:0;height:4px;background:#0078d4;border-radius:24px 24px 0 0;"></div>
+
+            <div style="padding:40px 30px; text-align:center; position:relative;">
+                <div style="position:absolute; top:20px; right:20px;">
+                    <button onclick="closeBirthdayModal()" style="background:rgba(0,0,0,0.05); border:none; width:30px; height:30px; border-radius:50%; cursor:pointer; color:#1f1f1f; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.1)'" onmouseout="this.style.background='rgba(0,0,0,0.05)'">&#x2715;</button>
+                </div>
+
+                <div style="font-size:64px; margin-bottom:12px; filter: drop-shadow(0 8px 12px rgba(0,120,212,0.2));">🎂</div>
+                
+                <h2 style="font-family:'Segoe UI', sans-serif; font-weight:700; color:#1f1f1f; font-size:28px; margin-bottom:4px; letter-spacing:-0.5px;">Happy Birthday!</h2>
+                <h3 style="font-family:'Segoe UI', sans-serif; color:#0078d4; font-size:24px; font-weight:600; margin-bottom:24px;">Admin Mukesh Kumar</h3>
+                
+                <p style="color:#4b5563; font-size:14px; line-height:1.6; margin-bottom:30px; font-weight:500; max-width:380px; margin-left:auto; margin-right:auto;">
+                    Celebrating leadership and excellence. <br>
+                    Send your professional tributes to Mukesh Sir today. 🌟
+                </p>
+
+                <div style="background:rgba(0,120,212,0.04); border:1px solid rgba(0,120,212,0.1); border-radius:16px; padding:20px; margin-bottom:30px; position:relative;">
+                    <div style="position:absolute; top:-10px; left:20px; background:#0078d4; color:white; font-size:8px; font-weight:800; text-transform:uppercase; padding:3px 10px; border-radius:4px; letter-spacing:0.05em;">Anniversary Edition</div>
+                    <p style="color:#1f1f1f; font-size:13px; margin:0; font-weight:600; line-height:1.5;">
+                         "Wishing you a year defined by success, growth, and continued inspiration for the entire LMS community."
+                    </p>
+                </div>
+
+                <button onclick="sendBirthdayWish()" class="btn-shimmer"
+                    style="width:100%; padding:16px; border-radius:12px; background:#0078d4; color:#fff; border:none; font-size:14px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; cursor:pointer; box-shadow:0 8px 20px rgba(0,120,212,0.3); transition:all 0.3s; display:flex; align-items:center; justify-content:center; gap:10px;"
+                    onmouseover="this.style.background='#005a9e'; this.style.transform='translateY(-2px)';"
+                    onmouseout="this.style.background='#0078d4'; this.style.transform='translateY(0)';"
+                    >
+                    Send Professional Wish 🎊
+                </button>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -14668,6 +14713,69 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             border-radius: 4px;
 
         }
+
+
+        #birthdayOverlay.wn-visible {
+            animation: wn-fadeIn 0.3s ease both;
+        }
+
+        #birthdayCard.wn-visible {
+            animation: wn-slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+            box-shadow: 0 50px 100px -20px rgba(121, 40, 202, 0.3), 0 0 0 1px rgba(121, 40, 202, 0.1);
+        }
+
+        .bday-glow {
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, #ff0080, #7928ca, #ff0080);
+            filter: blur(20px);
+            opacity: 0.4;
+            z-index: -1;
+            border-radius: 34px;
+            animation: bday-glow-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes bday-glow-pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.02); }
+        }
+
+        .btn-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-shimmer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            animation: shimmer-effect 2s infinite;
+        }
+
+        @keyframes shimmer-effect {
+            0% { transform: translate(-100%, -100%) rotate(45deg); }
+            100% { transform: translate(100%, 100%) rotate(45deg); }
+        }
+
+        .admin-bday-banner {
+            background: linear-gradient(135deg, #1f1f1f 0%, #000000 100%);
+            border: 1px solid rgba(0, 120, 212, 0.4);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-bday-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(0, 120, 212, 0.2), transparent 70%);
+        }
     </style>
 
 
@@ -14676,17 +14784,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         const WHATS_NEW_VERSION = 'v2.0_dual_db_restored';
 
         function showWhatsNew() {
-            if (localStorage.getItem('whatsNew_perm_' + WHATS_NEW_VERSION)) return;
-            if (sessionStorage.getItem('whatsNew_session_' + WHATS_NEW_VERSION)) return;
-
-            const overlay = document.getElementById('whatsNewOverlay');
-            const card = document.getElementById('whatsNewCard');
-
-            if (overlay) {
-                overlay.style.display = 'flex';
-                sessionStorage.setItem('whatsNew_session_' + WHATS_NEW_VERSION, '1');
-                setTimeout(() => { overlay.classList.add('wn-visible'); if (card) card.classList.add('wn-visible'); }, 10);
-            }
+            // System update notification disabled as per user request
         }
 
         function closeWhatsNew() {
@@ -14705,6 +14803,297 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 if (card) { card.style.transform = ''; card.style.opacity = ''; card.style.transition = ''; }
                 overlay.classList.remove('wn-visible'); if (card) card.classList.remove('wn-visible');
             }, 220);
+        }
+
+        async function showBirthdayModal(force = false) {
+            const today = new Date();
+            const isMarch15 = today.getMonth() === 2 && today.getDate() === 15;
+            
+            if (!force) {
+                if (!isMarch15) return;
+                if (window.userProfile && window.userProfile.role !== 'student') return;
+                if (localStorage.getItem('bday_wish_2026')) return;
+            }
+
+            const overlay = document.getElementById('birthdayOverlay');
+            const card = document.getElementById('birthdayCard');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                setTimeout(() => {
+                    overlay.classList.add('wn-visible');
+                    if (card) card.classList.add('wn-visible');
+                }, 10);
+                
+                // Trigger confetti
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 150,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#7928ca', '#ff0080', '#ffeb3b', '#4f46e5']
+                    });
+                }
+            }
+        }
+
+        async function initAdminBirthdayCelebration() {
+            const today = new Date();
+            const isMarch15 = today.getMonth() === 2 && today.getDate() === 15;
+            if (!isMarch15) return;
+            if (!window.userProfile || window.userProfile.role !== 'admin') return;
+            
+            const isAdminMukesh = window.userProfile.full_name && 
+                (window.userProfile.full_name.includes('Mukesh') || window.userProfile.full_name.includes('मुकेश'));
+            
+            if (!isAdminMukesh) return;
+
+            // 1. Festive Dashboard Banner
+            const bannerHtml = `
+                <div id="admin-bday-banner" class="admin-bday-banner mb-10 p-8 rounded-[32px] shadow-2xl relative animate-in fade-in slide-in-from-top-10 duration-700">
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600"></div>
+                    <div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                        <div class="w-32 h-32 rounded-3xl bg-blue-500/10 flex items-center justify-center text-6xl shadow-inner border border-blue-400/20">👑</div>
+                        <div class="flex-1 text-center md:text-left">
+                            <h2 class="text-4xl font-black text-white tracking-tighter mb-2">Sir, Happy Birthday! 🎊</h2>
+                            <p class="text-blue-100/80 font-medium text-lg max-w-2xl">Today the whole LMS celebrates your leadership. Anniversary Edition: Wishing you an extraordinary year!</p>
+                            
+                            <div class="mt-6 flex flex-wrap gap-4 justify-center md:justify-start">
+                                <div class="px-4 py-2 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3">
+                                    <span class="text-2xl text-blue-400">📊</span>
+                                    <div>
+                                        <p class="text-[9px] font-black uppercase text-blue-200 tracking-widest leading-none mb-1">Total Wishes</p>
+                                        <p class="text-xl font-black text-white" id="bday-wish-count">Loading...</p>
+                                    </div>
+                                </div>
+                                <button onclick="showBirthdayWishesModal()" class="px-6 py-2 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-blue-500/20 active:scale-95">View Tributes 📜</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Animated elements -->
+                    <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></div>
+                </div>
+            `;
+            $('#view-dashboard').prepend(bannerHtml);
+            
+            // 2. Load Wish Count
+            updateBirthdayWishCount();
+            
+            // 3. Trigger Confetti for Admin too!
+            setTimeout(() => {
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.3 }, colors: ['#fbbf24', '#f59e0b', '#fff'] });
+                }
+            }, 500);
+
+            // 4. Real-time Wish Listener for Admin (Sir Mukesh)
+            client
+                .channel('bday-wishes-sir')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_chat_messages' }, payload => {
+                    const msg = payload.new;
+                    if (msg.content.includes('Happy Birthday Admin Mukesh Kumar')) {
+                        updateBirthdayWishCount();
+                        if (typeof window.playChatPopSound === 'function') window.playChatPopSound();
+                        
+                        Swal.fire({
+                            title: 'New Birthday Wish! 🎂',
+                            text: 'A student just sent you a professional birthday tribute.',
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 5000,
+                            timerProgressBar: true
+                        });
+                    }
+                })
+                .subscribe();
+        }
+
+        window.replyToBirthdayWish = async (studentId, studentName) => {
+            const { value: replyMsg } = await Swal.fire({
+                title: `<span class="text-sm font-black uppercase tracking-widest">Reply to ${studentName}</span>`,
+                input: 'textarea',
+                inputValue: `Thank you so much, ${studentName.split(' ')[0]}! Your kind words made my day truly special.`,
+                inputAttributes: {
+                    'aria-label': 'Type your thank you message'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Send Thanks ✨',
+                confirmButtonColor: '#7928ca',
+                background: localStorage.getItem('theme') === 'dark' ? '#1e293b' : '#fff',
+                color: localStorage.getItem('theme') === 'dark' ? '#fff' : '#000',
+                borderRadius: '24px'
+            });
+
+            if (replyMsg) {
+                try {
+                    const { error } = await client.from('admin_chat_messages').insert({
+                        id: crypto.randomUUID(),
+                        sender_id: window.currentUser.id,
+                        receiver_id: studentId,
+                        content: `💖 [Admin Reply]: ${replyMsg}`,
+                        is_read: 0,
+                        created_at: new Date().toISOString()
+                    });
+                    if (error) throw error;
+                    
+                    Swal.fire({
+                        title: 'Replied!',
+                        text: 'Your thank you message has been delivered.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } catch (e) {
+                    Swal.fire('Error', 'Failed to send reply.', 'error');
+                }
+            }
+        };
+
+        async function updateBirthdayWishCount() {
+            try {
+                const { data, error, count } = await client
+                    .from('admin_chat_messages')
+                    .select('*', { count: 'exact', head: true })
+                    .ilike('content', '%Happy Birthday Admin Mukesh Kumar%');
+                
+                if (data && count !== undefined) {
+                    $('#bday-wish-count').text(count);
+                }
+            } catch (e) { console.error("Could not fetch wish count", e); }
+        }
+
+        window.showBirthdayWishesModal = async () => {
+            const today = new Date();
+            const isMarch15 = today.getMonth() === 2 && today.getDate() === 15;
+            if (!isMarch15) return;
+
+            const { data, error } = await client
+                .from('admin_chat_messages')
+                .select('sender_id, content, created_at')
+                .ilike('content', '%Happy Birthday Admin Mukesh Kumar%')
+                .order('created_at', { ascending: false });
+
+            if (error || !data) {
+                Swal.fire('Error', 'Could not load wishes.', 'error');
+                return;
+            }
+
+            // Fetch sender names
+            const userIds = [...new Set(data.map(w => w.sender_id))];
+            const { data: profiles } = await client.from('profiles').select('uid, full_name, avatar_url').in('uid', userIds);
+            const profileMap = profiles ? Object.fromEntries(profiles.map(p => [p.uid, p])) : {};
+
+            let html = `
+                <div class="max-h-[500px] overflow-y-auto no-scrollbar space-y-4 p-2">
+                    ${data.map(wish => {
+                        const profile = profileMap[wish.sender_id] || { full_name: 'Student', avatar_url: null };
+                        return `
+                        <div class="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col gap-3">
+                            <div class="flex gap-4 items-start">
+                                <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center shrink-0 border border-indigo-100">
+                                    ${profile.avatar_url ? `<img src="${profile.avatar_url}" class="w-full h-full rounded-full object-cover">` : `<span class="font-bold text-indigo-600">${profile.full_name.charAt(0)}</span>`}
+                                </div>
+                                <div class="flex-1">
+                                    <h5 class="text-xs font-black text-slate-800 dark:text-slate-200 mb-1 leading-none">${profile.full_name}</h5>
+                                    <p class="text-[11px] text-slate-500 italic">"${wish.content.replace('🎉 Happy Birthday Admin Mukesh Kumar! 🎂 ', '')}"</p>
+                                    <p class="text-[8px] mt-2 font-black uppercase text-slate-300 tracking-widest">${new Date(wish.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                                </div>
+                            </div>
+                            <div class="pt-2 border-t border-slate-50 dark:border-slate-700/50 flex justify-end">
+                                <button onclick="replyToBirthdayWish('${wish.sender_id}', '${profile.full_name.replace(/'/g, "\\'")}')" class="px-4 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all">Say Thanks ✨</button>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                    ${data.length === 0 ? '<p class="text-center text-slate-400 py-8 italic">No wishes received yet. The celebration is just starting!</p>' : ''}
+                </div>
+            `;
+
+            Swal.fire({
+                title: '<span class="text-lg font-black uppercase tracking-widest">Birthday Tribute Wall 📜</span>',
+                html: html,
+                showConfirmButton: false,
+                width: '500px',
+                background: userProfile && userProfile.role === 'admin' && localStorage.getItem('theme') === 'dark' ? '#1e293b' : '#fff',
+                padding: '24px',
+                borderRadius: '32px'
+            });
+        };
+
+        function closeBirthdayModal() {
+            const overlay = document.getElementById('birthdayOverlay');
+            const card = document.getElementById('birthdayCard');
+            if (!overlay) return;
+
+            if (card) { 
+                card.style.transition = 'transform 0.2s ease, opacity 0.2s ease'; 
+                card.style.transform = 'translateY(16px) scale(0.97)'; 
+                card.style.opacity = '0'; 
+            }
+            overlay.style.transition = 'opacity 0.2s ease'; overlay.style.opacity = '0';
+
+            setTimeout(() => {
+                overlay.style.display = 'none'; 
+                overlay.style.opacity = ''; 
+                overlay.style.transition = '';
+                if (card) { card.style.transform = ''; card.style.opacity = ''; card.style.transition = ''; }
+                overlay.classList.remove('wn-visible'); 
+                if (card) card.classList.remove('wn-visible');
+            }, 220);
+        }
+
+        async function sendBirthdayWish() {
+            if (!window.currentUser || !window.currentUser.id) {
+                Swal.fire('Error', 'Session error. Please refresh.', 'error');
+                return;
+            }
+
+            const adminId = await getValidAdminId();
+            if (!adminId) {
+                Swal.fire('Error', 'Admin not found.', 'error');
+                return;
+            }
+
+            const wishMessage = `🎉 Happy Birthday Admin Mukesh Kumar! 🎂 Wishing you a fantastic year filled with joy and success! (Sent via Student Dashboard)`;
+            
+            try {
+                const { error } = await client.from('admin_chat_messages').insert({
+                    id: crypto.randomUUID(),
+                    sender_id: window.currentUser.id,
+                    receiver_id: adminId,
+                    content: wishMessage,
+                    is_read: 0,
+                    created_at: new Date().toISOString()
+                });
+
+                if (error) throw error;
+
+                localStorage.setItem('bday_wish_2026', '1');
+                closeBirthdayModal();
+
+                Swal.fire({
+                    title: 'Wish Sent!',
+                    text: 'Your professional birthday wish has been sent to Admin Mukesh Kumar! 🎊',
+                    icon: 'success',
+                    confirmButtonColor: '#7928ca',
+                    timer: 4000
+                });
+
+                // Proactive Chat UI Update if possible
+                if (window.adminChatMessages) {
+                    window.adminChatMessages.push({
+                        sender_id: window.currentUser.id,
+                        receiver_id: adminId,
+                        content: wishMessage,
+                        created_at: new Date().toISOString()
+                    });
+                    if (typeof window.renderMessages === 'function') window.renderMessages();
+                }
+
+            } catch (err) {
+                console.error("Failed to send birthday wish:", err);
+                Swal.fire('Error', 'Failed to send wish. Please try again.', 'error');
+            }
         }
 
         document.getElementById('whatsNewOverlay').addEventListener('click', function (e) { if (e.target === this) closeWhatsNew(); });
