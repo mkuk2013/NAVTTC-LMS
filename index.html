@@ -15046,9 +15046,8 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
             let html = `
                 <div class="max-h-[500px] overflow-y-auto no-scrollbar space-y-4 p-2">
-                    ${data.map(wish => {
+                    ${data.filter(wish => !repliedSet.has(wish.sender_id)).map(wish => {
                         const profile = profileMap[wish.sender_id] || { full_name: 'Student', avatar_url: null };
-                        const hasReplied = repliedSet.has(wish.sender_id);
                         return `
                         <div class="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col gap-3">
                             <div class="flex gap-4 items-start">
@@ -15058,18 +15057,17 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                                 <div class="flex-1">
                                     <div class="flex justify-between items-center mb-1">
                                         <h5 class="text-xs font-black text-slate-800 dark:text-slate-200 leading-none">${profile.full_name}</h5>
-                                        ${hasReplied ? '<span class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[8px] font-black uppercase tracking-widest">Replied ✨</span>' : ''}
                                     </div>
                                     <p class="text-[11px] text-slate-500 italic">"${wish.content.replace('🎉 Happy Birthday Admin Mukesh Kumar! 🎂 ', '')}"</p>
                                     <p class="text-[8px] mt-2 font-black uppercase text-slate-300 tracking-widest">${new Date(wish.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                                 </div>
                             </div>
                             <div class="pt-2 border-t border-slate-50 dark:border-slate-700/50 flex justify-end">
-                                ${!hasReplied ? `<button onclick="replyToBirthdayWish('${wish.sender_id}', '${profile.full_name.replace(/'/g, "\\'")}')" class="px-4 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all">Say Thanks ✨</button>` : `<div class="text-[10px] font-black uppercase text-slate-400 tracking-widest py-1.5 flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> Handled</div>`}
+                                <button onclick="replyToBirthdayWish('${wish.sender_id}', '${profile.full_name.replace(/'/g, "\\'")}')" class="px-4 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all">Say Thanks ✨</button>
                             </div>
                         </div>`;
                     }).join('')}
-                    ${data.length === 0 ? '<p class="text-center text-slate-400 py-8 italic">No wishes received yet. The celebration is just starting!</p>' : ''}
+                    ${data.filter(wish => !repliedSet.has(wish.sender_id)).length === 0 ? '<p class="text-center text-slate-400 py-8 italic">No pending wishes. All have been thanked! 🎉</p>' : ''}
                 </div>
             `;
 
