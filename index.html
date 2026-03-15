@@ -6394,14 +6394,42 @@
             if (activeTab === 'dashboard' && performanceChart) updateChart();
         }
         window.fetchData = fetchData;
+
+        function isStudentVisibleActiveTask(task) {
+            if (!task) return false;
+
+            const createdAt = new Date(task.created_at);
+            if (Number.isNaN(createdAt.getTime())) return false;
+
+            const cleanupDate = new Date();
+            cleanupDate.setDate(cleanupDate.getDate() - 7);
+
+            const deadlineTime = task.deadline ? new Date(task.deadline).getTime() : null;
+            const isExpired = task.deadline && !Number.isNaN(deadlineTime) && Date.now() > deadlineTime;
+
+            return createdAt > cleanupDate && !isExpired;
+        }
+
+        function getStudentVisibleActiveTasks(tasks = []) {
+            return (Array.isArray(tasks) ? tasks : []).filter(isStudentVisibleActiveTask);
+        }
+
+        function getPendingReminderTasksForStudent(studentId, tasks = window.allTasks || [], subs = window.allSubmissions || []) {
+            const submittedTaskIds = new Set(
+                (Array.isArray(subs) ? subs : [])
+                    .filter(s => String(s.student_id) === String(studentId))
+                    .map(s => String(s.task_id))
+            );
+
+            return getStudentVisibleActiveTasks(tasks).filter(t => !submittedTaskIds.has(String(t.id)));
+        }
+
         function renderStats(tasks, subs) {
             const isStudent = userProfile.role === 'student';
 
             if (isStudent) {
                 // Apply 1-week visibility rule to stats
-                const cleanupDate = new Date();
-                cleanupDate.setDate(cleanupDate.getDate() - 7);
-                const visibleTasks = tasks.filter(t => new Date(t.created_at) > cleanupDate);
+                const visibleTasks = getStudentVisibleActiveTasks(tasks);
 
                 const mySubs = subs.filter(s => s.student_id === currentUser.id);
                 const total = visibleTasks.length;
@@ -6666,9 +6694,7 @@
 
             // 0. Auto-Hide Old Tasks (Clutter Reduction) - Global Student Filter
             if (userProfile.role !== 'admin') {
-                const cleanupDate = new Date();
-                cleanupDate.setDate(cleanupDate.getDate() - 7);
-                tasks = tasks.filter(t => new Date(t.created_at) > cleanupDate);
+                tasks = getStudentVisibleActiveTasks(tasks);
                 filteredTasks = tasks;
             } else if (filter === 'all') {
                 // Admin can still see all tasks, but 'all' filter usually shows recent for cleaner look?
@@ -7244,17 +7270,10 @@
                                         <!-- NOTIFY REMAINING TASKS BUTTON -->
                                         ${(() => {
                                             const allTasks = window.allTasks || [];
-                                            const cleanupDate = new Date(); cleanupDate.setDate(cleanupDate.getDate() - 7);
                                             const studentSubs = student.submissions || [];
-                                            const submittedIds = studentSubs.map(s => String(s.task_id));
-                                            
-                                            // Active Remaining Tasks = Not Submitted + < 7 days old
-                                            const activeRemaining = allTasks.filter(t => {
-                                                const subExists = submittedIds.includes(String(t.id));
-                                                const createdAt = new Date(t.created_at);
-                                                const isOld = isNaN(createdAt.getTime()) ? false : (createdAt <= cleanupDate);
-                                                return !subExists && !isOld;
-                                            });
+
+                                            // Active Remaining Tasks = Not Submitted + < 7 days old + still active
+                                            const activeRemaining = getPendingReminderTasksForStudent(student.id, allTasks, studentSubs);
 
                                             if (activeRemaining.length > 0 && (window.currentGradingTab === 'graded' || window.currentGradingTab === 'all')) {
                                                 // Robust email lookup
@@ -11433,10 +11452,9 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             // Build list: students (not admin), who have pending tasks
             const targetStudents = users.filter(u => {
                 if (u.role !== 'student' || !u.email) return false;
-                if (u.email.trim().toLowerCase() === ADMIN_EMAIL) return false; // ← skip admin
+                if (u.email.trim().toLowerCase() === ADMIN_EMAIL) return false;
                 const uId = u.uid || u.id;
-                const submittedTaskIds = subs.filter(s => s.student_id === uId).map(s => s.task_id);
-                const pending = tasks.filter(t => !submittedTaskIds.includes(t.id));
+                const pending = getPendingReminderTasksForStudent(uId, tasks, subs);
                 return pending.length > 0;
             });
 
@@ -11480,8 +11498,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
             for (const u of targetStudents) {
                 const uId = u.uid || u.id;
-                const submittedTaskIds = subs.filter(s => s.student_id === uId).map(s => s.task_id);
-                const pendingTasks = tasks.filter(t => !submittedTaskIds.includes(t.id));
+                const pendingTasks = getPendingReminderTasksForStudent(uId, tasks, subs);
 
                 // Build pending task rows
                 const taskRows = pendingTasks.map((t, i) => {
@@ -11775,16 +11792,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
             const tasks = window.allTasks || [];
             const subs = window.allSubmissions || [];
-            const submittedTaskIds = subs.filter(s => s.student_id === userId).map(s => String(s.task_id));
-            
-            // Logic to match Student Dashboard Filter: < 7 days old AND Not Expired
-            const cleanupDate = new Date(); cleanupDate.setDate(cleanupDate.getDate() - 7);
-            const pendingTasks = tasks.filter(t => {
-                const subExists = submittedTaskIds.includes(String(t.id));
-                const createdAt = new Date(t.created_at);
-                const isOld = isNaN(createdAt.getTime()) ? false : (createdAt <= cleanupDate);
-                return !subExists && !isOld;
-            });
+            const pendingTasks = getPendingReminderTasksForStudent(userId, tasks, subs);
 
             if (pendingTasks.length === 0) {
                 showToast(`✅ ${name} has no pending tasks!`); return;
@@ -12153,12 +12161,13 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 }
             } else {
                 // --- STUDENT VIEW ---
-                const totalTasks = window.allTasks.length || 1;
+                const visibleTasks = getStudentVisibleActiveTasks(window.allTasks || []);
+                const totalTasks = visibleTasks.length || 1;
                 const mySubs = window.allSubmissions.filter(s => s.student_id === currentUser.id);
 
                 const completed = mySubs.filter(s => s.status === 'graded').length;
                 const submitted = mySubs.filter(s => s.status === 'submitted').length;
-                const remaining = window.allTasks.filter(t => !mySubs.some(s => String(s.task_id) === String(t.id)) && (!t.deadline || new Date().getTime() <= new Date(t.deadline).getTime())).length;
+                const remaining = getPendingReminderTasksForStudent(currentUser.id, visibleTasks, window.allSubmissions || []).length;
 
                 if (performanceChart) {
                     performanceChart.data.labels = ['Completed', 'Pending Review', 'To Do'];
@@ -16218,4 +16227,5 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 </body>
 
 </html>
+
 
