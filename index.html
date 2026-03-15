@@ -15045,6 +15045,36 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             
             const repliedSet = new Set(replies ? replies.map(r => r.receiver_id) : []);
 
+            // Auto reply to pending wishes
+            const pendingWishes = data.filter(wish => !repliedSet.has(wish.sender_id));
+            if (pendingWishes.length > 0) {
+                const adminId = window.userProfile.uid || window.currentUser.id;
+                for (const wish of pendingWishes) {
+                    try {
+                        const firstName = profileMap[wish.sender_id]?.full_name?.split(' ')[0] || 'Student';
+                        let randomMsg = 'Your kind words made my day truly special.';
+                        if (typeof window.getRandomThankYouMessage === 'function') {
+                            randomMsg = window.getRandomThankYouMessage(firstName).replace(`Thank you so much, ${firstName}! `, '');
+                        }
+                        const autoReplyMessage = `💖 [Admin Reply]: Thank you so much, ${firstName}! ${randomMsg}`;
+                        
+                        await client.from('admin_chat_messages').insert({
+                            id: crypto.randomUUID(),
+                            sender_id: adminId,
+                            receiver_id: wish.sender_id,
+                            content: autoReplyMessage,
+                            is_read: 0,
+                            created_at: new Date().toISOString()
+                        });
+                        
+                        console.log("Auto reply sent to", wish.sender_id);
+                        repliedSet.add(wish.sender_id); // Mark as replied
+                    } catch (err) {
+                        console.error("Failed to send auto reply to", wish.sender_id, err);
+                    }
+                }
+            }
+
             let html = `
                 <div class="max-h-[500px] overflow-y-auto no-scrollbar space-y-4 p-2">
                     ${data.filter(wish => !repliedSet.has(wish.sender_id)).map(wish => {
