@@ -15106,6 +15106,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         }
 
         async function sendBirthdayWish() {
+            console.log("sendBirthdayWish called");
             if (!window.currentUser || !window.currentUser.id) {
                 Swal.fire('Error', 'Session error. Please refresh.', 'error');
                 return;
