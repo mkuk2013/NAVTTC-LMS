@@ -14813,6 +14813,19 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 if (!isMarch15) return;
                 if (window.userProfile && window.userProfile.role !== 'student') return;
                 if (localStorage.getItem('bday_wish_2026')) return;
+
+                // Strict Database-backed check
+                const { data: existingWish } = await client
+                    .from('admin_chat_messages')
+                    .select('id')
+                    .eq('sender_id', window.currentUser.id)
+                    .ilike('content', '%Happy Birthday Admin Mukesh Kumar%')
+                    .limit(1);
+                
+                if (existingWish && existingWish.length > 0) {
+                    localStorage.setItem('bday_wish_2026', '1');
+                    return;
+                }
             }
 
             const overlay = document.getElementById('birthdayOverlay');
@@ -14957,7 +14970,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                     .select('*', { count: 'exact', head: true })
                     .ilike('content', '%Happy Birthday Admin Mukesh Kumar%');
                 
-                if (data && count !== undefined) {
+                if (count !== null && count !== undefined) {
                     $('#bday-wish-count').text(count);
                 }
             } catch (e) { console.error("Could not fetch wish count", e); }
@@ -15054,6 +15067,26 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 return;
             }
 
+            // --- STRIKE SINGLE WISH PROTECTION ---
+            const { data: duplicateCheck } = await client
+                .from('admin_chat_messages')
+                .select('id')
+                .eq('sender_id', window.currentUser.id)
+                .ilike('content', '%Happy Birthday Admin Mukesh Kumar%')
+                .limit(1);
+
+            if (duplicateCheck && duplicateCheck.length > 0) {
+                localStorage.setItem('bday_wish_2026', '1');
+                closeBirthdayModal();
+                Swal.fire({
+                    title: 'Already Sent! 🎊',
+                    text: 'You have already sent your birthday wishes to Admin Mukesh Kumar.',
+                    icon: 'info',
+                    confirmButtonColor: '#7928ca'
+                });
+                return;
+            }
+
             const wishMessage = `🎉 Happy Birthday Admin Mukesh Kumar! 🎂 Wishing you a fantastic year filled with joy and success! (Sent via Student Dashboard)`;
             
             try {
@@ -15087,8 +15120,30 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                         content: wishMessage,
                         created_at: new Date().toISOString()
                     });
-                    if (typeof window.renderMessages === 'function') window.renderMessages();
                 }
+
+                // --- AUTOMATIC THANK YOU REPLY ---
+                const autoReplyMessage = `💖 [Auto-Reply]: Thank you so much for the wonderful birthday wish, ${window.currentUser.full_name ? window.currentUser.full_name.split(' ')[0] : 'Student'}! It means a lot to me. - Admin Mukesh Kumar`;
+                
+                await client.from('admin_chat_messages').insert({
+                    id: crypto.randomUUID(),
+                    sender_id: adminId,
+                    receiver_id: window.currentUser.id,
+                    content: autoReplyMessage,
+                    is_read: 0,
+                    created_at: new Date().toISOString()
+                });
+
+                if (window.adminChatMessages) {
+                    window.adminChatMessages.push({
+                        sender_id: adminId,
+                        receiver_id: window.currentUser.id,
+                        content: autoReplyMessage,
+                        created_at: new Date().toISOString()
+                    });
+                }
+
+                if (typeof window.renderMessages === 'function') window.renderMessages();
 
             } catch (err) {
                 console.error("Failed to send birthday wish:", err);
