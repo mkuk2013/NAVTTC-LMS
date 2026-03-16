@@ -2326,21 +2326,57 @@
 
 <body class="bg-slate-50 dark:bg-[#0b1120] text-slate-950 dark:text-slate-100 font-sans">
 
+    <!-- Feedback Intro Modal (Compact Premium Roman Urdu UI) -->
+    <div id="feedback-intro-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-500">
+        <div class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-[32px] w-full max-w-[380px] overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] border border-slate-200/50 dark:border-slate-800/50 scale-in-center flex flex-col p-8 text-center relative">
+            
+            <div class="mb-6 relative flex items-center justify-center">
+                <!-- Compact Premium Icon Container -->
+                <div class="relative w-16 h-16 flex items-center justify-center">
+                    <div class="absolute inset-0 bg-white/10 rounded-2x rotate-6"></div>
+                    <div class="relative w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center text-indigo-600 shadow-lg shadow-indigo-500/10 border border-slate-100 dark:border-slate-800/50">
+                        <i data-lucide="message-square-plus" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Aapki Raaye Zaroori Hai!</h3>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed mb-8 px-2">
+                Hum NAVTTC LMS ko behtar banana chahte hain. Kya aap apna qeemti waqt nikaal kar humein feedback de sakte hain?
+            </p>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="window.startFeedbackProcess()" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl font-bold uppercase tracking-widest text-[11px] transition-all shadow-lg shadow-indigo-500/20 active:scale-[0.97] flex items-center justify-center gap-2">
+                    <span>Feedback Dein</span>
+                    <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
+                </button>
+                <button onclick="window.closeFeedbackIntro()" class="w-full py-2 text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] hover:text-indigo-500 transition-colors">
+                    Abhi Nahi, Phir Kabhi
+                </button>
+            </div>
+        </div>
+    </div>
+
 
 
 
 <!-- Start of Widjet (widjet.com) code -->
 <script>
-  window.__wj = window.__wj || {};
-  window.__wj.widgetId = "8133d704-103b-48d9-a3ff-510e43960ee9";
-  window.__wj.product_name = "widjet";
-  ;(function(w,d,s){
-    var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s);
-    j.async=true;
-    j.src="https://jqvcafbrccpmygiihyry.supabase.co/functions/v1/widget-loader";
-    f.parentNode.insertBefore(j,f);
-  })(window,document,'script');
+  window.initializeWidjet = function() {
+    if (window.__widjetInitialized) return;
+    window.__wj = window.__wj || {};
+    window.__wj.widgetId = "8133d704-103b-48d9-a3ff-510e43960ee9";
+    window.__wj.product_name = "widjet";
+    ;(function(w,d,s){
+      var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s);
+      j.async=true;
+      j.src="https://jqvcafbrccpmygiihyry.supabase.co/functions/v1/widget-loader";
+      f.parentNode.insertBefore(j,f);
+    })(window,document,'script');
+    window.__widjetInitialized = true;
+    console.log("Widjet Initialized on Dashboard.");
+  };
 </script>
 <noscript>Enable JavaScript to use the widget powered by Widjet</noscript>
 <!-- End of Widjet code -->
@@ -2570,8 +2606,8 @@
             <div class="px-6 mb-10 flex items-center justify-between">
                 <div class="flex items-center gap-4 w-full">
                     <div
-                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                        <img src="assets/logo.png" alt="Logo" class="w-8 h-8 object-contain brightness-0 invert">
+                        class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-lg shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                        <img src="assets/logo.png" alt="Logo" class="w-8 h-8 object-contain">
                     </div>
                     <div class="hide-on-collapse">
                         <h1 class="font-black text-lg tracking-tight text-slate-900 dark:text-white leading-none">
@@ -2674,7 +2710,7 @@
                         onclick="switchTab('profile')">
                         <div class="relative">
                             <div
-                                class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-black overflow-hidden border-2 border-white dark:border-slate-700 shadow-lg group-hover:scale-105 transition-transform">
+                                class="w-12 h-12 rounded-full bg-white dark:bg-slate-800 text-indigo-600 flex items-center justify-center font-black overflow-hidden border-2 border-slate-100 dark:border-slate-700 shadow-lg group-hover:scale-105 transition-transform">
                                 <span class="mobile-avatar-initial text-sm">U</span>
                                 <img id="mobile-sidebar-avatar" src="" class="w-full h-full object-cover hidden">
                             </div>
@@ -4179,7 +4215,7 @@
                     <!-- Left: System Identity -->
                     <div class="flex items-center gap-3">
                         <div
-                            class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center p-2 border border-indigo-100 dark:border-indigo-900/30">
+                            class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center p-2 border border-slate-100 dark:border-slate-700">
                             <img src="assets/logo.png" class="w-full h-full object-contain">
                         </div>
                         <div class="flex flex-col">
@@ -5300,6 +5336,9 @@
                 $('#auth-wrapper').addClass('hidden');
                 $('#dashboard-layout').removeClass('hidden').css('display', 'flex');
 
+                // Initialize Widjet only on Dashboard
+                if (window.initializeWidjet) window.initializeWidjet();
+
                 // Show Mobile Nav
                 $('#mobile-nav-bar').removeClass('hidden');
 
@@ -5804,7 +5843,7 @@
 
                 const isFeedback = n.system_action === 'feedback_form';
                 const cursorClass = isFeedback ? 'cursor-pointer' : '';
-                const onclickAttr = isFeedback ? 'onclick="window.showFeedbackPopup()"' : '';
+                const onclickAttr = isFeedback ? 'onclick="window.showFeedbackIntro()"' : '';
 
                 list.append(`
                     <div ${onclickAttr} class="${cursorClass} p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 transition-colors">
@@ -6439,10 +6478,8 @@
             const cleanupDate = new Date();
             cleanupDate.setDate(cleanupDate.getDate() - 7);
 
-            const deadlineTime = task.deadline ? new Date(task.deadline).getTime() : null;
-            const isExpired = task.deadline && !Number.isNaN(deadlineTime) && Date.now() > deadlineTime;
-
-            return createdAt > cleanupDate && !isExpired;
+            // Strict 7-Day Rule: Only show if created within the last week
+            return createdAt > cleanupDate;
         }
 
         function getStudentVisibleActiveTasks(tasks = []) {
@@ -6463,33 +6500,26 @@
             const isStudent = userProfile.role === 'student';
 
             if (isStudent) {
-                // Apply 1-week visibility rule to stats
-                const visibleTasks = getStudentVisibleActiveTasks(tasks);
-
                 const mySubs = subs.filter(s => s.student_id === currentUser.id);
-                const total = visibleTasks.length;
-                const completed = mySubs.filter(s => {
-                    const taskExists = visibleTasks.find(t => String(t.id) === String(s.task_id));
-                    return taskExists && s.status === 'graded';
-                }).length;
-
-                const progressPct = total ? Math.round((mySubs.filter(s => visibleTasks.find(t => String(t.id) === String(s.task_id))).length / total) * 100) : 0;
-
-                const gradedSubs = mySubs.filter(s => {
-                    const taskExists = visibleTasks.find(t => String(t.id) === String(s.task_id));
-                    return taskExists && s.status === 'graded';
-                });
+                
+                // --- LIFETIME STATS (Real Data) ---
+                const totalLifetimeTasks = tasks.length;
+                const completedLifetime = mySubs.filter(s => s.status === 'graded').length;
+                
+                const progressPct = totalLifetimeTasks ? Math.round((mySubs.length / totalLifetimeTasks) * 100) : 0;
+                
+                const gradedSubs = mySubs.filter(s => s.status === 'graded');
                 const avgScore = gradedSubs.reduce((a, b) => a + (parseInt(b.grade) || 0), 0) / (gradedSubs.length || 1);
 
-                const pendingCount = visibleTasks.filter(t => {
+                // --- PENDING COUNT (All pending work, even if old) ---
+                const pendingCount = tasks.filter(t => {
                     const isSubmitted = mySubs.some(s => String(s.task_id) === String(t.id));
                     const isGraded = mySubs.some(s => String(s.task_id) === String(t.id) && s.status === 'graded');
-                    const isExpired = t.deadline && new Date().getTime() > new Date(t.deadline).getTime();
-                    return !isGraded && !isSubmitted && !isExpired;
+                    return !isGraded && !isSubmitted;
                 }).length;
 
                 $('#stat-label-1').text("Pending Tasks"); $('#stat-active').text(pendingCount);
-                $('#stat-label-2').text("Completed"); $('#stat-completed').text(completed);
+                $('#stat-label-2').text("Completed"); $('#stat-completed').text(completedLifetime);
                 $('#stat-label-3').text("Avg. Grade"); $('#stat-score').text(Math.round(avgScore) + '%');
 
                 // --- 1. Pending Tasks Popup Logic ---
@@ -6725,20 +6755,19 @@
             }
 
             const container = $('#task-grid').empty();
-            let filteredTasks = tasks;
-
-            // 0. Auto-Hide Old Tasks (Clutter Reduction) - Global Student Filter
+            
+            // --- GLOBAL STUDENT PRE-FILTER (1-Week Strict Rule) ---
             if (userProfile.role !== 'admin') {
                 tasks = getStudentVisibleActiveTasks(tasks);
-                filteredTasks = tasks;
-            } else if (filter === 'all') {
-                // Admin can still see all tasks, but 'all' filter usually shows recent for cleaner look?
-                // Actually, admins should see everything in 'all' if they want.
-                // Keeping original logic for admin if they choose 'all' specifically.
             }
 
+            let filteredTasks = tasks;
+
             // 1. Status Filter
-            if (filter === 'pending') {
+            if (filter === 'all') {
+                // Shows all tasks within the 1-week visibility window
+                filteredTasks = tasks;
+            } else if (filter === 'pending') {
                 filteredTasks = tasks.filter(t => {
                     const isSubmitted = subs.find(s => s.student_id === currentUser?.id && String(s.task_id) === String(t.id));
                     const isExpired = t.deadline && new Date().getTime() > new Date(t.deadline).getTime();
@@ -7654,8 +7683,8 @@
                 if (!alreadyExists) {
                     mergedNotices.unshift({
                         id: FEEDBACK_NOTICE_KEY,
-                        title: 'LMS Feedback Form',
-                        content: 'Apni LMS aur UI/UX feedback dein. Info par click karke form open karein.',
+                        title: 'LMS Student Feedback Form',
+                        content: 'Your feedback is highly valued. Please click here to open the feedback form in a new tab.',
                         priority: 'normal',
                         created_at: FEEDBACK_RELEASE_DATE.toISOString(),
                         system_notice_key: FEEDBACK_NOTICE_KEY,
@@ -8841,42 +8870,33 @@
             }
         };
 
-        // Feedback Popup Logic
-        window.showFeedbackPopup = async () => {
+        // Feedback Intro Logic (Professional Window)
+        window.showFeedbackIntro = async () => {
             if (!(await shouldShowStudentFeedbackNotice())) return;
 
-            const modal = document.getElementById('feedback-modal');
+            const modal = document.getElementById('feedback-intro-modal');
             if (!modal) return;
 
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    const innerDiv = modal.querySelector('div');
-                    if (innerDiv) {
-                        innerDiv.classList.remove('scale-95');
-                        innerDiv.classList.add('scale-100');
-                    }
-                }, 10);
+                if (window.lucide) lucide.createIcons();
             }
         };
 
-        window.closeFeedbackModal = () => {
-            const modal = document.getElementById('feedback-modal');
+        window.closeFeedbackIntro = () => {
+            const modal = document.getElementById('feedback-intro-modal');
             if (modal) {
-                modal.classList.add('opacity-0');
-                const innerDiv = modal.querySelector('div');
-                if (innerDiv) {
-                    innerDiv.classList.remove('scale-100');
-                    innerDiv.classList.add('scale-95');
-                }
-                setTimeout(() => {
-                    modal.classList.remove('flex'); // Disable flexbox
-                    modal.classList.add('hidden');
-                }, 300);
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
             }
         };
+
+        window.startFeedbackProcess = () => {
+            window.open('feedback.html', '_blank');
+            window.closeFeedbackIntro();
+        };
+
 
         window.switchTab = (tabId, forceUpdate = false) => {
             console.log("Switching to:", tabId);
@@ -8938,10 +8958,12 @@
             // Special Banner Handling
             if (tabId === 'dashboard') {
                 $('#v2-banner').show().removeClass('hidden');
-                // Show feedback popup for students (or everyone for now)
-                if (typeof showFeedbackPopup === 'function') {
-                    setTimeout(() => showFeedbackPopup(), 1500);
-                }
+                // Auto trigger intro modal for student feedback
+                setTimeout(() => {
+                    if (typeof window.showFeedbackIntro === 'function') {
+                        window.showFeedbackIntro();
+                    }
+                }, 2000);
             } else {
                 $('#v2-banner').hide().addClass('hidden');
             }
