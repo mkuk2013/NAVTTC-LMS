@@ -2326,6 +2326,37 @@
 
 <body class="bg-slate-50 dark:bg-[#0b1120] text-slate-950 dark:text-slate-100 font-sans">
 
+
+
+
+<!-- Start of Widjet (widjet.com) code -->
+<script>
+  window.__wj = window.__wj || {};
+  window.__wj.widgetId = "8133d704-103b-48d9-a3ff-510e43960ee9";
+  window.__wj.product_name = "widjet";
+  ;(function(w,d,s){
+    var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s);
+    j.async=true;
+    j.src="https://jqvcafbrccpmygiihyry.supabase.co/functions/v1/widget-loader";
+    f.parentNode.insertBefore(j,f);
+  })(window,document,'script');
+</script>
+<noscript>Enable JavaScript to use the widget powered by Widjet</noscript>
+<!-- End of Widjet code -->
+
+
+
+
+
+
+
+
+
+
+
+
+
     <!-- GLOBAL LOADER -->
     <div id="global-loader"
         class="fixed inset-0 z-[9999] bg-slate-50/95 dark:bg-[#0b1120]/95 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-700">
@@ -5771,8 +5802,12 @@
                     ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-600 text-[9px] font-black uppercase">Urgent</span>`
                     : `<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[9px] font-black uppercase">Info</span>`;
 
+                const isFeedback = n.system_action === 'feedback_form';
+                const cursorClass = isFeedback ? 'cursor-pointer' : '';
+                const onclickAttr = isFeedback ? 'onclick="window.showFeedbackPopup()"' : '';
+
                 list.append(`
-                    <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 transition-colors">
+                    <div ${onclickAttr} class="${cursorClass} p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 transition-colors">
                         <div class="flex justify-between items-start mb-1">
                             <h4 class="text-xs font-bold text-slate-900 dark:text-slate-200 line-clamp-1">${n.title || ''}</h4>
                             <span class="text-[8px] font-bold text-slate-400">${date}</span>
@@ -7598,8 +7633,16 @@
         }
 
         async function shouldShowStudentFeedbackNotice() {
-            if (!userProfile || userProfile.role !== 'student') return false;
+            if (!userProfile) return false;
+            const isAdmin = userProfile.role === 'admin';
+            const isStudent = userProfile.role === 'student';
+
+            if (!isStudent && !isAdmin) return false;
             if (!isFeedbackWindowOpen()) return false;
+
+            // Admins can see it as a preview
+            if (isAdmin) return true;
+
             return !(await hasStudentSubmittedFeedback());
         }
 
@@ -8896,7 +8939,9 @@
             if (tabId === 'dashboard') {
                 $('#v2-banner').show().removeClass('hidden');
                 // Show feedback popup for students (or everyone for now)
-                if (typeof showFeedbackPopup === 'function') showFeedbackPopup();
+                if (typeof showFeedbackPopup === 'function') {
+                    setTimeout(() => showFeedbackPopup(), 1500);
+                }
             } else {
                 $('#v2-banner').hide().addClass('hidden');
             }
