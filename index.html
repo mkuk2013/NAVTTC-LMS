@@ -2780,9 +2780,9 @@
                     data-tooltip="Code Editor">
                     <i data-lucide="code-2" class="w-5 h-5"></i> <span class="hide-on-collapse">Code Editor</span>
                 </button>
-                <button onclick="switchTab('storage')" id="nav-storage" class="nav-item w-full"
-                    data-tooltip="My Storage">
-                    <i data-lucide="hard-drive" class="w-5 h-5"></i> <span class="hide-on-collapse">My Storage</span>
+                <button onclick="switchTab('storage'); loadUserFiles(null, null, true);" id="nav-storage" class="nav-item w-full"
+                    data-tooltip="Cloud Storage">
+                    <i data-lucide="hard-drive" class="w-5 h-5"></i> <span class="hide-on-collapse">Cloud Storage</span>
                 </button>
 
                 <!-- Admin items -->
@@ -2809,6 +2809,10 @@
                         <span class="hide-on-collapse">Support Chat</span>
                         <span id="chat-notification-dot"
                             class="hidden absolute top-3 right-4 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
+                    </button>
+                    <button onclick="switchTab('storage'); renderStudentDirectory();" class="nav-item w-full" data-tooltip="Student Storage">
+                        <i data-lucide="folder-tree" class="w-5 h-5"></i> <span class="hide-on-collapse">Student
+                            Storage</span>
                     </button>
                     <button onclick="openSettingsModal()" class="nav-item w-full" data-tooltip="System Settings">
                         <i data-lucide="settings" class="w-5 h-5"></i> <span class="hide-on-collapse">System
@@ -3538,6 +3542,10 @@
                                 <button onclick="window.notifyAllStudents()"
                                     class="px-4 py-2.5 rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
                                     <i data-lucide="mail" class="w-3.5 h-3.5"></i> Notify All
+                                </button>
+                                <button onclick="switchTab('storage'); renderStudentDirectory();"
+                                    class="px-4 py-2.5 rounded-xl bg-amber-500 text-white shadow-lg shadow-amber-500/20 hover:bg-amber-600 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+                                    <i data-lucide="folder-tree" class="w-3.5 h-3.5"></i> Student Storage
                                 </button>
                                 <button onclick="window.approveAllUsers()"
                                     class="px-4 py-2.5 rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
@@ -9129,10 +9137,12 @@
             }
 
             if (tabId === 'storage') {
-                if (userProfile && userProfile.role === 'admin' && !window.currentViewingStudentId) {
-                    $('#storage-top-grid').addClass('hidden');
+                // Admin specific UI adjustments (moved logic to loadUserFiles for consistency)
+                if (typeof loadUserFiles === 'function') {
+                    // Decide what to load based on current state or just let the caller handle it
+                    // For sidebar clicks, we usually want the default view.
+                    if (!window.currentViewingStudentId) loadUserFiles();
                 }
-                if (typeof loadUserFiles === 'function') loadUserFiles();
             }
 
             // --- 4. TITLE UPDATES ---
@@ -9343,11 +9353,11 @@
         window.storageSort = 'date_desc';
         window.currentViewingStudentId = null;
 
-        window.loadUserFiles = async (targetUserId = null, studentName = null) => {
+        window.loadUserFiles = async (targetUserId = null, studentName = null, forcePersonal = false) => {
             if (!currentUser) return;
 
-            // If Admin and no target user, show Student Directory
-            if (userProfile?.role === 'admin' && !targetUserId) {
+            // If Admin and no target user (and not forcing personal), show Student Directory
+            if (userProfile?.role === 'admin' && !targetUserId && !forcePersonal) {
                 renderStudentDirectory();
                 return;
             }
@@ -9369,8 +9379,8 @@
                             <i data-lucide="arrow-left" class="w-5 h-5 text-slate-600 dark:text-slate-400 group-hover:-translate-x-1 transition-transform"></i>
                         </button>
                         <div>
-                            <h1 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">${studentName}</h1>
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Student Repository Access</p>
+                            <h1 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">${studentName || 'My Personal Files'}</h1>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">${(userProfile && userProfile.role === 'admin' && targetUserId !== userProfile.uid) ? 'Student Repository Access' : 'Private Storage'}</p>
                         </div>
                     </div>
                 `);
@@ -9401,13 +9411,19 @@
                 // Fetch file metadata from Supabase table 'personal_storage'
                 let query = client.from('personal_storage').select('*').order('created_at', { ascending: false });
 
-                // CRITICAL FIX: Ensure correct UID filtering
-                // If targetUserId is provided (Admin viewing student), use that.
-                // Otherwise use the current user's ID.
+                // Improved Filtering Logic for Admins
                 const effectiveUid = targetUserId || userProfile.uid || userProfile.id;
 
-                if (userProfile.role !== 'admin' || (targetUserId && targetUserId !== userProfile.uid)) {
+                // Non-admins only see their own files.
+                // Admins see everything IF no target user is specified (though usually handled by Directory)
+                // OR see specific user if targetUserId is set.
+                if (userProfile.role !== 'admin' || targetUserId) {
                     query = query.eq('user_id', effectiveUid);
+                } else if (!targetUserId && userProfile.role === 'admin') {
+                    // If Admin clicks "Cloud Storage" (Personal) and we haven't redirected to directory
+                    // We might want to show ONLY admin files or EVERYTHING. 
+                    // Let's show ONLY admin files to keep Personal Storage personal.
+                    query = query.eq('user_id', userProfile.uid || userProfile.id);
                 }
 
                 console.log("Supabase Query for UID:", effectiveUid);
@@ -9555,7 +9571,12 @@ CREATE POLICY "Admins can manage all files" ON personal_storage
                                     <i data-lucide="folder-tree" class="w-5 h-5 text-white dark:text-slate-900"></i>
                                 </div>
                                 <div>
-                                    <h1 class="text-lg font-bold text-slate-900 dark:text-white leading-none">Student Directory</h1>
+                                    <div class="flex items-center gap-2">
+                                        <h1 class="text-lg font-bold text-slate-900 dark:text-white leading-none">Student Directory</h1>
+                                        <button onclick="window.fetchUsers()" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors" title="Sync Students">
+                                            <i data-lucide="refresh-cw" class="w-3 h-3 text-slate-400"></i>
+                                        </button>
+                                    </div>
                                     <p class="text-[9px] font-medium text-slate-500 uppercase tracking-widest mt-1">Cloud Assets</p>
                                 </div>
                             </div>
