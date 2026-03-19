@@ -2,15 +2,6 @@
 <html lang="en">
 
 <head>
-    <script>
-        window.onerror = function(message, source, lineno, colno, error) {
-            const errorMsg = `Global Error Captured: ${message} ${source} ${lineno} ${colno} ${error}`;
-            console.error(errorMsg);
-            // Optionally alert if we're desperate for visibility
-            // alert(errorMsg);
-            return false;
-        };
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NAVTTC LMS v2.0 | Enterprise Learning System</title>
@@ -2332,126 +2323,7 @@
             }
         }
     </style>
-    <style>
-        /* Ensure all overlays are visible above the Task Editor (z-index 6000) */
-        .modal { z-index: 7005 !important; }
-        #taskDetailModal { z-index: 7010 !important; }
-        .modal-backdrop { z-index: 7000 !important; }
-        .swal2-container { z-index: 10000 !important; }
-        
-        /* Monaco Suggestion/Hover Widgets FIX */
-        .monaco-editor .suggest-widget, 
-        .monaco-editor .monaco-hover,
-        .monaco-editor .monaco-editor-overlay {
-            z-index: 15000 !important;
-        }
-    </style>
-    <script>
-        // --- GLOBAL MONACO UTILITIES ---
-        window.generateUUID = () => {
-            try {
-                if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-                    return crypto.randomUUID();
-                }
-            } catch (e) {}
-            // Fallback for non-secure contexts
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        };
 
-        window.registerMonacoSnippets = () => {
-            if (window.monacoSnippetsRegistered) return;
-            if (typeof monaco === 'undefined') {
-                console.warn("Monaco not loaded yet, skipping snippet registration.");
-                return;
-            }
-            try {
-                console.log("Registering Monaco HTML snippets...");
-                monaco.languages.registerCompletionItemProvider('html', {
-                    provideCompletionItems: (model, position) => {
-                        const line = model.getLineContent(position.lineNumber);
-                        const textUntilPosition = line.substring(0, position.column - 1).trim();
-                        
-                        // Only trigger on start of line or pure '!' / 'html5'
-                        if (textUntilPosition === '!' || textUntilPosition === 'html5') {
-                            const range = {
-                                startLineNumber: position.lineNumber,
-                                startColumn: position.column - textUntilPosition.length,
-                                endLineNumber: position.lineNumber,
-                                endColumn: position.column
-                            };
-                            
-                            return {
-                                suggestions: [{
-                                    label: '!',
-                                    kind: monaco.languages.CompletionItemKind.Snippet,
-                                    documentation: 'HTML Boilerplate (Emmet-like)',
-                                    detail: 'Insert HTML5 Skeleton',
-                                    insertText: [
-                                        '<!DOCTYPE html>',
-                                        '<html lang="en">',
-                                        '<head>',
-                                        '    <meta charset="UTF-8">',
-                                        '    <meta name="viewport" content="width=device-width, initial-scale=1.0">',
-                                        '    <title>${1:Task Preview}</title>',
-                                        '    <style>',
-                                        '        ${2}',
-                                        '    </style>',
-                                        '<' + '/head>',
-                                        '<body>',
-                                        '    ${0}',
-                                        '<' + '/body>',
-                                        '<' + '/html>'
-                                    ].join('\n'),
-                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                    range: range,
-                                    sortText: '0000' // Force to top
-                                }]
-                            };
-                        }
-                        return { suggestions: [] };
-                    }
-                }, ['!', 'h']);
-                window.monacoSnippetsRegistered = true;
-                console.log("Monaco snippets registered successfully.");
-            } catch (e) {
-                console.error("Failed to register Monaco snippets:", e);
-            }
-        };
-
-        window.insertBoilerplateShortcut = () => {
-            const editor = window.monacoEditor || window.adminMonacoEditor;
-            if (!editor) {
-                console.warn("No active Monaco editor found for boilerplate insertion.");
-                return;
-            }
-            const boilerplate = [
-                '<!DOCTYPE html>',
-                '<html lang="en">',
-                '<head>',
-                '    <meta charset="UTF-8">',
-                '    <meta name="viewport" content="width=device-width, initial-scale=1.0">',
-                '    <title>Task Preview</title>',
-                '<' + '/head>',
-                '<body>',
-                '    <!-- Your code starts here -->',
-                '',
-                '<' + '/body>',
-                '<' + '/html>'
-            ].join('\n');
-            
-            try {
-                const selection = editor.getSelection();
-                const range = new monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn);
-                editor.executeEdits('boilerplate-insert', [{ range: range, text: boilerplate, forceMoveMarkers: true }]);
-                editor.focus();
-            } catch (e) {
-                console.error("Failed to insert boilerplate:", e);
-            }
-        };
-    </script>
 </head>
 
 <body class="bg-slate-50 dark:bg-[#0b1120] text-slate-950 dark:text-slate-100 font-sans">
@@ -4893,14 +4765,12 @@
                                 class="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-semibold"
                                 placeholder="e.g., JavaScript Project">
                         </div>
-                        <div class="space-y-1.5 flex flex-col h-[300px]">
-                            <div class="flex items-center justify-between ml-1 mb-1">
-                                <label class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Task Content (HTML)</label>
-                                <button type="button" onclick="window.insertBoilerplateShortcut()" class="text-[8px] font-black uppercase text-amber-500 hover:text-amber-600 transition-colors flex items-center gap-1">
-                                    <i data-lucide="zap" class="w-2.5 h-2.5"></i> Insert Skeleton
-                                </button>
-                            </div>
-                            <div id="admin-task-editor" class="flex-1 w-full bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden"></div>
+                        <div class="space-y-1.5">
+                            <label
+                                class="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Description</label>
+                            <textarea id="new-task-desc" required
+                                class="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-semibold"
+                                rows="3" placeholder="Enter task details..."></textarea>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-1.5">
@@ -4929,10 +4799,6 @@
                             <textarea id="new-task-hints" rows="3"
                                 class="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-[11px] font-semibold resize-none"
                                 placeholder="Helpful tips..."></textarea>
-                        </div>
-                        <div class="flex items-center gap-3 px-2 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800/50">
-                            <input type="checkbox" id="new-task-require-image" class="form-check-input !m-0">
-                            <label for="new-task-require-image" class="text-[9px] font-black uppercase text-slate-500 tracking-widest cursor-pointer">Require Image Upload in Task Editor</label>
                         </div>
                         <button type="submit" id="task-submit-btn" class="w-full btn-command mt-2">Create Task</button>
                     </form>
@@ -7154,7 +7020,6 @@
             } catch (e) { }
             return { file: content }; // Legacy fallback
         }
-        window.parseSubmission = parseSubmission;
 
         // Helper to safely parse dates even if null/invalid
         function parseSafeDate(d) {
@@ -7218,10 +7083,7 @@
             $('#detail-title').text(t.title);
             // Render Description: Handle Mixed Content (User Text + System HTML)
             const descEl = $('#detail-desc');
-            let rawDesc = (t.description || 'No description provided.')
-                .replace('<!-- REQUIRES_IMAGE -->', '')
-                .replace('&lt;!-- REQUIRES_IMAGE --&gt;', '')
-                .trim();
+            let rawDesc = t.description || 'No description provided.';
             const refMarker = '<br><strong>Reference Asset:</strong>';
 
             // Helper to unescape ONLY if double-escaped (e.g. from DB)
@@ -7373,19 +7235,12 @@
                 // Already Submitted View -> Always show Status Card (Resubmission disabled)
                 footer.html(window.renderStatusCard(sub));
             } else {
-                // Not Submitted Yet - MANDATE TASK EDITOR
-                footer.html(`
-                    <div class="p-8 text-center bg-indigo-50/50 dark:bg-indigo-900/10 rounded-3xl border border-indigo-100/50 dark:border-indigo-800/30 animate-in fade-in zoom-in duration-500">
-                        <div class="w-16 h-16 bg-white dark:bg-slate-800 shadow-2xl rounded-2xl flex items-center justify-center text-indigo-600 mx-auto mb-4 group-hover:scale-110 transition-transform border border-indigo-50 dark:border-indigo-900/50">
-                            <i data-lucide="code-2" class="w-8 h-8"></i>
-                        </div>
-                        <h5 class="font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight mb-2 text-sm italic">In-LMS Task Editor Required</h5>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 mb-6 uppercase tracking-widest leading-relaxed max-w-[200px] mx-auto">This task can only be submitted and managed using the built-in professional code editor.</p>
-                        <button onclick="bootstrap.Modal.getInstance(document.getElementById('taskDetailModal')).hide(); setTimeout(() => window.openTaskEditor('${t.id}', '${t.title.replace(/'/g, "\\'")}'), 300)" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-500/30 transition-all flex items-center justify-center gap-2 mx-auto active:scale-95">
-                           <i data-lucide="zap" class="w-4 h-4 text-amber-400 fill-amber-400"></i> Open Editor to Submit
-                        </button>
-                    </div>
-                `);
+                // Submission Form for Student (Not Submitted Yet OR Resubmitting via toggle)
+                if (typeof window.renderSubmitForm === 'function') {
+                    window.renderSubmitForm(tid);
+                } else {
+                    footer.html('<div class="p-4 text-center text-rose-500">Error loading form.</div>');
+                }
             }
 
             new bootstrap.Modal(document.getElementById('taskDetailModal')).show();
@@ -7581,7 +7436,7 @@
                                 const data = parseSubmission(s.content);
                                 let html = '';
                                 if (data.type === 'editor') {
-                                    html += `<button onclick="window.openAdminCodePreview('${s.id}')" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"><i data-lucide="code-2" class="w-3.5 h-3.5"></i> Review & Grade</button>`;
+                                    html += `<button onclick="window.openAdminCodePreview('${s.id}')" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"><i data-lucide="code-2" class="w-3.5 h-3.5"></i> Preview Code</button>`;
                                 }
                                 if (data.file) {
                                     const _codeExts = ['html', 'css', 'js', 'ts', 'jsx', 'tsx', 'py', 'cpp', 'c', 'h', 'java', 'php', 'sql', 'json', 'xml', 'txt', 'md'];
@@ -7597,6 +7452,15 @@
                                 </div>
                                 
                                 <div class="w-full lg:w-auto flex flex-col gap-3 min-w-[240px]">
+                                    ${!isGraded ? `
+                                    <div class="bg-indigo-50 dark:bg-indigo-900/10 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/20">
+                                        <div class="flex gap-2 mb-2">
+                                            <input type="number" id="grade-${s.id}" class="w-20 p-2 text-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-black outline-none focus:ring-2 focus:ring-indigo-500 dark:text-slate-200 placeholder:font-normal" placeholder="0-100">
+                                            <button onclick="window.submitGrade('${s.id}')" class="flex-1 btn-command px-4 py-2 rounded-lg text-[9px] shadow-none">Submit Grade</button>
+                                        </div>
+                                        <textarea id="feedback-${s.id}" class="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold outline-none focus:ring-2 focus:ring-indigo-500 resize-none dark:text-slate-200" placeholder="Write feedback for student..." rows="2"></textarea>
+                                    </div>
+                                    ` : ''}
                                 </div>
                              </div>
                              `;
@@ -10961,7 +10825,87 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             }
         });
 
+        window.renderSubmitForm = (taskId) => {
+            // Check if this is an UPDATE (Resubmission)
+            const isUpdate = window.currentSub && (window.currentSub.task_id == taskId || window.currentSub.task_id === String(taskId));
 
+            // Pre-fill data if updating
+            let existingGithub = '';
+            let existingLive = '';
+            if (isUpdate && window.currentSub.content) {
+                try {
+                    const parsed = JSON.parse(window.currentSub.content);
+                    existingGithub = parsed.github || '';
+                    existingLive = parsed.live || '';
+                } catch (e) { }
+            }
+
+            const heading = isUpdate ? 'Replace / Update Submission' : 'Upload Submission';
+            const btnText = isUpdate ? 'Update Task' : 'Submit Task';
+            const fileLabel = isUpdate ? 'Upload New File (Replaces Old)' : 'Upload File';
+
+            $('#submission-section').html(`
+            <form id="submit-form" class="space-y-6">
+                <input type="hidden" id="submit-id" value="${taskId}">
+                    
+                    <div class="mb-2 text-center">
+                         <span class="text-[9px] font-black uppercase tracking-widest ${isUpdate ? 'text-amber-500' : 'text-slate-400'}">${heading}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-4">
+                            <div class="group relative bg-slate-50 dark:bg-slate-800/30 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl p-6 text-center hover:border-indigo-500 transition-all cursor-pointer overflow-hidden h-full flex flex-col items-center justify-center">
+                                <div class="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <input type="file" id="submit-file" accept=".html,.css,.js,.ts,.jsx,.tsx,.py,.cpp,.c,.h,.java,.php,.sql,.json,.xml,.txt,.md,.zip,.rar,.pdf,.png,.jpg,.jpeg,.gif,.mp4,.mp3,.wav" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="window.handleSubmitFileChange(this)">
+                                    <div class="relative z-0">
+                                        <div class="w-12 h-12 bg-white dark:bg-slate-800 shadow-xl rounded-2xl flex items-center justify-center text-indigo-600 mx-auto mb-2 group-hover:scale-110 transition-transform">
+                                            <i data-lucide="${isUpdate ? 'refresh-cw' : 'upload-cloud'}" class="w-6 h-6"></i>
+                                        </div>
+                                        <p class="font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight text-[10px]">${fileLabel}</p>
+                                        <p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest mt-1" id="file-name">Optional &bull; Code &amp; Media Files</p>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 block">GitHub Repository URL</label>
+                                <input type="url" id="submit-github" value="${existingGithub}" placeholder="https://github.com/username/project" class="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:border-indigo-500 dark:text-slate-200 transition-colors">
+                            </div>
+                            <div>
+                                <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Live Demo Link</label>
+                                <input type="url" id="submit-live" value="${existingLive}" placeholder="https://my-project.vercel.app" class="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:border-emerald-500 dark:text-slate-200 transition-colors">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full btn-command">${btnText}</button>
+                </form>`).removeClass('hidden');
+            lucide.createIcons();
+        };
+
+        // Helper: update filename label when a file is chosen in the submit form
+        window.handleSubmitFileChange = (input) => {
+            if (!input.files || !input.files[0]) return;
+            const f = input.files[0];
+            const codeExts = ['html', 'css', 'js', 'ts', 'jsx', 'tsx', 'py', 'cpp', 'c', 'h', 'java', 'php', 'sql', 'json', 'xml', 'txt', 'md'];
+            const ext = f.name.split('.').pop().toLowerCase();
+            const isCode = codeExts.includes(ext);
+            const badge = isCode
+                ? `<span class="inline-flex items-center gap-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest ml-1">${ext.toUpperCase()}</span>`
+                : `<span class="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-700 text-slate-500 px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest ml-1">MEDIA</span>`;
+            $('#file-name').html(`${f.name} ${badge}`);
+        };
+
+        window.enableResubmission = () => {
+            if (!window.currentTask || !window.currentTask.id) return;
+            const taskId = window.currentTask.id;
+            window.renderSubmitForm(taskId);
+            if (window.currentSub && window.currentSub.content) {
+                const data = parseSubmission(window.currentSub.content);
+                if (data.github) $('#submit-github').val(data.github);
+                if (data.live) $('#submit-live').val(data.live);
+            }
+            $('#submit-form button').text('Update Submission');
+        };
 
 
 
@@ -11012,7 +10956,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 })()}
                 </div>
                 ${feedbackHtml}
-                ${!isGraded ? `<button onclick="bootstrap.Modal.getInstance(document.getElementById('taskDetailModal')).hide(); setTimeout(() => window.openTaskEditor('${sub.task_id}', '${(sub.task_title || '').replace(/'/g, "\\'")}'), 300)" class="mt-4 px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 transition-all flex items-center gap-2 active:scale-95"><i data-lucide="edit-3" class="w-4 h-4 text-emerald-300"></i> Edit in Task Editor</button>` : ''}
+                ${!isGraded ? `<button onclick="window.enableResubmission()" class="mt-4 px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 transition-all flex items-center gap-2"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Replace Submission</button>` : ''}
             </div>`;
         };
 
@@ -11154,6 +11098,157 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             if (!error) fetchComments(taskId);
         };
 
+        $(document).on('submit', '#submit-form', async (e) => {
+            e.preventDefault();
+            const btn = $('#submit-form button');
+            btn.prop('disabled', true).text('PROCESSING...');
+
+            const file = document.getElementById('submit-file').files[0];
+            const github = $('#submit-github').val()?.trim();
+            const live = $('#submit-live').val()?.trim();
+            const taskId = $('#submit-id').val();
+
+            if (!file && !github && !live) {
+                showToast("Please upload a file OR provide a link.");
+                btn.prop('disabled', false).text('Submit Task');
+                return;
+            }
+
+            try {
+                let cloudFileUrl = null;
+                const CLOUD_NAME = "dwowte8ny";
+                const UPLO_PRESET = "navttc-lms";
+
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('upload_preset', UPLO_PRESET);
+
+                    // Use 'raw' for code/text files so Cloudinary doesn't reject them
+                    const _codeExtTypes = ['html', 'css', 'js', 'ts', 'jsx', 'tsx', 'py', 'cpp', 'c', 'h', 'java', 'php', 'sql', 'json', 'xml', 'txt', 'md'];
+                    const _fileExt = file.name.split('.').pop().toLowerCase();
+                    const isZip = _fileExt === 'zip' || _fileExt === 'rar';
+                    const _uploadType = _codeExtTypes.includes(_fileExt) || isZip ? 'raw' : 'auto';
+
+                    // Folder and Cache Busting for re-uploads
+                    formData.append('folder', `student_submissions/${currentUser.id}`);
+                    const baseName = file.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
+                    const randomHash = Math.random().toString(36).substring(2, 8);
+                    const finalPublicId = isZip || _codeExtTypes.includes(_fileExt) ? `${baseName}_${Date.now()}_${randomHash}.${_fileExt}` : `${baseName}_${Date.now()}_${randomHash}`;
+                    formData.append('public_id', finalPublicId);
+
+                    const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${_uploadType}/upload`, { method: 'POST', body: formData });
+                    const uploadData = await response.json();
+
+                    if (uploadData.error) throw new Error(uploadData.error.message);
+                    cloudFileUrl = uploadData.secure_url;
+                } else if (window.currentSub && window.currentSub.task_id == taskId) {
+                    // PRESERVE OLD FILE IF NO NEW FILE UPLOADED
+                    try {
+                        const oldParsed = JSON.parse(window.currentSub.content);
+                        if (oldParsed && oldParsed.file) {
+                            cloudFileUrl = oldParsed.file;
+                        }
+                    } catch (e) {
+                        // Fallback for legacy
+                        if (window.currentSub.content.startsWith('http')) {
+                            cloudFileUrl = window.currentSub.content;
+                        }
+                    }
+                }
+
+                // Construct JSON Content
+                const submissionData = {
+                    file: cloudFileUrl,
+                    github: github || null,
+                    live: live || null,
+                    timestamp: new Date().toISOString() // Metadata
+                };
+
+                // Resolve Task Title safely
+                const activeTask = window.currentTask || (window.allTasks ? window.allTasks.find(t => String(t.id) === String(taskId)) : null);
+                const safeTitle = activeTask ? activeTask.title : 'Task Submission';
+
+                let dbResult, dbErr;
+
+                if (window.currentSub && window.currentSub.task_id == taskId) {
+                    console.log("[DEBUG] Upserting submission for Task ID:", taskId);
+
+                    const { data, error } = await client.from('submissions').upsert({
+                        id: window.currentSub.id, // Primary Key map
+                        task_id: taskId,
+                        task_title: safeTitle,
+                        student_id: currentUser.id,
+                        student_name: userProfile.name,
+                        content: JSON.stringify(submissionData),
+                        status: 'submitted',
+                        submitted_at: new Date().toISOString()
+                    }, { onConflict: 'task_id,student_id' }).select();
+
+                    console.log("[DEBUG] Replace complete:", { data, error });
+
+                    if (error && error.code === '42501') {
+                        // 42501 is PostgreSQL Insufficient Privilege.
+                        console.error("[DEBUG] RLS Blocked the Update!");
+                    }
+
+                    dbResult = data;
+                    dbErr = error;
+                } else {
+                    // Create NEW submission
+                    const { data, error } = await client.from('submissions').insert([{
+                        task_id: taskId,
+                        task_title: safeTitle,
+                        student_id: currentUser.id,
+                        student_name: userProfile.name,
+                        content: JSON.stringify(submissionData),
+                        status: 'submitted',
+                        submitted_at: new Date().toISOString()
+                    }]).select();
+
+                    dbResult = data;
+                    dbErr = error;
+                }
+
+                if (dbErr) throw dbErr;
+
+                // REFRESH DATA & UI
+                const finalSub = (dbResult && dbResult[0]) ? dbResult[0] : {
+                    ...submissionData,
+                    task_title: safeTitle,
+                    content: JSON.stringify(submissionData),
+                    status: 'submitted'
+                };
+
+                window.currentSub = finalSub;
+
+                // Sync local state manually to fix fetch latency race-condition caching the old file
+                if (window.allSubmissions) {
+                    const idx = window.allSubmissions.findIndex(s => s.id === finalSub.id);
+                    if (idx !== -1) {
+                        window.allSubmissions[idx] = finalSub;
+                    } else {
+                        window.allSubmissions.push(finalSub);
+                    }
+                }
+
+                // Force UI update manually to guarantee the form disappears
+                $('#submission-section').html(window.renderStatusCard(finalSub));
+                lucide.createIcons();
+
+                fetchData(); // Refresh background data quietly
+                showToast("Work Submitted Successfully!");
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+
+                // openDetail(taskId); // No longer needed, manual update handles it cleaner
+
+            } catch (err) {
+                console.error("Submission Error:", err);
+                alert("Error: " + err.message);
+            } finally {
+                btn.prop('disabled', false).text('Submit Task');
+            }
+        });
 
 
 
@@ -11275,76 +11370,6 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
 
 
-        let adminMonacoEditor = null;
-
-        async function initAdminMonaco(initialContent = '') {
-            if (!adminMonacoEditor) {
-                return new Promise((resolve) => {
-                    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
-                    require(['vs/editor/editor.main'], function () {
-                        // Register Boilerplate for Admin too
-                        window.registerMonacoSnippets();
-
-                        adminMonacoEditor = monaco.editor.create(document.getElementById('admin-task-editor'), {
-                            value: initialContent,
-                            language: 'html',
-                            theme: localStorage.getItem('theme') === 'dark' ? 'vs-dark' : 'vs',
-                            fontSize: 12,
-                            minimap: { enabled: false },
-                            automaticLayout: true,
-                            wordWrap: 'on'
-                        });
-                        resolve();
-                    });
-                });
-            } else {
-                adminMonacoEditor.setValue(initialContent);
-            }
-        }
-
-        window.openCreateTaskModal = () => {
-            editingTaskId = null;
-            $('#create-task-form')[0].reset();
-            $('#ref-file-name').text('Attach file');
-            initAdminMonaco('');
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('createTaskModal')).show();
-            setTimeout(() => {
-                if (adminMonacoEditor) {
-                    adminMonacoEditor.layout();
-                    adminMonacoEditor.focus();
-                }
-                window.safeCreateIcons();
-            }, 500);
-        };
-
-        window.openEditTaskModal = async (taskId) => {
-            editingTaskId = taskId;
-            const task = allTasks.find(t => t.id === taskId);
-            if (task) {
-                $('#new-task-title').val(task.title);
-                initAdminMonaco(task.description || '');
-                $('#new-task-hints').val(task.hints || '');
-                
-                const desc = task.description || '';
-                const hasMarker = desc.includes('<!-- REQUIRES_IMAGE -->') || desc.includes('&lt;!-- REQUIRES_IMAGE --&gt;');
-                $('#new-task-require-image').prop('checked', hasMarker);
-                if (task.deadline) {
-                    const localDate = new Date(task.deadline);
-                    const formatted = localDate.toISOString().slice(0, 16);
-                    $('#new-task-date').val(formatted);
-                }
-                $('#createTaskModal .modal-title').text('Edit Task');
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('createTaskModal')).show();
-                setTimeout(() => {
-                    if (adminMonacoEditor) {
-                        adminMonacoEditor.layout();
-                        adminMonacoEditor.focus();
-                    }
-                    window.safeCreateIcons();
-                }, 500);
-            }
-        };
-
         $('#create-task-form').on('submit', async (e) => {
             e.preventDefault();
             const btn = $('#task-submit-btn');
@@ -11361,24 +11386,9 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 if (!isNaN(d.getTime())) safeDeadline = d.toISOString();
             }
 
-            const requireImage = $('#new-task-require-image').is(':checked');
-            let finalDescription = adminMonacoEditor ? adminMonacoEditor.getValue() : '';
-            
-            // Handle hidden marker for Image Requirement (literal and escaped versions)
-            const marker = '<!-- REQUIRES_IMAGE -->';
-            const escapedMarker = '&lt;!-- REQUIRES_IMAGE --&gt;';
-            
-            if (requireImage) {
-                if (!finalDescription.includes(marker) && !finalDescription.includes(escapedMarker)) {
-                    finalDescription += `\n${marker}`;
-                }
-            } else {
-                finalDescription = finalDescription.replace(marker, '').replace(escapedMarker, '').trim();
-            }
-
             const taskData = {
                 title: $('#new-task-title').val(),
-                description: finalDescription,
+                description: $('#new-task-desc').val(),
                 hints: $('#new-task-hints').val(),
                 deadline: safeDeadline
             };
@@ -12094,7 +12104,87 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             }
         };
 
+        window.submitGrade = async (sid) => {
+            const g = $(`#grade-${sid}`).val();
+            const f = $(`#feedback-${sid}`).val();
 
+            if (!g) {
+                showToast("Please enter a grade (0-100).");
+                return;
+            }
+
+            if (!client) {
+                showToast("Offline: Cannot submit grade.");
+                return;
+            }
+
+            try {
+                // 1. Get the submission details first to identify Student & Task
+                const { data: currentSub, error: fetchError } = await client
+                    .from('submissions')
+                    .select('student_id, task_id')
+                    .eq('id', sid)
+                    .single();
+
+                if (fetchError) throw new Error("Could not find submission details.");
+
+                // 2. Submit the Grade for THIS submission
+                const { error: updateError } = await client
+                    .from('submissions')
+                    .update({
+                        grade: parseInt(g),
+                        feedback: f,
+                        status: 'graded'
+                    })
+                    .eq('id', sid);
+
+                if (updateError) throw updateError;
+
+                // 3. NUCLEAR CLEANUP: Delete ALL other submissions for this task & student
+                const { error: deleteError } = await client
+                    .from('submissions')
+                    .delete()
+                    .eq('student_id', currentSub.student_id)
+                    .eq('task_id', currentSub.task_id)
+                    .neq('id', sid);
+
+                if (deleteError) {
+                    console.warn("Cleanup warning:", deleteError);
+                    if (deleteError.code === '42501' || deleteError.status === 403) {
+                        showToast("Admin cleanup restricted: Check Supabase DELETE policies.");
+                    }
+                }
+
+                // 4. INSTANT LOCAL UPDATE
+                // We manually prune the pending/duplicate items from the local cache immediately.
+                if (window.allSubmissions) {
+                    window.allSubmissions = window.allSubmissions.filter(s => {
+                        // Keep if ID matches current (graded)
+                        if (String(s.id) === String(sid)) {
+                            s.status = 'graded';
+                            s.grade = parseInt(g);
+                            s.feedback = f;
+                            return true;
+                        }
+                        // Discard if same user+task but different ID
+                        if (s.student_id === currentSub.student_id && String(s.task_id) === String(currentSub.task_id)) {
+                            return false;
+                        }
+                        // Keep everything else
+                        return true;
+                    });
+                    // Refresh view immediately with clean data
+                    window.renderGrading(window.allSubmissions);
+                }
+
+                showToast("Grade saved. Previous versions discarded.");
+                fetchData(); // Background sync
+
+            } catch (err) {
+                console.error("Grading Error:", err);
+                showToast("Error: " + err.message);
+            }
+        };
 
 
 
@@ -16260,7 +16350,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             }
         };
 
-        // Snippets and Boilerplate functions moved to head for stability
+        // --- GLOBAL EXPOSURE (FIX) ---
     </script>
     <!-- --- IN-LMS TASK EDITOR (VS CODE-LIKE) --- -->
     <div id="task-editor-modal" class="fixed inset-0 z-[6000] hidden flex-col bg-white dark:bg-[#0f172a]">
@@ -16276,9 +16366,6 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <button id="boilerplate-btn" onclick="window.insertBoilerplateShortcut()" class="px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all flex items-center gap-2">
-                    <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i> Boilerplate !
-                </button>
                 <button onclick="window.viewTaskDetailsFromEditor()" class="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-all flex items-center gap-2">
                     <i data-lucide="info" class="w-3.5 h-3.5"></i> View Details
                 </button>
@@ -16293,30 +16380,6 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
-        </div>
-
-        <!-- Admin Grading Panel (Visible only during Admin Preview) -->
-        <div id="admin-grading-panel" class="hidden h-14 border-b border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/50 dark:bg-indigo-900/10 flex items-center px-6 gap-4 animate-in slide-in-from-top duration-300">
-            <div class="flex items-center gap-2 whitespace-nowrap">
-                <i data-lucide="star" class="w-4 h-4 text-indigo-500"></i>
-                <span class="text-[10px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400">Grading & Feedback</span>
-            </div>
-            <div class="h-6 w-px bg-indigo-200 dark:bg-indigo-800 mx-1"></div>
-            
-            <div class="flex-1 flex items-center gap-4">
-                <div class="flex items-center gap-2">
-                    <label class="text-[9px] font-bold text-slate-500 uppercase">Marks:</label>
-                    <input type="number" id="editor-grade-input" class="w-16 h-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-black text-center outline-none focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 placeholder:font-normal placeholder:text-[10px]" placeholder="0-100">
-                </div>
-                <div class="flex-1 flex items-center gap-2">
-                    <label class="text-[9px] font-bold text-slate-500 uppercase">Feedback:</label>
-                    <input type="text" id="editor-feedback-input" class="flex-1 h-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium px-3 outline-none focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 placeholder:font-normal placeholder:text-[10px]" placeholder="Excellent work! Consider refactoring the CSS...">
-                </div>
-            </div>
-
-            <button onclick="window.submitGradeFromEditor()" class="px-6 py-2 rounded-xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
-                <i data-lucide="send" class="w-3.5 h-3.5"></i> Submit Grade
-            </button>
         </div>
 
         <!-- Language Tabs -->
@@ -16370,52 +16433,22 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         let monacoEditor = null;
         let htmlModel = null, cssModel = null, jsModel = null;
         let currentEditingTaskId = null;
-        let currentSubmissionId = null; // Store existing submission ID
         let autosaveTimer = null;
-        let activeEditorTab = 'html';
+        let activeTab = 'html';
 
         window.openTaskEditor = async (taskId, taskTitle, readOnly = false) => {
             console.log('Opening enhanced editor for task:', taskId, 'ReadOnly:', readOnly);
             currentEditingTaskId = taskId;
-            currentSubmissionId = null; // Reset
             document.getElementById('editor-task-title').innerText = taskTitle || 'Task Editor';
             const modal = document.getElementById('task-editor-modal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
-            // Hide grading panel for students
-            const gradingPanel = document.getElementById('admin-grading-panel');
-            if (gradingPanel) {
-                gradingPanel.classList.add('hidden');
-                gradingPanel.classList.remove('flex');
-            }
-
             // Header UI based on readOnly
-            // Header UI based on readOnly & image requirement
-            
-            // Find task to check if image is required
-            const task = (window.allTasks || []).find(t => String(t.id) === String(taskId));
-            const title = (task ? (task.title || '') : '').toLowerCase();
-            const desc = (task ? (task.description || '') : '').toLowerCase();
-            const combinedContent = title + ' ' + desc;
-            
-            const imageKeywords = [
-                'image', 'img', 'screenshot', 'photo', 'picture', 'pic', 
-                'logo', 'banner', 'icon', 'avatar', 'gallery', 'background',
-                'upload', 'attach', 'insert', 'add', 'screenshot', 'snapshot'
-            ];
-            
-            const isImageRequired = desc.includes('<!-- requires_image -->') || 
-                                    desc.includes('&lt;!-- requires_image --&gt;') ||
-                                    imageKeywords.some(kw => combinedContent.includes(kw));
-
             const saveBtn = document.getElementById('save-task-btn');
             const uploadBtn = document.getElementById('upload-img-btn');
-            const boilerplateBtn = document.getElementById('boilerplate-btn');
-
             if (saveBtn) saveBtn.style.display = readOnly ? 'none' : 'flex';
-            if (uploadBtn) uploadBtn.style.display = (readOnly || !isImageRequired) ? 'none' : 'flex';
-            if (boilerplateBtn) boilerplateBtn.style.display = readOnly ? 'none' : 'flex';
+            if (uploadBtn) uploadBtn.style.display = readOnly ? 'none' : 'flex';
 
             if (!monacoEditor) {
                 await initMonacoEditor();
@@ -16425,7 +16458,6 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             }
 
             if (window.lucide) lucide.createIcons({ root: modal });
-            window.safeCreateIcons();
         };
 
         async function loadAndInitializeContent(readOnly) {
@@ -16449,7 +16481,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 try {
                     const { data } = await client
                         .from('submissions')
-                        .select('id, content') // Fetch ID too
+                        .select('content')
                         .eq('task_id', currentEditingTaskId)
                         .eq('student_id', currentUser.id)
                         .order('submitted_at', { ascending: false })
@@ -16457,7 +16489,6 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                         .single();
 
                     if (data && data.content) {
-                        currentSubmissionId = data.id; // Store ID
                         try {
                             const parsed = JSON.parse(data.content);
                             if (parsed.type === 'editor') {
@@ -16497,99 +16528,52 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         }
 
         window.openAdminCodePreview = async (submissionId) => {
-            console.log("[DEBUG] Opening Admin Code Preview for Submission ID:", submissionId);
-            
-            // 1. Resolve Submission
-            const sub = (window.allSubmissions || []).find(s => String(s.id) === String(submissionId));
-            if (!sub) {
-                console.error("[ERROR] Submission not found in cache for ID:", submissionId);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Preview Failed',
-                    text: 'Could not find submission details in current view. Please refresh data.',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-                return;
+            const sub = window.allSubmissions.find(s => s.id === submissionId);
+            if (!sub) return;
+
+            const data = parseSubmission(sub.content);
+            let content = null;
+            if (data.type === 'editor') {
+                content = data;
+            } else {
+                content = { html: sub.content, css: '', js: '' };
             }
 
-            currentEditingTaskId = sub.task_id; // Added to enable "View Details" from editor
-
-            // 2. Parse Content
-            const data = parseSubmission(sub.content);
-            let content = (data && data.type === 'editor') ? data : { html: sub.content, css: '', js: '' };
-
-            // 3. UI Preparation
-            currentSubmissionId = String(sub.id); // Track for grading
             document.getElementById('editor-task-title').innerText = `Review: ${sub.task_title} (${sub.student_name})`;
             const modal = document.getElementById('task-editor-modal');
-            const gradingPanel = document.getElementById('admin-grading-panel');
-            
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
-            // Show and populate grading panel
-            if (gradingPanel) {
-                gradingPanel.classList.remove('hidden');
-                gradingPanel.classList.add('flex');
-                document.getElementById('editor-grade-input').value = sub.grade || '';
-                document.getElementById('editor-feedback-input').value = sub.feedback || '';
-            }
+            // Hide buttons for admin
+            if (document.getElementById('save-task-btn')) document.getElementById('save-task-btn').style.display = 'none';
+            if (document.getElementById('upload-img-btn')) document.getElementById('upload-img-btn').style.display = 'none';
 
-            // Hide editing buttons for admin
-            ['save-task-btn', 'upload-img-btn', 'boilerplate-btn'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.style.display = 'none';
-            });
-
-            // 4. Monaco Management
-            const editorInstance = monacoEditor || window.monacoEditor;
-            
-            const setValues = () => {
-                const activeEditor = monacoEditor || window.monacoEditor;
-                if (!activeEditor) return false;
-                
-                try {
-                    activeEditor.updateOptions({ readOnly: true });
-                    if (htmlModel) htmlModel.setValue(content.html || '');
-                    if (cssModel) cssModel.setValue(content.css || '');
-                    if (jsModel) jsModel.setValue(content.js || '');
-                    
-                    if (typeof switchEditorTab === 'function') switchEditorTab('html');
-                    if (typeof updatePreview === 'function') updatePreview();
-                    return true;
-                } catch (e) {
-                    console.error("[ERROR] Failed to set editor values:", e);
-                    return false;
-                }
-            };
-
-            if (!editorInstance) {
-                console.log("[DEBUG] Initializing Monaco for first time for Admin Preview...");
+            if (!monacoEditor) {
                 await initMonacoEditor();
-                // Even with await, monaco needs a moment to settle DOM
                 setTimeout(() => {
-                    const success = setValues();
-                    if (!success) console.error("[ERROR] Final attempt to set values failed after init.");
+                    monacoEditor.updateOptions({ readOnly: true });
+                    htmlModel.setValue(content.html || '');
+                    cssModel.setValue(content.css || '');
+                    jsModel.setValue(content.js || '');
+                    switchEditorTab('html');
+                    updatePreview();
                 }, 800);
             } else {
-                console.log("[DEBUG] Using existing Monaco instance for Admin Preview");
-                setValues();
+                monacoEditor.updateOptions({ readOnly: true });
+                htmlModel.setValue(content.html || '');
+                cssModel.setValue(content.css || '');
+                jsModel.setValue(content.js || '');
+                switchEditorTab('html');
+                updatePreview();
             }
 
             if (window.lucide) lucide.createIcons({ root: modal });
-            if (window.safeCreateIcons) window.safeCreateIcons();
         };
 
-        async function initMonacoEditor() {
+        function initMonacoEditor() {
             return new Promise((resolve) => {
                 require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
                 require(['vs/editor/editor.main'], function () {
-                        // Register HTML Boilerplate Snippet
-                        window.registerMonacoSnippets();
-
                     // Create Models
                     htmlModel = monaco.editor.createModel('', 'html');
                     cssModel = monaco.editor.createModel('', 'css');
@@ -16619,10 +16603,9 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                         },
                         parameterHints: { enabled: true },
                         suggestOnTriggerCharacters: true,
-                        wordBasedSuggestions: false, // Prevents noise from other text
-                        snippetSuggestions: "top" // Prioritize snippets over auto-complete
+                        wordBasedSuggestions: "allDocuments",
+                        snippetSuggestions: "inline"
                     });
-                    window.monacoEditor = monacoEditor;
 
                     // Update cursor position in UI
                     monacoEditor.onDidChangeCursorPosition((e) => {
@@ -16641,7 +16624,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                                 const tagName = match[1];
                                 const voidTags = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
                                 if (!voidTags.includes(tagName.toLowerCase())) {
-                                    const closingTag = '<' + '/' + tagName + '>';
+                                    const closingTag = `</${tagName}>`;
                                     const insertPos = { lineNumber: change.range.endLineNumber, column: change.range.endColumn + 1 };
                                     monacoEditor.executeEdits('auto-close', [{
                                         range: new monaco.Range(insertPos.lineNumber, insertPos.column, insertPos.lineNumber, insertPos.column),
@@ -16663,7 +16646,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
         window.switchEditorTab = (lang) => {
             if (!monacoEditor) return;
-            activeEditorTab = lang;
+            activeTab = lang;
             
             // Update Models
             if (lang === 'html') monacoEditor.setModel(htmlModel);
@@ -16693,7 +16676,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             const js = jsModel.getValue();
 
             const jsContent = '<' + 'script>' + js + '<' + '/script>';
-            let combined = '<!DOCTYPE html><html><head><style>' + css + '<' + '/style><' + '/head>';
+            let combined = '<!DOCTYPE html><html><head><style>' + css + '</style></head>';
             combined += '<body>' + html + jsContent + '<' + '/body><' + '/html>';
 
             const iframe = document.getElementById('task-preview-iframe');
@@ -16705,7 +16688,6 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         }
 
         function autosaveTask() {
-            if (!monacoEditor || !monacoEditor.getRawOptions) return;
             if (monacoEditor.getRawOptions().readOnly) return;
             if (!currentEditingTaskId) return;
 
@@ -16731,11 +16713,8 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             }, 2000);
         }
 
-        window.saveTaskSubmission = async () => {
-            if (!monacoEditor || !monacoEditor.getRawOptions) {
-                Swal.fire('Info', 'Editor not fully loaded yet. Please wait...', 'info');
-                return;
-            }
+        async function saveTaskSubmission() {
+            if (!monacoEditor) return;
             
             const content = {
                 type: 'editor',
@@ -16751,32 +16730,17 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             });
 
             try {
-                const submissionData = {
+                const { error } = await client.from('submissions').upsert({
+                    id: crypto.randomUUID(), 
                     task_id: currentEditingTaskId,
                     student_id: currentUser.id,
-                    student_name: (userProfile && userProfile.full_name) ? userProfile.full_name : 'Unknown Student',
+                    student_name: userProfile.full_name,
                     content: JSON.stringify(content),
                     status: 'submitted',
                     submitted_at: new Date().toISOString()
-                };
+                });
 
-                // Use existing ID if available, otherwise generate new
-                if (currentSubmissionId) {
-                    submissionData.id = currentSubmissionId;
-                } else {
-                    submissionData.id = window.generateUUID();
-                }
-
-                // Add task title if possible
-                const task = (window.allTasks || []).find(t => String(t.id) === String(currentEditingTaskId));
-                if (task) submissionData.task_title = task.title;
-
-                const { data: savedData, error } = await client.from('submissions').upsert(submissionData, { onConflict: 'task_id,student_id' }).select();
-                
                 if (error) throw error;
-                
-                // Update local ID if it was a new insertion
-                if (savedData && savedData[0]) currentSubmissionId = savedData[0].id;
 
                 // Clear draft on successful submission
                 localStorage.removeItem(`task_draft_${currentEditingTaskId}`);
@@ -16791,7 +16755,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 closeTaskEditor();
             } catch (err) {
                 console.error("Save Error:", err);
-                Swal.fire('Error', 'Failed to submit task: ' + (err.message || err), 'error');
+                Swal.fire('Error', 'Failed to submit task.', 'error');
             }
         }
 
@@ -16803,73 +16767,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             }
         };
 
-        window.submitGradeFromEditor = async () => {
-            const sid = currentSubmissionId;
-            if (!sid) {
-                showToast("No active submission to grade.", "error");
-                return;
-            }
-
-            const gradeValue = document.getElementById('editor-grade-input').value;
-            const feedbackValue = document.getElementById('editor-feedback-input').value;
-
-            if (!gradeValue) {
-                showToast("Please enter a grade (0-100).", "warning");
-                return;
-            }
-
-            // Show loading state on button
-            const submitBtn = document.querySelector('[onclick="window.submitGradeFromEditor()"]');
-            const originalHTML = submitBtn ? submitBtn.innerHTML : '';
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="w-3.5 h-3.5 animate-spin border-2 border-white border-t-transparent rounded-full"></i> Processing...';
-            }
-
-            try {
-                // 1. Update the submission in Supabase
-                const { error: updateError } = await client
-                    .from('submissions')
-                    .update({
-                        grade: parseInt(gradeValue),
-                        feedback: feedbackValue,
-                        status: 'graded'
-                    })
-                    .eq('id', sid);
-
-                if (updateError) throw updateError;
-
-                // 2. Clear other submissions (Nuclear Cleanup logic from submitGrade)
-                const sub = (window.allSubmissions || []).find(s => String(s.id) === String(sid));
-                if (sub) {
-                    await client.from('submissions')
-                        .delete()
-                        .eq('student_id', sub.student_id)
-                        .eq('task_id', sub.task_id)
-                        .neq('id', sid);
-                }
-
-                // 3. Success Feedback
-                showToast("Grade submitted successfully!", "success");
-                
-                // 4. Update local cache & refresh dashboard background
-                if (window.fetchData) await window.fetchData(true);
-
-                // 5. Close Editor
-                window.closeTaskEditor();
-
-            } catch (err) {
-                console.error("[ERROR] Failed to submit grade from editor:", err);
-                showToast(err.message || "Grading failed. Check console.", "error");
-            } finally {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalHTML;
-                }
-            }
-        };
-
-        window.closeTaskEditor = () => {
+        function closeTaskEditor() {
             if (autosaveTimer) clearInterval(autosaveTimer);
             autosaveTask(); // Final autosave on close
             document.getElementById('task-editor-modal').classList.add('hidden');

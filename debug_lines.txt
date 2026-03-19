@@ -1,0 +1,20 @@
+﻿            const html = htmlModel.getValue();
+            const css = cssModel.getValue();
+            const js = jsModel.getValue();
+
+            const jsContent = '<script>' + js + '<' + '/script>';
+            let combined = '<!DOCTYPE html><html><head><style>' + css + '</style></head>';
+            combined += '<body>' + html + jsContent + '<' + '/body><' + '/html>';
+
+            const iframe = document.getElementById('task-preview-iframe');
+            if (!iframe) return;
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(combined);
+            doc.close();
+        }
+
+        function autosaveTask() {
+            if (monacoEditor.getRawOptions().readOnly) return;
+            if (!currentEditingTaskId) return;
+
