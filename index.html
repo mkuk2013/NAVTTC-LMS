@@ -3513,6 +3513,7 @@
                     </div>
                 </div>
 
+
                 <!-- 6. Admin Student Directory -->
                 <div id="view-users" class="content-view hidden animate-in slide-in-from-bottom-5 duration-500">
                     <div
@@ -6286,7 +6287,7 @@
 
             // 3. Navigation & Mode Setup
             if (userProfile.role === 'admin') {
-                $('#nav-dashboard, #nav-grading, #nav-users, #nav-leaderboard, #nav-chat').removeClass('hidden');
+                $('#nav-dashboard, #nav-grading, #nav-users, #nav-leaderboard, #nav-chat, #nav-liveclass-admin').removeClass('hidden');
                 $('#admin-nav').removeClass('hidden');
                 $('#nav-tasks').removeClass('hidden').html('<i data-lucide="clipboard-list" class="w-5 h-5"></i> <span class="hide-on-collapse">Manage Tasks</span>');
 
@@ -6824,7 +6825,7 @@
                 $('#stat-completed').text(uniqueSubs.length);
 
                 // Stat 3: Pending Review (Only if latest status is 'submitted')
-                const pending = uniqueSubs.filter(s => s.status === 'submitted').length;
+                const pending = uniqueSubs.filter(s => s.status === 'submitted' || s.status === 'pending').length;
 
                 $('#stat-label-3').text("Pending Review"); $('#stat-score').text(pending);
                 $('#student-alerts').addClass('hidden');
@@ -6971,7 +6972,7 @@
                     });
                     const uniqueTaskSubs = Array.from(uniqueTaskSubsMap.values());
 
-                    const submissionCount = uniqueTaskSubs.filter(s => s.status === 'submitted' || s.status === 'graded').length;
+                    const submissionCount = uniqueTaskSubs.filter(s => s.status === 'submitted' || s.status === 'pending' || s.status === 'graded').length;
                     const gradedCount = uniqueTaskSubs.filter(s => s.status === 'graded').length;
                     const avgScore = gradedCount ? Math.round(uniqueTaskSubs.filter(s => s.status === 'graded').reduce((a, b) => a + (parseInt(b.grade) || 0), 0) / gradedCount) : 0;
 
@@ -7460,7 +7461,7 @@
                 // 2. Identify Pending
                 const pendingSet = new Set();
                 student.submissions
-                    .filter(s => s.status === 'submitted') // Only pending
+                    .filter(s => s.status === 'submitted' || s.status === 'pending') // Only pending
                     .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
                     .forEach(s => pendingSet.add(s.task_id));
 
@@ -7559,7 +7560,7 @@
                     if (!seenTasks.has(s.task_id)) {
                         seenTasks.add(s.task_id);
                         // --- TAB FILTER LOGIC (Inner Files) ---
-                        if (window.currentGradingTab === 'pending' && s.status !== 'submitted') return;
+                        if (window.currentGradingTab === 'pending' && s.status !== 'submitted' && s.status !== 'pending') return;
                         if (window.currentGradingTab === 'graded' && s.status !== 'graded') return;
 
                         sortedSubs.push(s);
@@ -7605,6 +7606,15 @@
                                 </div>
                                 
                                 <div class="w-full lg:w-auto flex flex-col gap-3 min-w-[240px]">
+                                    ${!isGraded ? `
+                                    <div class="bg-indigo-50 dark:bg-indigo-900/10 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/20">
+                                        <div class="flex gap-2 mb-2">
+                                            <input type="number" id="grade-${s.id}" class="w-20 p-2 text-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-black outline-none focus:ring-2 focus:ring-indigo-500 dark:text-slate-200 placeholder:font-normal" placeholder="0-100">
+                                            <button onclick="window.submitGrade('${s.id}')" class="flex-1 btn-command px-4 py-2 rounded-lg text-[9px] shadow-none">Submit Grade</button>
+                                        </div>
+                                        <textarea id="feedback-${s.id}" class="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold outline-none focus:ring-2 focus:ring-indigo-500 resize-none dark:text-slate-200" placeholder="Write feedback for student..." rows="2"></textarea>
+                                    </div>
+                                    ` : ''}
                                 </div>
                              </div>
                              `;
@@ -9135,6 +9145,7 @@
             } else {
                 $('#v2-banner').hide().addClass('hidden');
             }
+
 
             if (tabId === 'storage') {
                 // Admin specific UI adjustments (moved logic to loadUserFiles for consistency)
@@ -11523,16 +11534,17 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 const { error: rpcError } = await client.rpc('delete_user_via_admin', { target_uid: uid });
 
                 if (!rpcError) {
-                    showToast("User and Login permanently deleted.");
+                    showToast("User and login permanently deleted.");
                 } else {
-                    // 2. Fallback: Delete Profile Only (Client Side)
-                    console.warn("RPC missing, performing soft delete:", rpcError.message);
+                    // 2. Fallback: If RPC fails, try deleting Profile only (Soft delete)
+                    console.warn("RPC call failed, attempting soft delete:", rpcError.message);
 
                     const { error: dbError } = await client.from('profiles').delete().eq('uid', uid);
                     if (dbError) throw dbError;
 
+                    // If RPC failed because it's missing, remind admin to run the script once
                     if (rpcError.code === 'PGRST202' || rpcError.message.includes('function not found')) {
-                        alert("Profile deleted from Dashboard.\n\nIMPORTANT: To allow this email to register again, you MUST run the 'delete_user_script.sql' in your Supabase SQL Editor.");
+                        alert("Profile deleted from Dashboard.\n\nIMPORTANT: To fully delete the login and allow re-registration, you MUST run the provided 'delete_user_script.sql' in your Supabase SQL Editor ONCE.");
                     } else {
                         showToast("Student profile deleted.");
                     }
@@ -12172,7 +12184,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
                 const uniqueSubs = Array.from(uniqueSubsMap.values());
                 const graded = uniqueSubs.filter(s => s.status === 'graded').length;
-                const pending = uniqueSubs.filter(s => s.status === 'submitted').length;
+                const pending = uniqueSubs.filter(s => s.status === 'submitted' || s.status === 'pending').length;
 
                 if (performanceChart) {
                     performanceChart.data.labels = ['Graded', 'Pending Review', ''];
@@ -12188,7 +12200,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 const mySubs = window.allSubmissions.filter(s => s.student_id === currentUser.id);
 
                 const completed = mySubs.filter(s => s.status === 'graded').length;
-                const submitted = mySubs.filter(s => s.status === 'submitted').length;
+                const submitted = mySubs.filter(s => s.status === 'submitted' || s.status === 'pending').length;
                 const remaining = getPendingReminderTasksForStudent(currentUser.id, visibleTasks, window.allSubmissions || []).length;
 
                 if (performanceChart) {
@@ -12591,7 +12603,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
 
             // Only keeping those whose LATEST status is 'submitted' (not graded)
             const pending = Array.from(uniquePendingMap.values())
-                .filter(s => s.status === 'submitted');
+                .filter(s => s.status === 'submitted' || s.status === 'pending');
 
             // Sort by date desc
             pending.sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
@@ -16286,32 +16298,32 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
     <!-- --- IN-LMS TASK EDITOR (VS CODE-LIKE) --- -->
     <div id="task-editor-modal" class="fixed inset-0 z-[6000] hidden flex-col bg-white dark:bg-[#0f172a]">
         <!-- Editor Header -->
-        <div class="h-14 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 bg-slate-50 dark:bg-[#1e293b]">
-            <div class="flex items-center gap-4">
-                <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <div class="h-16 md:h-14 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 md:px-6 bg-slate-50 dark:bg-[#1e293b]">
+            <div class="flex items-center gap-3 md:gap-4 overflow-hidden">
+                <div class="hidden sm:flex w-8 h-8 rounded-lg bg-indigo-600 items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
                     <i data-lucide="code-2" class="w-5 h-5 text-white"></i>
                 </div>
-                <div>
-                    <h3 id="editor-task-title" class="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-100">Task Editor</h3>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Live Preview Enabled</p>
+                <div class="min-w-0">
+                    <h3 id="editor-task-title" class="text-[10px] md:text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-100 truncate">Task Editor</h3>
+                    <p class="hidden xs:block text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Live Preview Enabled</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button id="boilerplate-btn" onclick="window.insertBoilerplateShortcut()" class="px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all flex items-center gap-2">
-                    <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i> Boilerplate !
+            <div class="flex items-center gap-1.5 md:gap-3">
+                <button id="boilerplate-btn" onclick="window.insertBoilerplateShortcut()" class="p-2 md:px-3 md:py-1.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition-all flex items-center gap-2">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i> <span class="hidden lg:inline">Boilerplate !</span>
                 </button>
-                <button onclick="window.viewTaskDetailsFromEditor()" class="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-all flex items-center gap-2">
-                    <i data-lucide="info" class="w-3.5 h-3.5"></i> View Details
+                <button onclick="window.viewTaskDetailsFromEditor()" class="p-2 md:px-4 md:py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-all flex items-center gap-2">
+                    <i data-lucide="info" class="w-3.5 h-3.5"></i> <span class="hidden lg:inline">Details</span>
                 </button>
-                <button id="upload-img-btn" onclick="uploadEditorImage()" class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-all flex items-center gap-2">
-                    <i data-lucide="image" class="w-3.5 h-3.5"></i> Add Image
+                <button id="upload-img-btn" onclick="uploadEditorImage()" class="p-2 md:px-4 md:py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-all flex items-center gap-2">
+                    <i data-lucide="image" class="w-3.5 h-3.5"></i> <span class="hidden lg:inline">Image</span>
                 </button>
-                <button id="save-task-btn" onclick="saveTaskSubmission()" class="px-6 py-2 rounded-xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
-                    <i data-lucide="save" class="w-3.5 h-3.5"></i> Save & Submit
+                <button id="save-task-btn" onclick="saveTaskSubmission()" class="px-3 py-2 md:px-6 md:py-2 rounded-xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
+                    <i data-lucide="save" class="w-3.5 h-3.5"></i> <span class="hidden md:inline">Save & Submit</span><span class="md:hidden">Save</span>
                 </button>
-                <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
-                <button onclick="closeTaskEditor()" class="p-2 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-400 hover:text-rose-500">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+                <div class="hidden sm:block w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                <button onclick="closeTaskEditor()" class="p-1.5 md:p-2 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-slate-400 hover:text-rose-500">
+                    <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
                 </button>
             </div>
         </div>
@@ -16341,25 +16353,28 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
         </div>
 
         <!-- Language Tabs -->
-        <div class="h-10 border-b border-slate-200 dark:border-slate-800 flex items-center px-6 bg-white dark:bg-[#1e293b] gap-2">
-            <button onclick="switchEditorTab('html')" id="tab-html" class="px-4 h-full border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all">
+        <div class="h-10 border-b border-slate-200 dark:border-slate-800 flex items-center px-4 md:px-6 bg-white dark:bg-[#1e293b] gap-1 md:gap-2 overflow-x-auto no-scrollbar">
+            <button onclick="switchEditorTab('html')" id="tab-html" class="px-3 md:px-4 h-full border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shrink-0">
                 <i data-lucide="file-code" class="w-3.5 h-3.5"></i> index.html
             </button>
-            <button onclick="switchEditorTab('css')" id="tab-css" class="px-4 h-full border-b-2 border-transparent text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:text-slate-600 dark:hover:text-slate-200 transition-all">
+            <button onclick="switchEditorTab('css')" id="tab-css" class="px-3 md:px-4 h-full border-b-2 border-transparent text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:text-slate-600 dark:hover:text-slate-200 transition-all shrink-0">
                 <i data-lucide="palette" class="w-3.5 h-3.5"></i> style.css
             </button>
-            <button onclick="switchEditorTab('js')" id="tab-js" class="px-4 h-full border-b-2 border-transparent text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:text-slate-600 dark:hover:text-slate-200 transition-all">
+            <button onclick="switchEditorTab('js')" id="tab-js" class="px-3 md:px-4 h-full border-b-2 border-transparent text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:text-slate-600 dark:hover:text-slate-200 transition-all shrink-0">
                 <i data-lucide="zap" class="w-3.5 h-3.5"></i> script.js
+            </button>
+            <button onclick="switchEditorTab('preview')" id="tab-preview" class="md:hidden px-3 md:px-4 h-full border-b-2 border-transparent text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shrink-0">
+                <i data-lucide="eye" class="w-3.5 h-3.5"></i> Live Preview
             </button>
         </div>
 
         <!-- Editor Main Body (Split View) -->
-        <div class="flex-1 flex overflow-hidden">
+        <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
             <!-- Monaco Editor Container -->
-            <div id="monaco-editor-container" class="flex-1 border-r border-slate-200 dark:border-slate-800"></div>
+            <div id="monaco-editor-container" class="flex-1 md:border-r border-slate-200 dark:border-slate-800"></div>
             
             <!-- Preview Pane -->
-            <div id="editor-preview-container" class="flex-1 bg-slate-50 dark:bg-[#0b1120] flex flex-col">
+            <div id="editor-preview-container" class="flex-1 bg-slate-50 dark:bg-[#0b1120] flex flex-col sm:border-t md:border-t-0 border-slate-200 dark:border-slate-800">
                 <div class="h-8 px-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b]">
                     <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Live Preview</span>
                     <div class="flex gap-2">
@@ -16403,6 +16418,9 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             const modal = document.getElementById('task-editor-modal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+
+            // Force initial tab update for responsiveness
+            setTimeout(() => window.switchEditorTab('html'), 50);
 
             // Hide grading panel for students
             const gradingPanel = document.getElementById('admin-grading-panel');
@@ -16686,14 +16704,35 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             if (!monacoEditor) return;
             activeEditorTab = lang;
             
+            const isMobile = window.innerWidth < 768;
+            const editorContainer = document.getElementById('monaco-editor-container');
+            const previewContainer = document.getElementById('editor-preview-container');
+
             // Update Models
             if (lang === 'html') monacoEditor.setModel(htmlModel);
             if (lang === 'css') monacoEditor.setModel(cssModel);
             if (lang === 'js') monacoEditor.setModel(jsModel);
 
-            // Update UI
-            ['html', 'css', 'js'].forEach(t => {
+            // Toggle Panes on Mobile
+            if (isMobile) {
+                if (lang === 'preview') {
+                    editorContainer.style.display = 'none';
+                    previewContainer.style.display = 'flex';
+                } else {
+                    editorContainer.style.display = 'block';
+                    previewContainer.style.display = 'none';
+                    setTimeout(() => monacoEditor.layout(), 10);
+                }
+            } else {
+                editorContainer.style.display = 'block';
+                previewContainer.style.display = 'flex';
+                setTimeout(() => monacoEditor.layout(), 10);
+            }
+
+            // Update UI Tabs
+            ['html', 'css', 'js', 'preview'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
+                if (!btn) return;
                 if (t === lang) {
                     btn.classList.add('border-indigo-600', 'text-indigo-600', 'dark:text-indigo-400');
                     btn.classList.remove('border-transparent', 'text-slate-400');
@@ -16703,7 +16742,7 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 }
             });
 
-            document.getElementById('editor-language').innerText = lang.toUpperCase();
+            document.getElementById('editor-language').innerText = lang === 'preview' ? 'PREVIEW' : lang.toUpperCase();
         };
 
         function updatePreview() {
@@ -16824,6 +16863,83 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
             }
         };
 
+        window.submitGrade = async (sid) => {
+            const g = $(`#grade-${sid}`).val();
+            const f = $(`#feedback-${sid}`).val();
+
+            if (!g) {
+                showToast("Please enter a grade (0-100).", "error");
+                return;
+            }
+
+            if (!client) {
+                showToast("Offline: Cannot submit grade.", "error");
+                return;
+            }
+
+            try {
+                // 1. Get the submission details first to identify Student & Task
+                const { data: currentSub, error: fetchError } = await client
+                    .from('submissions')
+                    .select('student_id, task_id')
+                    .eq('id', sid)
+                    .single();
+
+                if (fetchError) throw new Error("Could not find submission details.");
+
+                // 2. Submit the Grade for THIS submission
+                const { error: updateError } = await client
+                    .from('submissions')
+                    .update({
+                        grade: parseInt(g),
+                        feedback: f,
+                        status: 'graded'
+                    })
+                    .eq('id', sid);
+
+                if (updateError) throw updateError;
+
+                // 3. NUCLEAR CLEANUP: Delete ALL other submissions for this task & student
+                const { error: deleteError } = await client
+                    .from('submissions')
+                    .delete()
+                    .eq('student_id', currentSub.student_id)
+                    .eq('task_id', currentSub.task_id)
+                    .neq('id', sid);
+
+                if (deleteError) {
+                    console.warn("Cleanup warning:", deleteError);
+                    if (deleteError.code === '42501' || deleteError.status === 403) {
+                        showToast("Admin cleanup restricted: Check Supabase DELETE policies.", "error");
+                    }
+                }
+
+                // 4. INSTANT LOCAL UPDATE
+                if (window.allSubmissions) {
+                    window.allSubmissions = window.allSubmissions.filter(s => {
+                        if (String(s.id) === String(sid)) {
+                            s.status = 'graded';
+                            s.grade = parseInt(g);
+                            s.feedback = f;
+                            return true;
+                        }
+                        if (s.student_id === currentSub.student_id && String(s.task_id) === String(currentSub.task_id)) {
+                            return false;
+                        }
+                        return true;
+                    });
+                    window.renderGrading(window.allSubmissions);
+                }
+
+                showToast("Grade saved successfully.");
+                fetchData(); // Background sync
+
+            } catch (err) {
+                console.error("Grading Error:", err);
+                showToast("Error: " + err.message, "error");
+            }
+        };
+
         window.submitGradeFromEditor = async () => {
             const sid = currentSubmissionId;
             if (!sid) {
@@ -16935,6 +17051,9 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 reader.readAsDataURL(file);
             }
         };
+
+
+
     </script>
 </body>
 

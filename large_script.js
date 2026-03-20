@@ -1,4 +1,4 @@
-﻿        // --- SAFE ICON LOADER ---
+        // --- SAFE ICON LOADER ---
         window.safeCreateIcons = () => {
             if (typeof lucide !== 'undefined' && lucide.createIcons) {
                 lucide.createIcons();
@@ -2350,7 +2350,7 @@
                 // 2. Identify Pending
                 const pendingSet = new Set();
                 student.submissions
-                    .filter(s => s.status === 'submitted') // Only pending
+                    .filter(s => s.status === 'submitted' || s.status === 'pending') // Include both 'submitted' and 'pending'
                     .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
                     .forEach(s => pendingSet.add(s.task_id));
 
@@ -2449,7 +2449,7 @@
                     if (!seenTasks.has(s.task_id)) {
                         seenTasks.add(s.task_id);
                         // --- TAB FILTER LOGIC (Inner Files) ---
-                        if (window.currentGradingTab === 'pending' && s.status !== 'submitted') return;
+                        if (window.currentGradingTab === 'pending' && s.status !== 'submitted' && s.status !== 'pending') return;
                         if (window.currentGradingTab === 'graded' && s.status !== 'graded') return;
 
                         sortedSubs.push(s);
@@ -2459,7 +2459,7 @@
                 // Add valid submissions
                 if (sortedSubs.length > 0) {
                     sortedSubs.forEach(s => {
-                        const isGraded = s.status === 'graded'; // Should be false here due to filters, but kept for robustness
+                        const isGraded = s.status === 'graded'; 
                         const subHtml = `
                              <div class="p-6 flex flex-col lg:flex-row gap-6 items-start ${isGraded ? 'opacity-70 hover:opacity-100 bg-slate-50 dark:bg-slate-900/20' : 'bg-white dark:bg-[#1e293b]'} transition-all">
                                 <div class="flex-1 w-full">
@@ -6555,16 +6555,17 @@ Tech Note: Ensure 'admin_reset_password' RPC exists in Supabase DB.`);
                 const { error: rpcError } = await client.rpc('delete_user_via_admin', { target_uid: uid });
 
                 if (!rpcError) {
-                    showToast("User and Login permanently deleted.");
+                    showToast("User and login permanently deleted.");
                 } else {
-                    // 2. Fallback: Delete Profile Only (Client Side)
-                    console.warn("RPC missing, performing soft delete:", rpcError.message);
+                    // 2. Fallback: If RPC fails, try deleting Profile only (Soft delete)
+                    console.warn("RPC call failed, attempting soft delete:", rpcError.message);
 
                     const { error: dbError } = await client.from('profiles').delete().eq('uid', uid);
                     if (dbError) throw dbError;
 
+                    // If RPC failed because it's missing, remind admin to run the script once
                     if (rpcError.code === 'PGRST202' || rpcError.message.includes('function not found')) {
-                        alert("Profile deleted from Dashboard.\n\nIMPORTANT: To allow this email to register again, you MUST run the 'delete_user_script.sql' in your Supabase SQL Editor.");
+                        alert("Profile deleted from Dashboard.\n\nIMPORTANT: To fully delete the login and allow re-registration, you MUST run the provided 'delete_user_script.sql' in your Supabase SQL Editor ONCE.");
                     } else {
                         showToast("Student profile deleted.");
                     }
